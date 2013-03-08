@@ -12,7 +12,9 @@ int main(int argc, char **argv)
 {
     if (argc==3) {
         if (strcmp(argv[1],"lex")==0) {
-            //TL_PrintTOKEN(Walley_Lexica_Analysis(argv[2]));
+            char *to_analyze_str=argv[2];
+            struct TL *tl=Walley_Lexical_Analyzie(to_analyze_str);
+            TL_print(tl);
         }
         else if (strcmp(argv[1],"torun")==0) {
             //Walley_Tool_get_TO_RUN_From_File(argv[2]);

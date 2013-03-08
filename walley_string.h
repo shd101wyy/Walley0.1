@@ -49,8 +49,9 @@ int indexOfFinalDoubleQuote(char *input_str, int first_index){
             }
         }
     }
-    printf("Can not find final index of \"\n");
-    exit(0);
+   
+    // did not find
+    return -1;
 }
 
 void Walley_Print_Error(char *input_str,char *error_message,int error_start_index){
