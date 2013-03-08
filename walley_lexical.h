@@ -37,6 +37,9 @@
                 | '<='
                 | '!='
  
+    true_flase -> 'True'
+                | 'False'
+ 
     relation ->  'and'
                 |'or'
                 |'not'
@@ -119,7 +122,7 @@
 
 
 
-
+/*
 bool is_id(char *input_str){
     int i=0;
     int length=(int)strlen(input_str);
@@ -143,7 +146,8 @@ bool is_id(char *input_str){
     }
     return TRUE;
 }
-
+*/
+/*
 char *Walley_Analyze_Token_Class(char *input_str){
     //  1  m_operator
     if (strcmp(input_str, "+")==0
@@ -268,7 +272,7 @@ char *Walley_Analyze_Token_Class(char *input_str){
     printf("Can not analyze %s\n",input_str);
     exit(0);
 }
-
+*/
 /*
     input_str : x=12
                 0123
@@ -301,7 +305,7 @@ bool match(char *input_str, int index, char *match_string){
     }
 }
 
-char* Walley_Analyze_Sentence_And_Return_End_Token_Class(char *input_str, int i, int *end){
+char* Walley_Analyze_Token_Class(char *input_str, int i, int *end){
     int length=(int)strlen(input_str);
     //  1  m_operator
     if (match(input_str, i, "+")
@@ -347,6 +351,16 @@ char* Walley_Analyze_Sentence_And_Return_End_Token_Class(char *input_str, int i,
         *end=i+1;
         return "judge_sign";
     }
+    
+    if (match(input_str, i, "True")) {
+        *end=i+4;
+        return "true_of_false";
+    }
+    if (match(input_str, i, "False")) {
+        *end=i+5;
+        return "true_of_false";
+    }
+    
     
     // 4 relation
     // 1) and | not
@@ -528,7 +542,7 @@ struct TL * Walley_Lexical_Analyzie(char *input_str){
     int end=0;
     
     for (; i<length; i++) {
-        char *token_class=Walley_Analyze_Sentence_And_Return_End_Token_Class(input_str, i, &end);
+        char *token_class=Walley_Analyze_Token_Class(input_str, i, &end);
         
         // delete white_space
         if (strcmp(token_class, "white_space")==0) {
@@ -591,71 +605,4 @@ struct TL * Walley_Lexical_Analyzie(char *input_str){
 
 
 
- /*
- ============================================================================================================
  
-    math_exp -> m_add
-               |m_mult
-               |m_div
-               |m_minus
-               |m_mode
-               |m_pow
- 
-    m_add -> num
-            | '(' num ')'
-            | num '+' num
-            | num '+' math_exp
-    m_minus -> num
-            | '(' num ')'
-            | num '-' num
-            | num '-' math_exp
-    m_mult -> num
-            | '(' num ')'
-            | num '*' num
-            | num '*' math_exp
-    m_div -> num
-        | '(' num ')'
-        | num '/' num
-        | num '+' math_exp
-    m_mode -> num
-        | '(' num ')'
-        | num '%' num
-        | num '%' math_exp
-    m_power -> num
-        | '(' num ')'
-        | num pow_sign num
-        | num pow_sign math_exp
- 
- 
- 
-    value    ->num
-             | id
-             | string
-             | list
-             | table
- 
- 
-    //------ LIST -------
- 
-    list     -> '[' elements ']'
-    elements -> value ',' elements
-             -> value
-    
-    //------ TABLE ------
- 
-    table    -> '[' table_elements ']'
-    table_elements -> table_expr
-                    | table_expr ',' table_elements
-    // table_expr  ["a"]=12 [0]=14
-    table_expr -> '[' (string|int) ']' '=' (value)
-    
- 
-  
- 
-    if -> 'if' judge_expr ':'
-        | 'elif' judge_expr ':'
-        | 'else' ':'
-     
-    judge_exp->
-    
-*/
