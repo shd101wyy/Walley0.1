@@ -216,9 +216,9 @@ void VM_RUN_ONE_COMMAND(OPERATION operation){
     char *arg0=NULL;
     char *arg1=NULL;
     char *arg2=NULL;
-    int r_index1=NULL;
-    int r_index2=NULL;
-    int s_index=NULL;
+    int r_index1=-1;
+    int r_index2=-1;
+    int s_index=-1;
     
     switch (operation.opcode) {
         case LOADG:
@@ -320,37 +320,41 @@ void VM_Run_File(char *file_name){
     }
     
     while ((fgets(arr, 10000, fp)) != NULL) {
+        length=(int)strlen(arr);
         char enum_name[10]="";
         char arg0[100]="";
         char arg1[100]="";
         char arg2[100]="";
         int i=0;
-        while (arr[i]!=' ') {
+        while (arr[i]!=' '&&i<length) {
             enum_name[i]=arr[i];
             i++;
         }
         i=i+1;
         int count=0;
-        while (arr[i]!=' ') {
+        while (arr[i]!=' '&&i<length) {
             arg0[count]=arr[i];
+            count++;
             i++;
         }
         i=i+1;
         count=0;
-        while (arr[i]!=' ') {
+        while (arr[i]!=' '&&i<length) {
             arg1[count]=arr[i];
+            count++;
             i++;
         }
         i=i+1;
         count=0;
-        while (arr[i]!=' ') {
+        while (arr[i]!=' '&&i<length) {
             arg2[count]=arr[i];
+            count++;
             i++;
         }
-        
         enum OPCODE opcode=OPCODE_getFromString(enum_name);
         OPERATION operation=(struct OPERATION){opcode,arg0,arg1,arg2};
-        printf("%s %s %s %s\n",enum_name,arg0,arg1,arg2);
+        printf("|%s| |%s| |%s| |%s|\n",enum_name,arg0,arg1,arg2);
+        VM_RUN_ONE_COMMAND(operation);
         
         
     }
