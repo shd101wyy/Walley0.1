@@ -10,6 +10,12 @@
 
 int main(int argc, char **argv)
 {
+   
+    if (argc==2) {
+        char *file_name=argv[1];
+        VM_Run_File(file_name);
+    }
+
     if (argc==3) {
         if (strcmp(argv[1],"lex")==0) {
             char *to_analyze_str=argv[2];
