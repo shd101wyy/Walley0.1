@@ -4,6 +4,25 @@ struct Stack{
     char *value;
 };
 
+/*
+ SETG 0 #1
+ PRINT 0
+ LT 0 #10
+ JMP 6
+ LOADG r0 0
+ ADD r0 r0 #1
+ SETG 0 r0
+ PRINT 0
+ JMP -6
+ PRINT "FINISH LOOP!!!"
+ HALT
+ 
+ 
+ i=0
+ while i<10:
+     i=i+1
+ print "Finish Loop"
+ */
 
 // eg var_name :a  address :0
 //    then found value of a at address 0
@@ -32,7 +51,17 @@ enum OPCODE{
     SETL,     // 11 SETL dest value    ; set local value
     MOVE,     // 12 MOVE dest from     ; move value
     JMP,      // 13 JMP steps          ; jump steps.. eg jump -2   --> jump back 2 steps
-    $         // annotation
+    $,        // 14 annotation 
+    EQ,       // 15 EQ arg0 arg1  ; if arg0==arg1 continue next next sentence, else run next sentence; == EQUAL
+    /*
+     eg:
+     EQ #12 #12
+     JMP -2        // this sentence will not be run because 12==12
+     PRINT "EQUAL" // directly run this sentence after EQ
+     */
+    LT,       // 16 LT arg0 arg1  ; if arg0<arg1  ...                   , else ...           ; < less than
+    LE,       // 17 LE arg0 arg1  ; if arg0<=arg2 ...                   , else ...           ; <= less than or equal
+    
 };
 char *OPCODE_getFromOpcode(enum OPCODE opcode){
     switch (opcode) {
@@ -80,6 +109,15 @@ char *OPCODE_getFromOpcode(enum OPCODE opcode){
             break;
         case $:
             return "$";
+            break;
+        case EQ:
+            return "EQ";
+            break;
+        case LT:
+            return "LT";
+            break;
+        case LE:
+            return "LE";
             break;
         default:
             break;
@@ -132,8 +170,17 @@ enum OPCODE OPCODE_getFromString(char *input_str){
     else if (strcmp(input_str, "$")==0){
         return $;
     }
+    else if (strcmp(input_str, "EQ")==0){
+        return EQ;
+    }
+    else if (strcmp(input_str, "LT")==0){
+        return LT;
+    }
+    else if (strcmp(input_str, "LE")==0){
+        return LE;
+    }
     else{
-        printf("Error.. wrong opcode\n");
+        printf("Error.. wrong opcode %s\n",input_str);
         exit(0);
     }
 }
@@ -305,9 +352,9 @@ void OL_append(struct OL **ol, OPERATION operation){
     while ((*current_ol)->next!=NULL) {
         current_ol=&((*current_ol)->next);
     }
-        
+    temp_ol->ahead=(*current_ol);
     (*current_ol)->next=temp_ol;
-    (*current_ol)->next->ahead=(*current_ol);
+    //(*current_ol)->next->ahead=(*current_ol);
     
 }
 
@@ -324,6 +371,8 @@ int OL_length(struct OL *ol){
 
 
 void VM_RUN_ONE_COMMAND(OPERATION operation){
+    //printf("=====\n");
+    //OPERATION_print(operation);
     char *arg0=NULL;
     char *arg1=NULL;
     char *arg2=NULL;
@@ -360,9 +409,11 @@ void VM_RUN_ONE_COMMAND(OPERATION operation){
             // ADD SUB MULT DIV MOD POW only support num now
         case ADD:
             // ADD r0 r0 r1
-            printf("%s %s\n",operation.arg2,operation.arg1);
+            //printf("%s %s\n",operation.arg2,operation.arg1);
             arg2=load_value(operation.arg2);
             arg1=load_value(operation.arg1);
+            //printf("%s %s\n",arg2,arg1);
+
             r_index1=register_index(operation.arg0);
             register_w[r_index1].value=add(arg1, arg2);
             break;
@@ -424,7 +475,7 @@ void VM_RUN_ONE_COMMAND(OPERATION operation){
                 print_str2[i]=0;
             }
             else{
-                print_str2=print_str;
+                print_str2=load_value(print_str);
             }
             printf("%s",print_str2);
             break;
@@ -440,6 +491,63 @@ void VM_RUN_ONE_COMMAND(OPERATION operation){
     }
 }
 
+bool pass(char *value1, char *value2, enum OPCODE opcode){
+    bool pass=FALSE;
+    if (stringIsDigit(value1)&&stringIsDigit(value2)) {
+        double v1=atof(value1);
+        double v2=atof(value2);
+        if (opcode==EQ) {
+            if (v1==v2) {
+                return TRUE;
+            }
+            else{
+                return FALSE;
+            }
+        }
+        else if (opcode==LT){
+            if (v1<v2) {
+                return TRUE;
+            }
+            else{
+                return FALSE;
+            }
+        }
+        //LE
+        else{
+            if (v1<=v2) {
+                return TRUE;
+            }
+            else
+                return FALSE;
+        }
+    }
+    else{
+        if (opcode==EQ) {
+            if (strcmp(value1, value2)==0) {
+                return TRUE;
+            }
+            else
+                return FALSE;
+        }
+        else if(opcode==LT){
+            if (strcmp(value1, value2)<0) {
+                return TRUE;
+            }
+            else
+                return FALSE;
+        }
+        //LE
+        else{
+            if (strcmp(value1, value2)<=0) {
+                return TRUE;
+            }
+            else
+                return FALSE;
+        }
+    }
+    
+}
+
 void VM_Run_Command(struct OL *ol){
     while (ol->next!=NULL) {
         if (ol->operation.opcode==JMP) {
@@ -452,9 +560,9 @@ void VM_Run_Command(struct OL *ol){
                 jump_step=-jump_step;
                 int i=0;
                 for (; i<jump_step; i++) {
-                    ol=ol->ahead;
+                    ol=ol->ahead;                    
                     if (ol==NULL) {
-                        printf("Error.. Jump too much\n");
+                        printf("Error.. Jump back too much\n");
                         exit(0);
                     }
                 }
@@ -464,12 +572,73 @@ void VM_Run_Command(struct OL *ol){
                 int i=0;
                 for (; i<jump_step; i++) {
                     ol=ol->next;
+                    if (ol==NULL) {
+                        printf("Error.. Jump ahead too much\n");
+                        exit(0);
+                    }
                 }
             }
-            VM_RUN_ONE_COMMAND(ol->operation);
-            ol=ol->next;
+            VM_Run_Command(ol);
+            return;
+            //ol=ol->next;
         }
-        
+        else if (ol->operation.opcode==EQ) {
+            // EQ #12 #12
+            char *value1=load_value(ol->operation.arg0);
+            char *value2=load_value(ol->operation.arg1);
+            bool can_pass=pass(value1, value2, ol->operation.opcode);
+            // run next next sentence
+            if (can_pass) {
+                ol=ol->next->next;
+                VM_Run_Command(ol);
+                return;
+            }
+            // run next sentence
+            else{
+                ol=ol->next;
+                VM_Run_Command(ol);
+                return;
+            }
+        }
+        else if (ol->operation.opcode==LT) {
+            // EQ #12 #12
+            char *value1=load_value(ol->operation.arg0);
+            char *value2=load_value(ol->operation.arg1);
+            bool can_pass=pass(value1, value2, ol->operation.opcode);
+            // run next next sentence
+            if (can_pass) {
+                ol=ol->next->next;
+                VM_Run_Command(ol);
+                return;
+
+            }
+            // run next sentence
+            else{
+                ol=ol->next;
+                VM_Run_Command(ol);
+                return;
+
+            }
+        }
+        else if (ol->operation.opcode==LE) {
+            // EQ #12 #12
+            char *value1=load_value(ol->operation.arg0);
+            char *value2=load_value(ol->operation.arg1);
+            bool can_pass=pass(value1, value2, ol->operation.opcode);
+            // run next next sentence
+            if (can_pass) {
+                ol=ol->next->next;
+                VM_Run_Command(ol);
+                return;
+
+            }
+            // run next sentence
+            else{
+                ol=ol->next;
+                VM_Run_Command(ol);
+                return;
+            }
+        }
         else{
             VM_RUN_ONE_COMMAND(ol->operation);
             ol=ol->next;
@@ -497,7 +666,8 @@ void VM_Run_Command(struct OL *ol){
             printf("Error.. NO operation ahead\n");
             exit(0);
         }
-        VM_RUN_ONE_COMMAND(ol->operation);
+        VM_Run_Command(ol);
+        return;
     }
     
     
@@ -583,48 +753,6 @@ void VM_Run_File(char *file_name){
     VM_Run_Command(ol);
 
 }
-/*
-int main(int argc, char **argv){
-    
-    struct OPERATION prog[10];
-    
-    prog[0]=(struct OPERATION){SETG,"0","#1200"};
-    prog[1]=(struct OPERATION){LOADG,"r1","0"};
-    prog[2]=(struct OPERATION){MOVE,"r0","r1"};
-    prog[3]=(struct OPERATION){ADD,"r0","r0","r1"};
-    
-    printf("%s %s %s\n",prog[0].arg0,prog[0].arg1,prog[0].arg2);
-    printf("%s %s %s\n",prog[1].arg0,prog[1].arg1,prog[1].arg2);
-    printf("%s %s %s\n",prog[2].arg0,prog[2].arg1,prog[2].arg2);
-    printf("%s %s %s\n",prog[3].arg0,prog[3].arg1,prog[3].arg2);
-    
-    
-    VM_RUN_ONE_COMMAND(prog[0]);
-    VM_RUN_ONE_COMMAND(prog[1]);
-    VM_RUN_ONE_COMMAND(prog[2]);
-    VM_RUN_ONE_COMMAND(prog[3]);
-    
-    
-    REGISTER_Print();
-    STACK_Print();
-    
-    if (argc==2) {
-        char *file_name=argv[1];
-        VM_Run_File(file_name);
-    }
-    
-    //VM_RUN_ONE_COMMAND(prog[3]);
-    
-    
-    //prog[1]=(struct OPERATION){SETG,"0","r1"};
-    
-    
-	return 0;
-}
-
-
-
-*/
 
 
 
