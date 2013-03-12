@@ -31,8 +31,60 @@ enum OPCODE{
     SETG,     // 10 SETG dest value    ; set global value
     SETL,     // 11 SETL dest value    ; set local value
     MOVE,     // 12 MOVE dest from     ; move value
-    JMP       // 13 JMP steps          ; jump steps.. eg jump -2   --> jump back 2 steps
+    JMP,      // 13 JMP steps          ; jump steps.. eg jump -2   --> jump back 2 steps
+    $         // annotation
 };
+char *OPCODE_getFromOpcode(enum OPCODE opcode){
+    switch (opcode) {
+        case ADD:
+            return "ADD";
+            break;
+        case SUB:
+            return "SUB";
+            break;
+        case MUL:
+            return "MUL";
+            break;
+        case DIV:
+            return "DIV";
+            break;
+        case MOD:
+            return "MOD";
+            break;
+        case POW:
+            return "POW";
+            break;
+        case LOADG:
+            return "LOADG";
+            break;
+        case LOADL:
+            return "LOADL";
+            break;
+        case PRINT:
+            return "PRINT";
+            break;
+        case HALT:
+            return "HALT";
+            break;
+        case SETG:
+            return "SETG";
+            break;
+        case SETL:
+            return "SETL";
+            break;
+        case MOVE:
+            return "MOVE";
+            break;
+        case JMP:
+            return "JMP";
+            break;
+        case $:
+            return "$";
+            break;
+        default:
+            break;
+    }
+}
 
 enum OPCODE OPCODE_getFromString(char *input_str){
     if (strcmp(input_str,"ADD")==0) {
@@ -76,6 +128,9 @@ enum OPCODE OPCODE_getFromString(char *input_str){
     }
     else if (strcmp(input_str,"JMP")==0) {
         return JMP;
+    }
+    else if (strcmp(input_str, "$")==0){
+        return $;
     }
     else{
         printf("Error.. wrong opcode\n");
@@ -212,6 +267,48 @@ char *power(char *num1, char *num2){
     return output_str;
 }
 
+
+struct OL{
+    OPERATION operation;
+    struct OL *next;
+};
+
+void OL_init(struct OL **ol){
+    (*ol)=(struct OL*)malloc(sizeof(struct OL)*1);
+    (*ol)->operation.opcode=$;
+    (*ol)->next=NULL;
+}
+
+void OL_append(struct OL **ol, OPERATION operation){
+    
+    struct OL *temp_ol;
+    OL_init(&temp_ol);
+    temp_ol->operation=operation;
+    temp_ol->next=NULL;
+    (*ol)->next=temp_ol;
+    
+}
+
+void OL_print(struct OL *ol){
+    while (ol->next!=NULL) {
+        printf("%s %s %s %s\n",OPCODE_getFromOpcode(ol->operation.opcode),ol->operation.arg0,ol->operation.arg1,ol->operation.arg2);
+        ol=ol->next;
+    }
+    printf("%s %s %s %s\n",OPCODE_getFromOpcode(ol->operation.opcode),ol->operation.arg0,ol->operation.arg1,ol->operation.arg2);
+
+}
+int OL_length(struct OL *ol){
+    int length=0;
+    while (ol->next!=NULL) {
+        length++;
+        ol=ol->next;
+    }
+    length++;
+    return length;
+}
+
+
+
 void VM_RUN_ONE_COMMAND(OPERATION operation){
     char *arg0=NULL;
     char *arg1=NULL;
@@ -298,13 +395,30 @@ void VM_RUN_ONE_COMMAND(OPERATION operation){
             r_index1=register_index(operation.arg0);
             register_w[r_index1].value=power(arg1, arg2);
             break;
-            
-            
+        case PRINT:
+            printf("%s",operation.arg0);
+            break;
+        case HALT:
+            exit(0);
+            break;
+        case $:
+            break;
+
             
         default:
             break;
     }
 }
+
+void VM_Run_Command(struct OL *ol){
+    while (ol->next!=NULL) {
+        VM_RUN_ONE_COMMAND(ol->operation);
+        ol=ol->next;
+    }
+    VM_RUN_ONE_COMMAND(ol->operation);
+
+}
+
 
 void VM_Run_File(char *file_name){
     int length=(int)strlen(file_name);
@@ -319,12 +433,21 @@ void VM_Run_File(char *file_name){
         exit(1);
     }
     
+    int lines=0;
+    
+    
+    struct OL *ol;
+    OL_init(&ol);
+    
     while ((fgets(arr, 10000, fp)) != NULL) {
         length=(int)strlen(arr);
         char enum_name[10]="";
         char arg0[100]="";
         char arg1[100]="";
         char arg2[100]="";
+        if (arr[length-1]=='\n') {
+            arr[length-1]=' ';
+        }
         int i=0;
         while (arr[i]!=' '&&i<length) {
             enum_name[i]=arr[i];
@@ -353,11 +476,14 @@ void VM_Run_File(char *file_name){
         }
         enum OPCODE opcode=OPCODE_getFromString(enum_name);
         OPERATION operation=(struct OPERATION){opcode,arg0,arg1,arg2};
-        printf("|%s| |%s| |%s| |%s|\n",enum_name,arg0,arg1,arg2);
-        VM_RUN_ONE_COMMAND(operation);
-        
-        
+        OL_append(&ol, operation);
+        lines++;
     }
+    
+    printf("lines %d\n",lines);
+    OL_print(ol);
+    VM_Run_Command(ol);
+
 }
 /*
 int main(int argc, char **argv){
