@@ -145,6 +145,10 @@ typedef struct OPERATION{
     char *arg2;
 }OPERATION;
 
+void OPERATION_print(OPERATION operation){
+    printf("%s %s %s %s\n",OPCODE_getFromOpcode(operation.opcode),operation.arg0,operation.arg1,operation.arg2);
+}
+
 typedef struct REGISTER{
     char *value;
 }REGISTER;
@@ -271,32 +275,42 @@ char *power(char *num1, char *num2){
 struct OL{
     OPERATION operation;
     struct OL *next;
+    struct OL *ahead;
 };
 
 void OL_init(struct OL **ol){
     (*ol)=(struct OL*)malloc(sizeof(struct OL)*1);
     (*ol)->operation.opcode=$;
     (*ol)->next=NULL;
+    (*ol)->ahead=NULL;
+}
+void OL_print(struct OL *ol){
+    while (ol->next!=NULL) {
+        printf("|%s| |%s| |%s| |%s|\n",OPCODE_getFromOpcode(ol->operation.opcode),ol->operation.arg0,ol->operation.arg1,ol->operation.arg2);
+        ol=ol->next;
+    }
+    printf("|%s| |%s| |%s| |%s|\n",OPCODE_getFromOpcode(ol->operation.opcode),ol->operation.arg0,ol->operation.arg1,ol->operation.arg2);
+    
 }
 
 void OL_append(struct OL **ol, OPERATION operation){
     
     struct OL *temp_ol;
-    OL_init(&temp_ol);
+    temp_ol=(struct OL*)malloc(sizeof(struct OL)*1);
     temp_ol->operation=operation;
     temp_ol->next=NULL;
-    (*ol)->next=temp_ol;
+    temp_ol->ahead=NULL;
+    
+    struct OL **current_ol=&(*ol);
+    while ((*current_ol)->next!=NULL) {
+        current_ol=&((*current_ol)->next);
+    }
+        
+    (*current_ol)->next=temp_ol;
+    (*current_ol)->next->ahead=(*current_ol);
     
 }
 
-void OL_print(struct OL *ol){
-    while (ol->next!=NULL) {
-        printf("%s %s %s %s\n",OPCODE_getFromOpcode(ol->operation.opcode),ol->operation.arg0,ol->operation.arg1,ol->operation.arg2);
-        ol=ol->next;
-    }
-    printf("%s %s %s %s\n",OPCODE_getFromOpcode(ol->operation.opcode),ol->operation.arg0,ol->operation.arg1,ol->operation.arg2);
-
-}
 int OL_length(struct OL *ol){
     int length=0;
     while (ol->next!=NULL) {
@@ -316,6 +330,8 @@ void VM_RUN_ONE_COMMAND(OPERATION operation){
     int r_index1=-1;
     int r_index2=-1;
     int s_index=-1;
+    char *print_str=NULL;
+    char *print_str2=NULL;
     
     switch (operation.opcode) {
         case LOADG:
@@ -396,7 +412,21 @@ void VM_RUN_ONE_COMMAND(OPERATION operation){
             register_w[r_index1].value=power(arg1, arg2);
             break;
         case PRINT:
-            printf("%s",operation.arg0);
+            print_str=operation.arg0;
+            if (print_str[0]=='"') {
+                int length=(int)strlen(print_str);
+                print_str2=(char*)malloc(sizeof(char)*(length-1));
+                strcpy(print_str2, "");
+                int i=0;
+                for (; i<length-2; i++) {
+                    print_str2[i]=print_str[i+1];
+                }
+                print_str2[i]=0;
+            }
+            else{
+                print_str2=print_str;
+            }
+            printf("%s",print_str2);
             break;
         case HALT:
             exit(0);
@@ -412,11 +442,68 @@ void VM_RUN_ONE_COMMAND(OPERATION operation){
 
 void VM_Run_Command(struct OL *ol){
     while (ol->next!=NULL) {
-        VM_RUN_ONE_COMMAND(ol->operation);
-        ol=ol->next;
+        if (ol->operation.opcode==JMP) {
+            int jump_step=atoi(ol->operation.arg0);
+            if (jump_step==0) {
+                printf("Error.. Can not JUMP 0\n");
+                exit(0);
+            }
+            else if (jump_step<0){
+                jump_step=-jump_step;
+                int i=0;
+                for (; i<jump_step; i++) {
+                    ol=ol->ahead;
+                    if (ol==NULL) {
+                        printf("Error.. Jump too much\n");
+                        exit(0);
+                    }
+                }
+            }
+            // jump_step >0
+            else{
+                int i=0;
+                for (; i<jump_step; i++) {
+                    ol=ol->next;
+                }
+            }
+            VM_RUN_ONE_COMMAND(ol->operation);
+            ol=ol->next;
+        }
+        
+        else{
+            VM_RUN_ONE_COMMAND(ol->operation);
+            ol=ol->next;
+        }
     }
-    VM_RUN_ONE_COMMAND(ol->operation);
-
+    if (ol->operation.opcode==JMP) {
+        int jump_step=atoi(ol->operation.arg0);
+        if (jump_step==0) {
+            printf("Error.. Can not JUMP 0\n");
+            exit(0);
+        }
+        else if (jump_step<0){
+            jump_step=-jump_step;
+            int i=0;
+            for (; i<jump_step; i++) {
+                ol=ol->ahead;
+                if (ol==NULL) {
+                    printf("Error.. Jump too much\n");
+                    exit(0);
+                }
+            }
+        }
+        // jump_step >0
+        else{
+            printf("Error.. NO operation ahead\n");
+            exit(0);
+        }
+        VM_RUN_ONE_COMMAND(ol->operation);
+    }
+    
+    
+    else{
+        VM_RUN_ONE_COMMAND(ol->operation);
+    }
 }
 
 
@@ -442,9 +529,10 @@ void VM_Run_File(char *file_name){
     while ((fgets(arr, 10000, fp)) != NULL) {
         length=(int)strlen(arr);
         char enum_name[10]="";
-        char arg0[100]="";
-        char arg1[100]="";
-        char arg2[100]="";
+        char *arg0=(char*)malloc(sizeof(char)*100);
+        char *arg1=(char*)malloc(sizeof(char)*100);
+        char *arg2=(char*)malloc(sizeof(char)*100);
+        
         if (arr[length-1]=='\n') {
             arr[length-1]=' ';
         }
@@ -474,6 +562,16 @@ void VM_Run_File(char *file_name){
             count++;
             i++;
         }
+        if ((int)strlen(arg0)==0) {
+            arg0=NULL;
+        }
+        if ((int)strlen(arg1)==0) {
+            arg1=NULL;
+        }
+        if ((int)strlen(arg2)==0) {
+            arg2=NULL;
+        }
+        
         enum OPCODE opcode=OPCODE_getFromString(enum_name);
         OPERATION operation=(struct OPERATION){opcode,arg0,arg1,arg2};
         OL_append(&ol, operation);
