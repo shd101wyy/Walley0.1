@@ -130,8 +130,9 @@ struct TL *TL_subtl(struct TL *tl,int begin, int end){
     int i=0;
     for (; i<length; i++) {
         if (i>=begin&&i<end) {
-            return_tl->current_token=tl->current_token;
-            return_tl->next=tl->next;
+            //return_tl->current_token=tl->current_token;
+            TL_addToken(&return_tl, tl->current_token);
+            //return_tl->next=tl->next;
         }
         tl=tl->next;
     }

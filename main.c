@@ -22,6 +22,12 @@ int main(int argc, char **argv)
             struct TL *tl=Walley_Lexical_Analyzie(to_analyze_str);
             TL_print(tl);
         }
+        else if (strcmp(argv[1],"parse")==0) {
+            char *to_analyze_str=argv[2];
+            struct TL *tl=Walley_Lexical_Analyzie(to_analyze_str);
+            TL_print(tl);
+            parser(tl);
+        }
         else if (strcmp(argv[1],"vm")==0) {
             char *file_name=argv[2];
             VM_Run_File(file_name);

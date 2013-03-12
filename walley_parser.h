@@ -98,10 +98,12 @@ void TREE_initWithName(struct TREE *tree,char *name){
     (*tree).index=0;
     (*tree).node_list=NULL;
     (*tree).layer=0;
+    TREE_INDEX++;
 }
 typedef struct TREE TREE;
 typedef struct Node_List Node_List;
-void TREE_addNode(struct TREE *tree, char *name, int index){
+void TREE_addNode(struct TREE *tree, char *name){
+    int index=TREE_INDEX;
     // initiate node_list
     if ((*tree).node_list==NULL) {
         (*tree).node_list=(struct Node_List*)malloc(sizeof(struct Node_List)*1);
@@ -227,7 +229,7 @@ int TREE_layer(TREE tree){
 
 void TREE_addNodeAtIndex(TREE *tree, int index, char *add_name, int add_index){
     TREE *temp_tree=TREE_getTreeAccordingToIndex(tree, index);
-    TREE_addNode(temp_tree, add_name, add_index);
+    TREE_addNode(temp_tree, add_name);
 }
 /*
 int main(){
@@ -275,19 +277,70 @@ int main(){
  | table
  
  list     -> '[' elements ']'
+            | '[' ']'
  elements -> value ',' elements
             |value
  
  
  */
+bool list(TREE *tree, Token_List *tl);
+bool term(char *token_class,char *terminal){
+    if (strcmp(token_class, terminal)==0) {
+        return TRUE;
+    }
+    else
+        return FALSE;
+}
+bool value(TREE *tree, Token_List *tl){
+    printf("value\n");
+    int length_of_tl=TL_length(tl);
+    if (length_of_tl==1) {
+        bool can=term("id", tl->current_token.TOKEN_CLASS)
+        ||term("num",tl->current_token.TOKEN_CLASS)
+        ||term("string",tl->current_token.TOKEN_CLASS);
+        printf("here elements |%d|\n",can);
+        return term("id", tl->current_token.TOKEN_CLASS)
+        ||term("num",tl->current_token.TOKEN_CLASS)
+        ||term("string",tl->current_token.TOKEN_CLASS);
+    }
+    else{
+        return list(tree, tl);
+    }
+}
+bool elements(TREE *tree, Token_List *tl){
+    printf("elements \n");
+    TL_print(tl);
+    printf("======\n");
+    int length_of_token=TL_length(tl);
+    Token first_token=TL_tokenAtIndex(tl, 0);
+    Token final_token=TL_tokenAtIndex(tl, length_of_token-1);
+    return (
+            value(tree, tl)
+    );
+}
+bool list(TREE *tree, Token_List *tl){
+    int length_of_token=TL_length(tl);
+    Token first_token=TL_tokenAtIndex(tl, 0);
+    Token final_token=TL_tokenAtIndex(tl, length_of_token-1);
 
-TREE parser(Token_List tl){
+    return (
+            (length_of_token>2&&term(first_token.TOKEN_CLASS, "[") && elements(tree, TL_subtl(tl, 1, length_of_token-1)) && term(final_token.TOKEN_CLASS, "]") )
+    ||
+        (length_of_token==2 && term(first_token.TOKEN_CLASS, "[") && term(final_token.TOKEN_CLASS, "]"))
+            );
+}
+
+TREE parser(Token_List *tl){
+    // reset TREE_INDEX value
+    TREE_INDEX=0;
+    
     TREE output_tree;
-    TREE_initWithName(&output_tree,"walley");
-    Token_List *current_tl=&tl;
+    TREE_initWithName(&output_tree,"list");
+    //Token_List *current_tl=&tl;
+    bool available=list(&output_tree, tl);
+    printf("list available %d\n",available);
     
-    
-    
+    exit(0);
 }
 
 
