@@ -61,7 +61,9 @@ enum OPCODE{
      */
     LT,       // 16 LT arg0 arg1  ; if arg0<arg1  ...                   , else ...           ; < less than
     LE,       // 17 LE arg0 arg1  ; if arg0<=arg2 ...                   , else ...           ; <= less than or equal
-    
+    LABEL,    // 18 LABEL 0       ; save place to jump to
+    JMPA,     // 19 JMPA 0        ; jump AHEAD to LABEL 0
+    JMPB      // 20 JMPB 0        ; jump BACK to LABEL 0
 };
 char *OPCODE_getFromOpcode(enum OPCODE opcode){
     switch (opcode) {
@@ -118,6 +120,15 @@ char *OPCODE_getFromOpcode(enum OPCODE opcode){
             break;
         case LE:
             return "LE";
+            break;
+        case LABEL:
+            return "LABEL";
+            break;
+        case JMPA:
+            return "JMPA";
+            break;
+        case JMPB:
+            return "JMPB";
             break;
         default:
             break;
@@ -178,6 +189,15 @@ enum OPCODE OPCODE_getFromString(char *input_str){
     }
     else if (strcmp(input_str, "LE")==0){
         return LE;
+    }
+    else if (strcmp(input_str, "LABEL")==0){
+        return LABEL;
+    }
+    else if (strcmp(input_str, "JMPA")==0){
+        return JMPA;
+    }
+    else if (strcmp(input_str, "JMPB")==0){
+        return JMPB;
     }
     else{
         printf("Error.. wrong opcode %s\n",input_str);
@@ -485,6 +505,9 @@ void VM_RUN_ONE_COMMAND(OPERATION operation){
             break;
         case $:
             break;
+            
+        case LABEL:
+            break;
 
             
         default:
@@ -583,6 +606,32 @@ void VM_Run_Command(struct OL *ol){
             return;
             //ol=ol->next;
         }
+        // jump ahead
+        else if (ol->operation.opcode==JMPA){
+            char *label_index=ol->operation.arg0;
+            while (ol->operation.opcode!=LABEL || strcmp(label_index, ol->operation.arg0)!=0) {
+                ol=ol->ahead;
+                if (ol==NULL) {
+                    printf("Error..JUMP Ahead Too Much\nDid not find Lable");
+                    exit(0);
+                }
+            }
+            VM_Run_Command(ol);
+            return;
+        }
+        // jump back
+        else if (ol->operation.opcode==JMPB){
+            char *label_index=ol->operation.arg0;
+            while (ol->operation.opcode!=LABEL || strcmp(label_index, ol->operation.arg0)!=0) {
+                ol=ol->next;
+                if (ol==NULL) {
+                    printf("Error..JUMP Behind Too Much\nDid not find Lable");
+                    exit(0);
+                }
+            }
+            VM_Run_Command(ol);
+            return;
+        }
         else if (ol->operation.opcode==EQ) {
             // EQ #12 #12
             char *value1=load_value(ol->operation.arg0);
@@ -670,7 +719,18 @@ void VM_Run_Command(struct OL *ol){
         VM_Run_Command(ol);
         return;
     }
-    
+    else if (ol->operation.opcode==JMPA){
+        char *label_index=ol->operation.arg0;
+        while (ol->operation.opcode!=LABEL || strcmp(label_index, ol->operation.arg0)!=0) {
+            ol=ol->ahead;
+            if (ol==NULL) {
+                printf("Error..JUMP Ahead Too Much\nDid not find Lable");
+                exit(0);
+            }
+        }
+        VM_Run_Command(ol);
+        return;
+    }
     
     else{
         VM_RUN_ONE_COMMAND(ol->operation);
