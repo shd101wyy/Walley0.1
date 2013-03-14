@@ -525,6 +525,13 @@ char* Walley_Analyze_Token_Class(char *input_str, int i, int *end){
 
     }
   
+    // 15 dot
+    if (input_str[i]=='.') {
+        int a=i+1;
+        *end=a;
+        return "dot";
+    }
+    
     // Error
     Walley_Print_Error(input_str, "Can not analyze this input", i);
     exit(0);

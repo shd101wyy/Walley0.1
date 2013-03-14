@@ -227,7 +227,7 @@ int TREE_layer(TREE tree){
     return (*temp_tree).layer;
 }
 
-void TREE_addNodeAtIndex(TREE *tree, int index, char *add_name, int add_index){
+void TREE_addNodeAtIndex(TREE *tree, int index, char *add_name){
     TREE *temp_tree=TREE_getTreeAccordingToIndex(tree, index);
     TREE_addNode(temp_tree, add_name);
 }
@@ -280,9 +280,13 @@ int main(){
             | '[' ']'
  elements -> value ',' elements
             |value
+
  
+ EXP -> 
  
+            
  */
+/*
 bool list(TREE *tree, Token_List *tl);
 bool term(char *token_class,char *terminal){
     if (strcmp(token_class, terminal)==0) {
@@ -329,16 +333,262 @@ bool list(TREE *tree, Token_List *tl){
         (length_of_token==2 && term(first_token.TOKEN_CLASS, "[") && term(final_token.TOKEN_CLASS, "]"))
             );
 }
+*/
+
+
+/*
+ first_cal -> num
+ | (first_cal)
+ | num '+' first_cal
+ | num '-' first_cal
+ 
+ */
+bool term(char *token_class_string,char *terminal){
+    if (strcmp(token_class_string, terminal)==0) {
+        return TRUE;
+    }
+    else
+        return FALSE;
+}
+bool first_cal(TREE *tree, Token_List *tl){
+    int length_of_tl=TL_length(tl);
+    // | num
+    if (length_of_tl==1) {
+        TREE_addNode(tree, tl->current_token.TOKEN_STRING);
+    }
+    else{
+        Token first_token=TL_tokenAtIndex(tl, 0);
+        Token final_token=TL_tokenAtIndex(tl, length_of_tl-1);
+        // | '(' first_cal ')'
+        if (strcmp(first_token.TOKEN_STRING, "(")==0 && strcmp(final_token.TOKEN_STRING, ")")==0) {
+            TREE_addNode(tree, first_token.TOKEN_STRING);
+            int index=TREE_INDEX;
+            TREE_addNode(tree, "first_token");
+            first_cal(TREE_getTreeAccordingToIndex(tree, index),TL_subtl(tl, 1, length_of_tl-1));
+            TREE_addNode(tree, final_token.TOKEN_STRING);
+        }
+        else{
+            printf("Enter Here\n");
+            Token second_token=TL_tokenAtIndex(tl, 1);
+            if (strcmp(second_token.TOKEN_STRING, "+")==0 || strcmp(second_token.TOKEN_STRING, "-")==0) {
+                TREE_addNode(tree, first_token.TOKEN_STRING);
+                TREE_addNode(tree, second_token.TOKEN_STRING);
+                int index=TREE_INDEX;
+                TREE_addNode(tree, "first_token");
+                first_cal(TREE_getTreeAccordingToIndex(tree, index),TL_subtl(tl, 2, length_of_tl));
+            }
+            else{
+                return FALSE;
+            }
+        }
+        //
+    }
+    return TRUE;
+}
+
+
+/*
+ 
+ postfix:
+ 
+ expr->expr '+' s_term
+     | expr '-' s_term
+     | term
+ 
+ s_term->s_term '*' factor
+     | s_term '/' factor
+     | factor
+ 
+ factor-> num
+     | '(' expr ')'
+ 
+ 
+ */
+bool factor(TREE *tree, Token_List *tl);
+bool expr(TREE *tree, Token_List *tl);
+bool s_term(TREE *tree, Token_List *tl);
+
+
+bool expr(TREE *tree, Token_List *tl){
+    int length_of_tl=TL_length(tl);
+    int index_of_plus=TL_indexOfTokenThatHasTokenString(tl, "+");
+    if (index_of_plus!=-1) {
+        // s_term '*' factor
+        Token_List *expr_tl=TL_subtl(tl, 0, index_of_plus);
+        Token_List *s_term_tl=TL_subtl(tl, index_of_plus+1, length_of_tl);
+        
+        int index=TREE_INDEX;
+        TREE_addNode(tree, "+");
+        
+        TREE_addNodeAtIndex(tree, index, "expr");
+        TREE_addNodeAtIndex(tree, index, "s_term");
+        
+        int index_of_s_term=TREE_INDEX-2;
+        int index_of_factor=TREE_INDEX-1;
+        expr(TREE_getTreeAccordingToIndex(tree, index_of_s_term), expr_tl);
+        s_term(TREE_getTreeAccordingToIndex(tree, index_of_factor), s_term_tl);
+        
+        return TRUE;
+    }
+    
+    int index_of_minus=TL_indexOfTokenThatHasTokenString(tl, "-");
+    if (index_of_minus!=-1) {
+        // s_term '*' factor
+        Token_List *expr_tl=TL_subtl(tl, 0, index_of_minus);
+        Token_List *s_term_tl=TL_subtl(tl, index_of_minus+1, length_of_tl);
+        
+        int index=TREE_INDEX;
+        TREE_addNode(tree, "-");
+        
+        TREE_addNodeAtIndex(tree, index, "expr");
+        TREE_addNodeAtIndex(tree, index, "s_term");
+        
+        int index_of_s_term=TREE_INDEX-2;
+        int index_of_factor=TREE_INDEX-1;
+        expr(TREE_getTreeAccordingToIndex(tree, index_of_s_term), expr_tl);
+        s_term(TREE_getTreeAccordingToIndex(tree, index_of_factor), s_term_tl);
+        
+        return TRUE;
+    }
+    
+    return s_term(tree, tl);
+
+    
+    
+
+}
+bool s_term(TREE *tree, Token_List *tl){
+    int length_of_tl=TL_length(tl);
+    int index_of_time=TL_indexOfTokenThatHasTokenString(tl, "*");
+    if (index_of_time!=-1) {
+        // s_term '*' factor
+        Token_List *s_term_tl=TL_subtl(tl, 0, index_of_time);
+        Token_List *factor_tl=TL_subtl(tl, index_of_time+1, length_of_tl);
+        
+        int index=TREE_INDEX;
+        TREE_addNode(tree, "*");
+        
+        TREE_addNodeAtIndex(tree, index, "s_term");
+        TREE_addNodeAtIndex(tree, index, "factor");
+        
+        int index_of_s_term=TREE_INDEX-2;
+        int index_of_factor=TREE_INDEX-1;
+        s_term(TREE_getTreeAccordingToIndex(tree, index_of_s_term), s_term_tl);
+        factor(TREE_getTreeAccordingToIndex(tree, index_of_factor), factor_tl);
+
+        
+        return TRUE;
+    }
+    
+    // s_term '/' factor
+    int index_of_divide=TL_indexOfTokenThatHasTokenString(tl, "/");
+    if (index_of_divide!=-1) {
+        Token_List *s_term_tl=TL_subtl(tl, 0, index_of_divide);
+        Token_List *factor_tl=TL_subtl(tl, index_of_divide+1, length_of_tl);
+        
+        int index=TREE_INDEX;
+        TREE_addNode(tree, "/");
+        
+        TREE_addNodeAtIndex(tree, index, "s_term");
+        TREE_addNodeAtIndex(tree, index, "factor");
+        
+        int index_of_s_term=TREE_INDEX-2;
+        int index_of_factor=TREE_INDEX-1;
+        s_term(TREE_getTreeAccordingToIndex(tree, index_of_s_term), s_term_tl);
+        factor(TREE_getTreeAccordingToIndex(tree, index_of_factor), factor_tl);
+        return TRUE;
+    }
+    
+    return factor(tree, tl) || FALSE;
+    
+}
+bool factor(TREE *tree, Token_List *tl){
+    int length_of_tl=TL_length(tl);
+    if (length_of_tl==1) {
+        
+        // |num
+        if (term(tl->current_token.TOKEN_CLASS, "num")) {
+            TREE_addNode(tree, tl->current_token.TOKEN_STRING);
+            return TRUE;
+        }
+        else
+            return FALSE;
+    }
+    else{
+        Token token0=TL_tokenAtIndex(tl, 0);
+        Token tokenf=TL_tokenAtIndex(tl, length_of_tl-1);
+        // |'(' expr ')'
+        if (term(token0.TOKEN_STRING, "(")&&term(tokenf.TOKEN_STRING, ")")) {
+            TREE_addNode(tree,"(");
+            int index=TREE_INDEX;
+            TREE_addNode(tree, "expr");
+            TREE_addNode(tree, ")");
+            
+            expr(TREE_getTreeAccordingToIndex(tree, index), TL_subtl(tl, 1, length_of_tl-1));
+            
+            return TRUE;
+        }
+        else
+            return FALSE;
+    }
+}
+
+
+
+
+
+
+/*
+ def func(params):
+ 
+ func-> id
+      | id '.' id
+ */
+
+bool func(TREE *tree, Token_List *tl){
+    int length_of_tl=TL_length(tl);
+    // id
+    if (length_of_tl==1) {
+        if(strcmp(tl->current_token.TOKEN_CLASS, "id")==0){
+            TREE_addNode(tree,tl->current_token.TOKEN_STRING);
+            return TRUE;
+        }
+        else{
+            return FALSE;
+        }
+    }
+    // id '.' id
+    else if (length_of_tl==3)
+    {
+        Token token0=TL_tokenAtIndex(tl, 0);
+        Token token1=TL_tokenAtIndex(tl, 1);
+        Token token2=TL_tokenAtIndex(tl, 2);
+        if (term(token0.TOKEN_CLASS, "id")&&term(token1.TOKEN_STRING, ".")&&term(token2.TOKEN_CLASS, "id")) {
+            TREE_addNode(tree, token0.TOKEN_STRING);
+            TREE_addNode(tree, token1.TOKEN_STRING);
+            TREE_addNode(tree, token2.TOKEN_STRING);
+            return TRUE;
+        }
+        else{
+            return FALSE;
+        }
+    }
+    else{
+        return FALSE;
+    }
+}
 
 TREE parser(Token_List *tl){
     // reset TREE_INDEX value
     TREE_INDEX=0;
     
     TREE output_tree;
-    TREE_initWithName(&output_tree,"list");
+    TREE_initWithName(&output_tree,"expr");
+    expr(&output_tree, tl);
+    TREE_print(output_tree);
     //Token_List *current_tl=&tl;
-    bool available=list(&output_tree, tl);
-    printf("list available %d\n",available);
+    //bool available=list(&output_tree, tl);
+    //printf("list available %d\n",available);
     
     exit(0);
 }

@@ -123,8 +123,8 @@ struct TL *TL_subtl(struct TL *tl,int begin, int end){
     struct TL *return_tl;
     TL_init(&return_tl);
     int length=TL_length(tl);
-    if (end>=length) {
-        printf("TL end >= length\n");
+    if (end>length) {
+        printf("TL end > length\n");
         exit(0);
     }
     int i=0;
@@ -139,4 +139,21 @@ struct TL *TL_subtl(struct TL *tl,int begin, int end){
     return return_tl;
 }
 
+
+int TL_indexOfTokenThatHasTokenString(Token_List *tl, char *token_string){
+    int output=-1;
+    int i=0;
+    while (tl->next!=NULL) {
+        if (strcmp(tl->current_token.TOKEN_STRING, token_string)==0) {
+            return i;
+        }
+        tl=tl->next;
+        i++;
+    }
+    if (strcmp(tl->current_token.TOKEN_STRING, token_string)==0) {
+        return i;
+    }
+    
+    return output;
+}
 
