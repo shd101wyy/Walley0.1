@@ -230,7 +230,189 @@ void SL_removeStringAtIndex(struct SL **string_list, int index){
 }
 
 
+//================================================
+struct Char_List{
+    char current_char;
+    struct Char_List *next;
+};
 
+typedef struct Char_List Char_List;
+void CL_init(Char_List **cl){
+    (*cl)=(Char_List *)malloc(sizeof(Char_List)*1);
+    (*cl)->next=NULL;
+}
+
+void CL_initWithChar(Char_List **cl, char init_char){
+    (*cl)=(Char_List *)malloc(sizeof(Char_List)*1);
+    (*cl)->current_char=init_char;
+    (*cl)->next=NULL;
+}
+void CL_addChar(Char_List **cl, char add_char){
+    if ((*cl)->current_char==0) {
+        (*cl)->current_char=add_char;
+        (*cl)->next=NULL;
+        return;
+    }
+    Char_List **current_cl=&(*cl);
+    while ((*current_cl)->next!=NULL) {
+        current_cl=&((*current_cl)->next);
+    }
+    Char_List *temp_cl;
+    CL_initWithChar(&temp_cl, add_char);
+    (*current_cl)->next=temp_cl;
+}
+
+int CL_length(Char_List *cl){
+    int length=0;
+    while (cl->next!=NULL) {
+        length++;
+        cl=(cl->next);
+    }
+    length++;
+    return length;
+}
+
+void CL_print(Char_List *cl){
+    while (cl->next!=NULL) {
+        printf("%c",cl->current_char);
+        cl=(cl->next);
+    }
+    printf("%c",cl->current_char);
+}
+
+char *CL_toString(Char_List *cl){
+    int length=CL_length(cl);
+    char *output=(char*)malloc(sizeof(char)*(length+1));
+    strcpy(output, "");
+    int i=0;
+    while (cl->next!=NULL) {
+        output[i]=cl->current_char;
+        i++;
+        cl=cl->next;
+    }
+    output[i]=cl->current_char;
+    i++;
+    output[i]=0;
+    return output;
+}
+
+//===============
+/*
+ \n (newline)
+ \t (tab)
+ \v (vertical tab)
+ \f (new page)
+ \b (backspace)
+ \r (carriage return)
+ */
+
+// input_str is the content inside "\n", where \n is \\n, so change \\n to \\n
+char *CL_formatWalleyString(char *input_str){
+    int length=(int)strlen(input_str);
+    if (length<=1) {
+        return input_str;
+    }
+    Char_List *cl;
+    int i=0;
+    
+    // init cl
+    if (i<length-1&&input_str[i]=='\\'
+        &&(input_str[i+1]=='n'
+           ||input_str[i+1]=='t'
+           ||input_str[i+1]=='v'
+           ||input_str[i+1]=='f'
+           ||input_str[i+1]=='b'
+           ||input_str[i+1]=='r'
+           )
+        ) {
+        switch (input_str[i+1]) {
+            case 'n':
+                CL_initWithChar(&cl, '\n');
+                break;
+            case 't':
+                CL_initWithChar(&cl, '\t');
+                break;
+            case 'v':
+                CL_initWithChar(&cl, '\v');
+                break;
+            case 'f':
+                CL_initWithChar(&cl, '\f');
+                break;
+            case 'b':
+                CL_initWithChar(&cl, '\b');
+                break;
+            case 'r':
+                CL_initWithChar(&cl, '\r');
+                break;
+            default:
+                printf("Error..\\ mistake\n");
+                exit(0);
+                break;
+        }
+        i=2;
+    }
+    else{
+        CL_initWithChar(&cl, input_str[0]);
+        i=1;
+    }
+
+    
+    
+    for (; i<length; i++) {
+        
+        if (i<length-1&&input_str[i]=='\\'
+            &&(input_str[i+1]=='n'
+               ||input_str[i+1]=='t'
+               ||input_str[i+1]=='v'
+               ||input_str[i+1]=='f'
+               ||input_str[i+1]=='b'
+               ||input_str[i+1]=='r'
+               )
+            ) {
+            switch (input_str[i+1]) {
+                case 'n':
+                    CL_addChar(&cl, '\n');
+                    break;
+                case 't':
+                    CL_addChar(&cl, '\t');
+                    break;
+                case 'v':
+                    CL_addChar(&cl, '\v');
+                    break;
+                case 'f':
+                    CL_addChar(&cl, '\f');
+                    break;
+                case 'b':
+                    CL_addChar(&cl, '\b');
+                    break;
+                case 'r':
+                    CL_addChar(&cl, '\r');
+                    break;
+                default:
+                    printf("Error..\\ mistake\n");
+                    exit(0);
+                    break;
+            }
+            i=i+1;
+            continue;
+        }
+        if (input_str[i]=='"') {
+            int index_of_final=indexOfFinalDoubleQuote(input_str, i);
+            i=index_of_final;
+            int j=0;
+            for (; j<index_of_final+1; j++) {
+                CL_addChar(&cl, input_str[j]);
+            }
+            continue;
+        }
+
+        CL_addChar(&cl, input_str[i]);
+
+    }
+
+return CL_toString(cl);
+    
+}
 
 
 

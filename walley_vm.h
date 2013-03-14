@@ -473,6 +473,7 @@ void VM_RUN_ONE_COMMAND(OPERATION operation){
                     print_str2[i]=print_str[i+1];
                 }
                 print_str2[i]=0;
+                print_str2=CL_formatWalleyString(print_str2);
             }
             else{
                 print_str2=load_value(print_str);
@@ -699,39 +700,91 @@ void VM_Run_File(char *file_name){
     while ((fgets(arr, 10000, fp)) != NULL) {
         length=(int)strlen(arr);
         char enum_name[10]="";
-        char *arg0=(char*)malloc(sizeof(char)*100);
-        char *arg1=(char*)malloc(sizeof(char)*100);
-        char *arg2=(char*)malloc(sizeof(char)*100);
+        char *arg0;
+        char *arg1;
+        char *arg2;        
+        Char_List *cl0;
+        Char_List *cl1;
+        Char_List *cl2;
         
-        if (arr[length-1]=='\n') {
-            arr[length-1]=' ';
+
+        CL_initWithChar(&cl0, 0);
+        CL_initWithChar(&cl1, 0);
+        CL_initWithChar(&cl2, 0);
+
+        // remove \b behind
+        int a=1;
+        while (arr[length-a]=='\n') {
+            arr[length-a]=' ';
+            a++;
         }
+        
+        
         int i=0;
         while (arr[i]!=' '&&i<length) {
             enum_name[i]=arr[i];
             i++;
         }
+        
         i=i+1;
         int count=0;
         while (arr[i]!=' '&&i<length) {
-            arg0[count]=arr[i];
-            count++;
-            i++;
+            if (arr[i]=='"') {
+                int index_of_final=indexOfFinalDoubleQuote(arr, i);
+                for (; i<index_of_final+1; i++) {
+                    CL_addChar(&cl0, arr[i]);
+                    count++;
+                }
+                
+            }
+            else{
+                CL_addChar(&cl0, arr[i]);
+                count++;
+                i++;
+            }
         }
+        
         i=i+1;
         count=0;
         while (arr[i]!=' '&&i<length) {
-            arg1[count]=arr[i];
-            count++;
-            i++;
+            if (arr[i]=='"') {
+                int index_of_final=indexOfFinalDoubleQuote(arr, i);
+                for (; i<index_of_final+1; i++) {
+                    CL_addChar(&cl1, arr[i]);
+                    count++;
+                }
+                
+            }
+            else{
+                CL_addChar(&cl1, arr[i]);
+                count++;
+                i++;
+            }
         }
+    
+    
         i=i+1;
         count=0;
         while (arr[i]!=' '&&i<length) {
-            arg2[count]=arr[i];
+            if (arr[i]=='"') {
+                int index_of_final=indexOfFinalDoubleQuote(arr, i);
+                for (; i<index_of_final+1; i++) {
+                    CL_addChar(&cl2, arr[i]);
+                    count++;
+                }
+                
+            }
+            else{
+            CL_addChar(&cl2, arr[i]);
             count++;
             i++;
+            }
         }
+    
+        arg0=CL_toString(cl0);
+        arg1=CL_toString(cl1);
+        arg2=CL_toString(cl2);
+        
         if ((int)strlen(arg0)==0) {
             arg0=NULL;
         }

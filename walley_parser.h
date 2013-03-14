@@ -6,7 +6,7 @@
 //  Copyright (c) 2013年 shd101wyy. All rights reserved.
 //
 
-#include "walley_lexical.h"
+#include "walley_lexer.h"
 /*
     PARSER SO HARD
     I GIVE UP NOW
