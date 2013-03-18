@@ -186,19 +186,16 @@ void NL_print(Node_List *nl){
     TREE_print(nl->node);
     NL_print(nl->next);
 }
+/*
 void TREE_print(TREE tree){
     printf("[%d %d] %s  ",tree.layer,tree.index,tree.name);
     int length_of_node_list=NL_length(tree.node_list);
-    int i=0;
     
     if (length_of_node_list==0) {
         printf("\n");
     }
-    /*
-     for (; i<length_of_node_list; i++) {
-     printf("| ");
-     }
-     */
+   
+    
     if (length_of_node_list!=0) {
         //printf("\n");
         printf("[%s : ",tree.name);
@@ -217,6 +214,23 @@ void TREE_print(TREE tree){
         
     }
 }
+*/
+void TREE_print(TREE tree){
+    printf("(%s ",tree.name);
+    int length_of_node_list=NL_length(tree.node_list);
+    
+   
+    if (length_of_node_list!=0) {
+        int i=0;
+        Node_List *temp_nl=tree.node_list;
+        for (i=0; i<length_of_node_list; i++) {
+            TREE_print(temp_nl->node);
+            temp_nl=temp_nl->next;
+        }
+    }
+    printf(")");
+}
+
 void TREE_changeNameAccordingToIndex(TREE *tree, int index, char *change_to_name){
     TREE *temp_tree=TREE_getTreeAccordingToIndex(tree, index);
     (*temp_tree).name=change_to_name;
@@ -388,12 +402,13 @@ bool first_cal(TREE *tree, Token_List *tl){
 
 
 /*
- 
+ Calculation version 1.0
+
  postfix:
  
  expr->expr '+' s_term
      | expr '-' s_term
-     | term
+     | s_term
  
  s_term->s_term '*' factor
      | s_term '/' factor
@@ -408,7 +423,7 @@ bool factor(TREE *tree, Token_List *tl);
 bool expr(TREE *tree, Token_List *tl);
 bool s_term(TREE *tree, Token_List *tl);
 
-
+/*
 bool expr(TREE *tree, Token_List *tl){
     int length_of_tl=TL_length(tl);
     int index_of_plus=TL_indexOfTokenThatHasTokenString(tl, "+");
@@ -499,7 +514,7 @@ bool s_term(TREE *tree, Token_List *tl){
         return TRUE;
     }
     
-    return factor(tree, tl) || FALSE;
+    return factor(tree, tl) || expr(tree, tl);
     
 }
 bool factor(TREE *tree, Token_List *tl){
@@ -532,7 +547,225 @@ bool factor(TREE *tree, Token_List *tl){
             return FALSE;
     }
 }
+*/
 
+/*
+ 
+ Calculation version 1.1
+ expr-> expr '+' expr
+      | expr '-' expr
+      | s_term
+ s_term -> s_term "*" factor
+        |  s_term "/" factor
+        |  factor
+ factor -> num
+        | (expr)
+    
+ where "*" "/" "+" "-" are sign not in () from behind
+ */
+
+// get index of '*' ... not in parenthesis
+/*
+int TL_indexOfSignNotInParenthesis(struct TL *tl){
+    int length=TL_length(tl);
+    int i=0;
+    int count_of_parenthesis=0;
+    for (; i<length; i++) {
+        if (strcmp(tl->current_token.TOKEN_STRING, "(")==0) {
+            count_of_parenthesis++;
+            tl=tl->next;
+            continue;
+        }
+        if (strcmp(tl->current_token.TOKEN_STRING, ")")==0) {
+            count_of_parenthesis--;
+             tl=tl->next;
+            continue;
+        }
+        if (count_of_parenthesis==0 && strcmp("m_operator", tl->current_token.TOKEN_CLASS)==0) {
+            return i;
+        }
+        tl=tl->next;
+    }
+    return -1;
+}
+int TL_indexOfRequiredSignNotInParenthesis(struct TL *tl,char *required_sign){
+    int length=TL_length(tl);
+    int i=0;
+    int count_of_parenthesis=0;
+    for (; i<length; i++) {
+        if (strcmp(tl->current_token.TOKEN_STRING, "(")==0) {
+            count_of_parenthesis++;
+             tl=tl->next;
+            continue;
+        }
+        if (strcmp(tl->current_token.TOKEN_STRING, ")")==0) {
+            count_of_parenthesis--;
+             tl=tl->next;
+            continue;
+        }
+        if (count_of_parenthesis==0 && strcmp(required_sign, tl->current_token.TOKEN_STRING)==0) {
+            return i;
+        }
+        tl=tl->next;
+    }
+    return -1;
+}
+*/
+
+
+
+
+bool expr(TREE *tree, Token_List *tl){
+    // expr-> expr '+' expr
+    // | expr '-' expr
+    // | s_term
+    int length_of_tl=TL_length(tl);
+    int count_of_parenthesis=0;
+    Token_List *temp_tl=tl;
+
+    while (tl->next!=NULL) {
+        tl=tl->next;
+    }
+    
+    int i=length_of_tl-1;
+    for (; i>=0; i--) {
+        if (strcmp(tl->current_token.TOKEN_STRING, "(")==0) {
+            count_of_parenthesis++;
+            tl=tl->ahead;
+            continue;
+        }
+        if (strcmp(tl->current_token.TOKEN_STRING, ")")==0) {
+            count_of_parenthesis--;
+            tl=tl->ahead;
+            continue;
+        }
+        // expr '+' expr
+        // expr '-' expr
+        if (count_of_parenthesis==0 && (strcmp("+", tl->current_token.TOKEN_STRING)==0 || strcmp("-", tl->current_token.TOKEN_STRING)==0 )) {
+            char *sign=tl->current_token.TOKEN_STRING;
+
+            tl=temp_tl;
+            int index_of_first_sign=i;
+            Token_List *tl1=TL_subtl(tl, 0, index_of_first_sign);
+            Token_List *tl2=TL_subtl(tl, index_of_first_sign+1, length_of_tl);
+            TREE_addNode(tree, sign);
+           
+            
+            TREE_addNodeAtIndex(tree, TREE_INDEX-1, "expr");
+            TREE_addNodeAtIndex(tree, TREE_INDEX-2, "expr");
+            
+            int index_of_expr1_node=TREE_INDEX-2;
+            int index_of_expr2_node=TREE_INDEX-1;
+            
+            return
+            expr(TREE_getTreeAccordingToIndex(tree,index_of_expr1_node), tl1)
+            &&
+            expr(TREE_getTreeAccordingToIndex(tree,index_of_expr2_node), tl2);
+        }
+        
+        
+        tl=tl->ahead;
+        
+        
+       
+    }
+    
+    tl=temp_tl;
+    // s_term
+    return s_term(tree, tl);
+
+}
+
+bool s_term(TREE *tree, Token_List *tl){
+    
+    //s_term -> s_term "*" factor
+    //|  s_term "/" factor
+    //|  factor
+    
+    int length_of_tl=TL_length(tl);
+    int count_of_parenthesis=0;
+    Token_List *temp_tl=tl;
+    
+    while (tl->next!=NULL) {
+        tl=tl->next;
+    }
+    
+    int i=length_of_tl-1;
+    for (; i>=0; i--) {
+        if (strcmp(tl->current_token.TOKEN_STRING, "(")==0) {
+            count_of_parenthesis++;
+            tl=tl->ahead;
+            continue;
+        }
+        if (strcmp(tl->current_token.TOKEN_STRING, ")")==0) {
+            count_of_parenthesis--;
+            tl=tl->ahead;
+            continue;
+        }
+        //    s_term "*" factor
+        // |  s_term "/" factor
+        if (count_of_parenthesis==0 && (strcmp("*", tl->current_token.TOKEN_STRING)==0 || strcmp("/", tl->current_token.TOKEN_STRING)==0 )) {
+            char *sign=tl->current_token.TOKEN_STRING;
+            
+            tl=temp_tl;
+            int index_of_first_sign=i;
+            Token_List *tl1=TL_subtl(tl, 0, index_of_first_sign);
+            Token_List *tl2=TL_subtl(tl, index_of_first_sign+1, length_of_tl);
+            TREE_addNode(tree, sign);
+            
+            
+            TREE_addNodeAtIndex(tree, TREE_INDEX-1, "s_term");
+            TREE_addNodeAtIndex(tree, TREE_INDEX-2, "factor");
+            
+            int index_of_node1=TREE_INDEX-2;
+            int index_of_node2=TREE_INDEX-1;
+            
+            return
+            s_term(TREE_getTreeAccordingToIndex(tree,index_of_node1), tl1)
+            &&
+            factor(TREE_getTreeAccordingToIndex(tree,index_of_node2), tl2);
+        }
+        
+        
+        tl=tl->ahead;
+        
+        
+        
+    }
+    
+    tl=temp_tl;
+    // factor
+    return factor(tree, tl);
+}
+
+bool factor(TREE *tree, Token_List *tl){
+    int length_of_tl=TL_length(tl);
+    if (length_of_tl==1) {
+        
+        // |num
+        if (term(tl->current_token.TOKEN_CLASS, "num")) {
+            tree->name=tl->current_token.TOKEN_STRING;
+            //TREE_addNode(tree, tl->current_token.TOKEN_STRING);
+            return TRUE;
+        }
+        else
+            return FALSE;
+    }
+    else{
+        Token token0=TL_tokenAtIndex(tl, 0);
+        Token tokenf=TL_tokenAtIndex(tl, length_of_tl-1);
+        // |'(' expr ')'
+        if (term(token0.TOKEN_STRING, "(")&&term(tokenf.TOKEN_STRING, ")")) {
+            int index=TREE_INDEX;
+            TREE_addNode(tree, "expr");            
+            expr(TREE_getTreeAccordingToIndex(tree, index), TL_subtl(tl, 1, length_of_tl-1));
+            
+            return TRUE;
+        }
+        else
+            return FALSE;
+    }
+}
 
 
 
