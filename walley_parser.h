@@ -648,7 +648,9 @@ bool expr(TREE *tree, Token_List *tl){
             int index_of_first_sign=i;
             Token_List *tl1=TL_subtl(tl, 0, index_of_first_sign);
             Token_List *tl2=TL_subtl(tl, index_of_first_sign+1, length_of_tl);
-            TREE_addNode(tree, sign);
+            
+            tree->name=sign;
+            //TREE_addNode(tree, sign);
            
             
             TREE_addNodeAtIndex(tree, TREE_INDEX-1, "expr");
@@ -711,8 +713,9 @@ bool s_term(TREE *tree, Token_List *tl){
             int index_of_first_sign=i;
             Token_List *tl1=TL_subtl(tl, 0, index_of_first_sign);
             Token_List *tl2=TL_subtl(tl, index_of_first_sign+1, length_of_tl);
-            TREE_addNode(tree, sign);
             
+            //TREE_addNode(tree, sign);
+            tree->name=sign;
             
             TREE_addNodeAtIndex(tree, TREE_INDEX-1, "s_term");
             TREE_addNodeAtIndex(tree, TREE_INDEX-2, "factor");
@@ -756,8 +759,10 @@ bool factor(TREE *tree, Token_List *tl){
         Token tokenf=TL_tokenAtIndex(tl, length_of_tl-1);
         // |'(' expr ')'
         if (term(token0.TOKEN_STRING, "(")&&term(tokenf.TOKEN_STRING, ")")) {
-            int index=TREE_INDEX;
-            TREE_addNode(tree, "expr");            
+            int index=TREE_INDEX-1;
+           // TREE_addNode(tree, "expr");
+            tree->name="expr";
+            
             expr(TREE_getTreeAccordingToIndex(tree, index), TL_subtl(tl, 1, length_of_tl-1));
             
             return TRUE;
