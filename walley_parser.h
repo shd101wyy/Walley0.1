@@ -85,6 +85,7 @@ int TREE_INDEX=0;
 char **TREE_OUTPUT;
 struct TREE{
     char *name;
+    char *token_class;
     int index;
     int layer;
     struct Node_List *node_list;
@@ -95,6 +96,7 @@ struct Node_List{
 };
 void TREE_initWithName(struct TREE *tree,char *name){
     (*tree).name=name;
+    (*tree).token_class="";
     (*tree).index=0;
     (*tree).node_list=NULL;
     (*tree).layer=0;
@@ -102,13 +104,14 @@ void TREE_initWithName(struct TREE *tree,char *name){
 }
 typedef struct TREE TREE;
 typedef struct Node_List Node_List;
-void TREE_addNode(struct TREE *tree, char *name){
+void TREE_addNode(struct TREE *tree, char *name, char *token_class){
     int index=TREE_INDEX;
     // initiate node_list
     if ((*tree).node_list==NULL) {
         (*tree).node_list=(struct Node_List*)malloc(sizeof(struct Node_List)*1);
         (*tree).node_list->next=NULL;
         (*tree).node_list->node.name=name;
+        (*tree).node_list->node.token_class=token_class;
         (*tree).node_list->node.index=index;
         (*tree).node_list->node.node_list=NULL;
         (*tree).node_list->node.layer=(*tree).layer+1;
@@ -118,6 +121,7 @@ void TREE_addNode(struct TREE *tree, char *name){
     else{
         Node_List *temp_node_list=(Node_List*)malloc(sizeof(Node_List)*1);
         temp_node_list->node.name=name;
+        temp_node_list->node.token_class=token_class;
         temp_node_list->node.index=index;
         temp_node_list->node.node_list=NULL;
         Node_List **current_nl=&((*tree).node_list);
@@ -217,7 +221,7 @@ void TREE_print(TREE tree){
 */
 void TREE_print(TREE tree){
     //printf("(%d %s ",tree.index,tree.name);
-    printf("(%s ",tree.name);
+    printf("(%s %s",tree.token_class,tree.name);
 
     int length_of_node_list=NL_length(tree.node_list);
     
@@ -243,9 +247,9 @@ int TREE_layer(TREE tree){
     return (*temp_tree).layer;
 }
 
-void TREE_addNodeAtIndex(TREE *tree, int index, char *add_name){
+void TREE_addNodeAtIndex(TREE *tree, int index, char *add_name, char *add_token_class){
     TREE *temp_tree=TREE_getTreeAccordingToIndex(tree, index);
-    TREE_addNode(temp_tree, add_name);
+    TREE_addNode(temp_tree, add_name, add_token_class);
 }
 /*
 int main(){
@@ -353,53 +357,12 @@ bool list(TREE *tree, Token_List *tl){
 */
 
 
-/*
- first_cal -> num
- | (first_cal)
- | num '+' first_cal
- | num '-' first_cal
- 
- */
 bool term(char *token_class_string,char *terminal){
     if (strcmp(token_class_string, terminal)==0) {
         return TRUE;
     }
     else
         return FALSE;
-}
-bool first_cal(TREE *tree, Token_List *tl){
-    int length_of_tl=TL_length(tl);
-    // | num
-    if (length_of_tl==1) {
-        TREE_addNode(tree, tl->current_token.TOKEN_STRING);
-    }
-    else{
-        Token first_token=TL_tokenAtIndex(tl, 0);
-        Token final_token=TL_tokenAtIndex(tl, length_of_tl-1);
-        // | '(' first_cal ')'
-        if (strcmp(first_token.TOKEN_STRING, "(")==0 && strcmp(final_token.TOKEN_STRING, ")")==0) {
-            TREE_addNode(tree, first_token.TOKEN_STRING);
-            int index=TREE_INDEX;
-            TREE_addNode(tree, "first_token");
-            first_cal(TREE_getTreeAccordingToIndex(tree, index),TL_subtl(tl, 1, length_of_tl-1));
-            TREE_addNode(tree, final_token.TOKEN_STRING);
-        }
-        else{
-            Token second_token=TL_tokenAtIndex(tl, 1);
-            if (strcmp(second_token.TOKEN_STRING, "+")==0 || strcmp(second_token.TOKEN_STRING, "-")==0) {
-                TREE_addNode(tree, first_token.TOKEN_STRING);
-                TREE_addNode(tree, second_token.TOKEN_STRING);
-                int index=TREE_INDEX;
-                TREE_addNode(tree, "first_token");
-                first_cal(TREE_getTreeAccordingToIndex(tree, index),TL_subtl(tl, 2, length_of_tl));
-            }
-            else{
-                return FALSE;
-            }
-        }
-        //
-    }
-    return TRUE;
 }
 
 
@@ -512,8 +475,8 @@ bool expr(TREE *tree, Token_List *tl){
             //TREE_addNode(tree, sign);
            
             int current_index=tree->index;
-            TREE_addNode(tree, "expr");            
-            TREE_addNodeAtIndex(tree, current_index, "expr");
+            TREE_addNode(tree, "expr","");            
+            TREE_addNodeAtIndex(tree, current_index, "expr","");
            
             
             int index_of_expr1_node=TREE_INDEX-2;
@@ -578,8 +541,8 @@ bool s_term(TREE *tree, Token_List *tl){
             tree->name=sign;
             
             int current_index=tree->index;
-            TREE_addNode(tree, "s_term");
-            TREE_addNodeAtIndex(tree, current_index, "factor");
+            TREE_addNode(tree, "s_term","");
+            TREE_addNodeAtIndex(tree, current_index, "factor","");
             
             int index_of_node1=TREE_INDEX-2;
             int index_of_node2=TREE_INDEX-1;
@@ -611,6 +574,7 @@ bool factor(TREE *tree, Token_List *tl){
         // |num
         if (term(tl->current_token.TOKEN_CLASS, "num")) {
             tree->name=tl->current_token.TOKEN_STRING;
+            tree->token_class="num";
             //TREE_addNode(tree, tl->current_token.TOKEN_STRING);
             return TRUE;
         }
@@ -625,6 +589,7 @@ bool factor(TREE *tree, Token_List *tl){
            // int index=TREE_INDEX-1;
            // TREE_addNode(tree, "expr");
             tree->name="expr";
+            tree->token_class="";
             
             
             return expr(tree, TL_subtl(tl, 1, length_of_tl-1));
@@ -651,7 +616,7 @@ bool func(TREE *tree, Token_List *tl){
     // id
     if (length_of_tl==1) {
         if(strcmp(tl->current_token.TOKEN_CLASS, "id")==0){
-            TREE_addNode(tree,tl->current_token.TOKEN_STRING);
+            TREE_addNode(tree,tl->current_token.TOKEN_STRING,"id");
             return TRUE;
         }
         else{
@@ -665,9 +630,9 @@ bool func(TREE *tree, Token_List *tl){
         Token token1=TL_tokenAtIndex(tl, 1);
         Token token2=TL_tokenAtIndex(tl, 2);
         if (term(token0.TOKEN_CLASS, "id")&&term(token1.TOKEN_STRING, ".")&&term(token2.TOKEN_CLASS, "id")) {
-            TREE_addNode(tree, token0.TOKEN_STRING);
-            TREE_addNode(tree, token1.TOKEN_STRING);
-            TREE_addNode(tree, token2.TOKEN_STRING);
+            TREE_addNode(tree, token0.TOKEN_STRING,"id");
+            TREE_addNode(tree, token1.TOKEN_STRING,"");
+            TREE_addNode(tree, token2.TOKEN_STRING,"id");
             return TRUE;
         }
         else{
