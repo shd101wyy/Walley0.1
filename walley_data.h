@@ -22,7 +22,6 @@ void TOKEN_print(struct TOKEN token){
     printf("%s:|%s|:%d:%d\n",token.TOKEN_CLASS,token.TOKEN_STRING,token.TOKEN_START,token.TOKEN_END);
 }
 
-typedef struct TOKEN Token;
 
 struct TL{
     struct TOKEN current_token;
@@ -30,7 +29,6 @@ struct TL{
     struct TL *next;
 };
 
-typedef struct TL Token_List;
 
 
 void TL_init(struct TL **tl){
@@ -164,3 +162,39 @@ int TL_indexOfTokenThatHasTokenString(Token_List *tl, char *token_string){
     return output;
 }
 
+
+
+char *TL_toString(Token_List *tl){
+    Token_List *temp_tl=tl;
+    int length=0;
+    while (tl->next!=NULL) {
+        length+=(int)strlen(tl->current_token.TOKEN_STRING);
+        tl=tl->next;
+    }
+    length+=(int)strlen(tl->current_token.TOKEN_STRING);
+    length++;
+    char *output=(char*)malloc(sizeof(char)*length);
+    int index=0;
+    strcpy(output, "");
+    tl=temp_tl;
+    while (tl->next!=NULL) {
+        char *copy_string=tl->current_token.TOKEN_STRING;
+        int length_of_cs=(int)strlen(copy_string);
+        int i=0;
+        for (; i<length_of_cs; i++) {
+            output[index]=copy_string[i];
+            index++;
+        }
+        tl=tl->next;
+    }
+    
+    char *copy_string=tl->current_token.TOKEN_STRING;
+    int length_of_cs=(int)strlen(copy_string);
+    int i=0;
+    for (; i<length_of_cs; i++) {
+        output[index]=copy_string[i];
+        index++;
+    }
+    output[index]=0;
+    return output;    
+}

@@ -39,6 +39,35 @@ typedef int bool;
 
 int main(int argc, char **argv);
 
+
+//walley_data:
+struct TOKEN;
+struct TL;
+
+
+typedef struct TOKEN Token;
+typedef struct TL Token_List;
+
+
+//walley_tree
+struct TREE;
+struct Node_List;
+typedef struct TREE TREE;
+typedef struct Node_List Node_List;
+
+
+//walley_parse:
+bool factor(TREE *tree, Token_List *tl);
+bool expr(TREE *tree, Token_List *tl);
+bool s_term(TREE *tree, Token_List *tl);
+
+//walley_list:
+bool value(TREE *tree, Token_List *tl);
+
+
+
+
+
 struct VAR;
 struct TOKEN;
 
