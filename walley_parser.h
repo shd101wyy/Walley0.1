@@ -408,11 +408,15 @@ TREE parser(Token_List *tl){
     //TREE_print(output_tree);
     
     // test value
-    TREE_initWithName(&output_tree,"value");
-    int is_value=value(&output_tree, tl);
-    printf("is_value %d\n",is_value);
-    TREE_print(output_tree);
+    //TREE_initWithName(&output_tree,"value");
+    //int is_value=value(&output_tree, tl);
+    //printf("is_value %d\n",is_value);
+    //TREE_print(output_tree);
 
+    // test elements
+    TREE_initWithName(&output_tree,"elements");
+    elements(&output_tree, tl);
+    TREE_print(output_tree);
     
     
    

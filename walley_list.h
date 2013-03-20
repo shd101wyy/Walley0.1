@@ -78,6 +78,30 @@ table_elements -> table_expr
 table_expr -> '[' (string|int) ']' '=' (value)
 */
 
+bool elements(TREE *tree, Token_List *tl){
+    int length_of_tl=TL_length(tl);
+    int index_of_comma=TL_indexOfTokenThatHasTokenString(tl, ",");
+    // value
+    if (index_of_comma==-1) {
+        return value(tree, tl);
+    }
+    // value ',' elements
+    else{
+        Token_List *tl1=TL_subtl(tl, 0, index_of_comma);
+        Token_List *tl2=TL_subtl(tl, index_of_comma+1,length_of_tl);
+        
+        int index_of_tl1=TREE_INDEX;
+        TREE_addNode(tree,"value","");
+        int index_of_tl2=TREE_INDEX;
+        TREE_addNode(tree, "elements", "");
+        
+        return value(TREE_getTreeAccordingToIndex(tree, index_of_tl1), tl1)&&
+        elements(TREE_getTreeAccordingToIndex(tree, index_of_tl2), tl2);
+        
+    }
+}
+
+
 bool value(TREE *tree, Token_List *tl){
     int length_of_tl=TL_length(tl);
     if (length_of_tl==1) {
@@ -110,9 +134,30 @@ bool value(TREE *tree, Token_List *tl){
 
             }
             else{
-                tree->name="list";
-                tree->token_class="";
-                return TRUE;
+                Token_List *temp_tl=tl;
+                bool is_table=FALSE;
+                while (tl->next!=NULL) {
+                    if (strcmp(tl->current_token.TOKEN_CLASS, "assignment_operator")==0) {
+                        is_table=TRUE;
+                        break;
+                    }
+                    tl=tl->next;
+                }
+                tl=temp_tl;
+                // table
+                if (is_table) {
+                    tree->name="table";
+                    tree->token_class="";
+                    printf("It is table\n");
+                    exit(0);
+                }
+                // list
+                else{
+                    tree->name="list";
+                    tree->token_class="";
+                    printf("It is list\n");
+                    exit(0);
+                }
             }
         }
         // expr

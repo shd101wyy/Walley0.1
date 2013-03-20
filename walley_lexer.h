@@ -305,6 +305,42 @@ bool match(char *input_str, int index, char *match_string){
     }
 }
 
+int LIST_indexOfFinalBracket(char *input_str, int index_of_first_bracket){
+    int count=0;
+    int in_string=FALSE;
+    int length_of_input_str=(int)strlen(input_str);
+    int i=0;
+    for (; i<length_of_input_str; i++) {
+        if (in_string==FALSE && input_str[i]=='"' && input_str[i-1]!='\\') {
+            in_string=TRUE;
+            continue;
+        }
+        if (in_string==TRUE && input_str[i]=='"' && input_str[i-1]!='\\') {
+            in_string=FALSE;
+            continue;
+        }
+        
+        if (in_string==FALSE) {
+            if (input_str[i]=='[') {
+                count++;
+                continue;
+            }
+            if (input_str[i]==']') {
+                count--;
+                if (count==0) {
+                    return i;
+                }
+                else{
+                    continue;
+                }
+            }
+        }
+
+    }
+    
+    return -1;
+}
+
 char* Walley_Analyze_Token_Class(char *input_str, int i, int *end){
     int length=(int)strlen(input_str);
     //  1  m_operator
