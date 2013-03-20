@@ -110,14 +110,16 @@ bool list(TREE *tree, Token_List *tl){
             
             
             if (existed_equal) {
-                tree->name="table";
+                tree->name=list_string;
+                tree->token_class="table";
                 printf("IT IS TABLE BUT NOT LIST\n");
                 return pairs(tree, list_tl);
-                //exit(0);
             }
             
             
             else{
+                tree->name=list_string;
+                tree->token_class="list";
                 return elements(tree, list_tl);
             }
             

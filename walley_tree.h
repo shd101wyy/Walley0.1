@@ -20,6 +20,7 @@ struct TREE{
 struct Node_List{
     struct TREE node;
     struct Node_List *next;
+    struct Node_List *ahead;
 };
 void TREE_initWithName(struct TREE *tree,char *name){
     (*tree).name=name;
@@ -36,6 +37,7 @@ void TREE_addNode(struct TREE *tree, char *name, char *token_class){
     if ((*tree).node_list==NULL) {
         (*tree).node_list=(struct Node_List*)malloc(sizeof(struct Node_List)*1);
         (*tree).node_list->next=NULL;
+        (*tree).node_list->ahead=NULL;
         (*tree).node_list->node.name=name;
         (*tree).node_list->node.token_class=token_class;
         (*tree).node_list->node.index=index;
@@ -50,15 +52,53 @@ void TREE_addNode(struct TREE *tree, char *name, char *token_class){
         temp_node_list->node.token_class=token_class;
         temp_node_list->node.index=index;
         temp_node_list->node.node_list=NULL;
+        temp_node_list->next=NULL;
+        
         Node_List **current_nl=&((*tree).node_list);
         while ((*current_nl)->next!=NULL) {
             current_nl=&((*current_nl)->next);
         }
         temp_node_list->node.layer=(*current_nl)->node.layer;
         (*current_nl)->next=temp_node_list;
+        (*current_nl)->next->ahead=(*current_nl);
         TREE_INDEX++;
     }
 }
+
+void TREE_addTree(struct TREE *tree, struct TREE add_tree){
+    int index=TREE_INDEX;
+    // initiate node_list
+    if ((*tree).node_list==NULL) {
+        (*tree).node_list=(struct Node_List*)malloc(sizeof(struct Node_List)*1);
+        (*tree).node_list->next=NULL;
+        (*tree).node_list->ahead=NULL;
+        (*tree).node_list->node=add_tree;
+        (*tree).node_list->node.index=index;
+        //(*tree).node_list->node.node_list=NULL;
+        (*tree).node_list->node.layer=(*tree).layer+1;
+        TREE_INDEX++;
+    }
+    // append new node
+    else{
+        Node_List *temp_node_list=(Node_List*)malloc(sizeof(Node_List)*1);
+        temp_node_list->node=add_tree;
+        temp_node_list->node.index=index;
+        //temp_node_list->node.node_list=NULL;
+        temp_node_list->next=NULL;
+
+        
+        Node_List **current_nl=&((*tree).node_list);
+        while ((*current_nl)->next!=NULL) {
+            current_nl=&((*current_nl)->next);
+        }
+        temp_node_list->node.layer=(*current_nl)->node.layer;
+        (*current_nl)->next=temp_node_list;
+        (*current_nl)->next->ahead=(*current_nl);
+        TREE_INDEX++;
+    }
+
+}
+
 int NL_length(Node_List *nl){
     int length=0;
     if (nl==NULL) {

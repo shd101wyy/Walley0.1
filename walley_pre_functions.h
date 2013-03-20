@@ -73,6 +73,12 @@ bool p_term(TREE *tree, Token_List *tl);
 //walley_table
 bool pairs(TREE *tree, Token_List *tl);
 
+//walley_assignment
+bool list_s(TREE *tree, Token_List *tl);
+bool var_name(TREE *tree, Token_List *tl);
+bool var_value(TREE *tree, Token_List *tl);
+
+
 struct VAR;
 struct TOKEN;
 
