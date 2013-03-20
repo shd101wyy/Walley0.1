@@ -11,39 +11,6 @@
 /*
  ============================================================================================================
  
- math_exp -> m_add
- |m_mult
- |m_div
- |m_minus
- |m_mode
- |m_pow
- 
- m_add -> num
- | '(' num ')'
- | num '+' num
- | num '+' math_exp
- m_minus -> num
- | '(' num ')'
- | num '-' num
- | num '-' math_exp
- m_mult -> num
- | '(' num ')'
- | num '*' num
- | num '*' math_exp
- m_div -> num
- | '(' num ')'
- | num '/' num
- | num '+' math_exp
- m_mode -> num
- | '(' num ')'
- | num '%' num
- | num '%' math_exp
- m_power -> num
- | '(' num ')'
- | num pow_sign num
- | num pow_sign math_exp
- 
- 
  
  value    ->num
  | id
@@ -66,6 +33,20 @@
  // table_expr  ["a"]=12 [0]=14
  table_expr -> '[' (string|int) ']' '=' (value)
  
+ 
+ 
+ Calculation version 1.1
+ expr-> expr '+' expr
+ | expr '-' expr
+ | s_term
+ s_term -> s_term "*" factor
+ |  s_term "/" factor
+ |  factor
+ 
+ factor -> num
+ | (expr)
+ 
+ where "*" "/" "+" "-" are sign not in () from behind
  
  
  
@@ -147,9 +128,9 @@ TREE parser(Token_List *tl){
     TREE output_tree;
     
     // test expr
-    //TREE_initWithName(&output_tree,"expr");
-    //expr(&output_tree, tl);
-    //TREE_print(output_tree);
+    TREE_initWithName(&output_tree,"expr");
+    expr(&output_tree, tl);
+    TREE_print(output_tree);
     
     // test value
     //TREE_initWithName(&output_tree,"value");
@@ -158,9 +139,9 @@ TREE parser(Token_List *tl){
     //TREE_print(output_tree);
 
     // test elements
-    TREE_initWithName(&output_tree,"elements");
-    elements(&output_tree, tl);
-    TREE_print(output_tree);
+    //TREE_initWithName(&output_tree,"elements");
+    //elements(&output_tree, tl);
+    //TREE_print(output_tree);
     
     // test list
     //TREE_initWithName(&output_tree,"list");

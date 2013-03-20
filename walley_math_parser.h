@@ -43,6 +43,19 @@
  factor -> num
  | (expr)
  
+ Calculation version 1.2
+ expr-> expr '+' expr
+ | expr '-' expr
+ | s_term
+ s_term -> s_term "*" p_term
+ |  s_term "/" p_term
+ |  p_term
+ p_term -> p_term "^" factor
+ |  factor
+ factor -> num
+ | (expr)
+ 
+ 
  where "*" "/" "+" "-" are sign not in () from behind
  */
 
@@ -164,8 +177,73 @@ bool expr(TREE *tree, Token_List *tl){
 
 bool s_term(TREE *tree, Token_List *tl){
     
-    //s_term -> s_term "*" factor
-    //|  s_term "/" factor
+    //s_term -> s_term "*" p_term
+    //|  s_term "/" p_term
+    //|  p_term
+    
+    int length_of_tl=TL_length(tl);
+    int count_of_parenthesis=0;
+    Token_List *temp_tl=tl;
+    
+    while (tl->next!=NULL) {
+        tl=tl->next;
+    }
+    
+    int i=length_of_tl-1;
+    for (; i>=0; i--) {
+        if (strcmp(tl->current_token.TOKEN_STRING, "(")==0) {
+            count_of_parenthesis++;
+            tl=tl->ahead;
+            continue;
+        }
+        if (strcmp(tl->current_token.TOKEN_STRING, ")")==0) {
+            count_of_parenthesis--;
+            tl=tl->ahead;
+            continue;
+        }
+        //    s_term "*" p_term
+        // |  s_term "/" p_term
+        if (count_of_parenthesis==0 && (strcmp("*", tl->current_token.TOKEN_STRING)==0 || strcmp("/", tl->current_token.TOKEN_STRING)==0 )) {
+            char *sign=tl->current_token.TOKEN_STRING;
+            
+            tl=temp_tl;
+            int index_of_first_sign=i;
+            Token_List *tl1=TL_subtl(tl, 0, index_of_first_sign);
+            Token_List *tl2=TL_subtl(tl, index_of_first_sign+1, length_of_tl);
+            
+            //TREE_addNode(tree, sign);
+            tree->name=sign;
+            
+            int current_index=tree->index;
+            TREE_addNode(tree, "s_term","");
+            TREE_addNodeAtIndex(tree, current_index, "p_term","");
+            
+            int index_of_node1=TREE_INDEX-2;
+            int index_of_node2=TREE_INDEX-1;
+            
+            
+            return
+            s_term(TREE_getTreeAccordingToIndex(tree,index_of_node1), tl1)
+            &&
+            p_term(TREE_getTreeAccordingToIndex(tree,index_of_node2), tl2);
+        }
+        
+        
+        tl=tl->ahead;
+        
+        
+        
+    }
+    
+    tl=temp_tl;
+    
+    // p_term
+    return p_term(tree, tl);
+}
+
+bool p_term(TREE *tree, Token_List *tl){
+    
+    //p_term -> p_term "^" factor
     //|  factor
     
     int length_of_tl=TL_length(tl);
@@ -188,9 +266,9 @@ bool s_term(TREE *tree, Token_List *tl){
             tl=tl->ahead;
             continue;
         }
-        //    s_term "*" factor
-        // |  s_term "/" factor
-        if (count_of_parenthesis==0 && (strcmp("*", tl->current_token.TOKEN_STRING)==0 || strcmp("/", tl->current_token.TOKEN_STRING)==0 )) {
+        
+        //    p_term "^" factor
+        if (count_of_parenthesis==0 && strcmp("^", tl->current_token.TOKEN_STRING)==0) {
             char *sign=tl->current_token.TOKEN_STRING;
             
             tl=temp_tl;
@@ -202,7 +280,7 @@ bool s_term(TREE *tree, Token_List *tl){
             tree->name=sign;
             
             int current_index=tree->index;
-            TREE_addNode(tree, "s_term","");
+            TREE_addNode(tree, "p_term","");
             TREE_addNodeAtIndex(tree, current_index, "factor","");
             
             int index_of_node1=TREE_INDEX-2;
@@ -210,7 +288,7 @@ bool s_term(TREE *tree, Token_List *tl){
             
             
             return
-            s_term(TREE_getTreeAccordingToIndex(tree,index_of_node1), tl1)
+            p_term(TREE_getTreeAccordingToIndex(tree,index_of_node1), tl1)
             &&
             factor(TREE_getTreeAccordingToIndex(tree,index_of_node2), tl2);
         }
@@ -227,6 +305,7 @@ bool s_term(TREE *tree, Token_List *tl){
     // factor
     return factor(tree, tl);
 }
+
 
 bool factor(TREE *tree, Token_List *tl){
     int length_of_tl=TL_length(tl);
@@ -260,3 +339,25 @@ bool factor(TREE *tree, Token_List *tl){
             return FALSE;
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

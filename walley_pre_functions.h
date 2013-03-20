@@ -68,7 +68,7 @@ bool term(char *token_class_string,char *terminal);
 bool factor(TREE *tree, Token_List *tl);
 bool expr(TREE *tree, Token_List *tl);
 bool s_term(TREE *tree, Token_List *tl);
-
+bool p_term(TREE *tree, Token_List *tl);
 
 struct VAR;
 struct TOKEN;
