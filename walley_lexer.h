@@ -313,7 +313,7 @@ int LIST_indexOfFinalBracket(char *input_str, int index_of_first_bracket){
     int count=0;
     int in_string=FALSE;
     int length_of_input_str=(int)strlen(input_str);
-    int i=0;
+    int i=index_of_first_bracket;
     for (; i<length_of_input_str; i++) {
         if (in_string==FALSE && input_str[i]=='"' && input_str[i-1]!='\\') {
             in_string=TRUE;

@@ -42,9 +42,22 @@
  s_term -> s_term "*" factor
  |  s_term "/" factor
  |  factor
- 
  factor -> num
  | (expr)
+ 
+ 
+ Calculation version 1.2
+ expr-> expr '+' expr
+ | expr '-' expr
+ | s_term
+ s_term -> s_term "*" p_term
+ |  s_term "/" p_term
+ |  p_term
+ p_term -> p_term "^" factor
+ |  factor
+ factor -> num
+ | (expr)
+
  
  where "*" "/" "+" "-" are sign not in () from behind
  

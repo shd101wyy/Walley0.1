@@ -55,6 +55,19 @@
  factor -> num
  | (expr)
  
+ Calculation version 1.3
+ expr-> expr '+' expr
+ | expr '-' expr
+ | s_term
+ s_term -> s_term "*" p_term
+ |  s_term "/" p_term
+ |  s_term "%" p_term
+ |  p_term
+ p_term -> p_term "^" factor
+ |  factor
+ factor -> value
+ | (expr)
+ 
  
  where "*" "/" "+" "-" are sign not in () from behind
  */
@@ -203,7 +216,7 @@ bool s_term(TREE *tree, Token_List *tl){
         }
         //    s_term "*" p_term
         // |  s_term "/" p_term
-        if (count_of_parenthesis==0 && (strcmp("*", tl->current_token.TOKEN_STRING)==0 || strcmp("/", tl->current_token.TOKEN_STRING)==0 )) {
+        if (count_of_parenthesis==0 && (strcmp("*", tl->current_token.TOKEN_STRING)==0 || strcmp("/", tl->current_token.TOKEN_STRING)==0 || strcmp("%", tl->current_token.TOKEN_STRING)==0)) {
             char *sign=tl->current_token.TOKEN_STRING;
             
             tl=temp_tl;
@@ -310,8 +323,10 @@ bool p_term(TREE *tree, Token_List *tl){
 bool factor(TREE *tree, Token_List *tl){
     int length_of_tl=TL_length(tl);
     if (length_of_tl==1) {
+        printf("length is 1 %s\n",tl->current_token.TOKEN_STRING);
         
         // |num
+        /*
         if (term(tl->current_token.TOKEN_CLASS, "num")) {
             tree->name=tl->current_token.TOKEN_STRING;
             tree->token_class="num";
@@ -320,6 +335,8 @@ bool factor(TREE *tree, Token_List *tl){
         }
         else
             return FALSE;
+         */
+        return value(tree, tl);
     }
     else{
         Token token0=TL_tokenAtIndex(tl, 0);
