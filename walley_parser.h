@@ -58,6 +58,19 @@
  factor -> num
  | (expr)
 
+ Calculation version 1.3
+ expr-> expr '+' expr
+ | expr '-' expr
+ | s_term
+ s_term -> s_term "*" p_term
+ |  s_term "/" p_term
+ |  s_term "%" p_term
+ |  p_term
+ p_term -> p_term "^" factor
+ |  factor
+ factor -> value
+ | (expr)
+
  
  where "*" "/" "+" "-" are sign not in () from behind
  
@@ -141,9 +154,9 @@ TREE parser(Token_List *tl){
     TREE output_tree;
     
     // test expr
-    TREE_initWithName(&output_tree,"expr");
-    expr(&output_tree, tl);
-    TREE_print(output_tree);
+    //TREE_initWithName(&output_tree,"expr");
+    //expr(&output_tree, tl);
+    //TREE_print(output_tree);
     
     // test value
     //TREE_initWithName(&output_tree,"value");
@@ -157,10 +170,14 @@ TREE parser(Token_List *tl){
     //TREE_print(output_tree);
     
     // test list
-    //TREE_initWithName(&output_tree,"list");
-    //list(&output_tree, tl);
-    //TREE_print(output_tree);
+    TREE_initWithName(&output_tree,"list");
+    list(&output_tree, tl);
+    TREE_print(output_tree);
     
+    // test pairs
+    //TREE_initWithName(&output_tree,"pairs");
+    //pairs(&output_tree, tl);
+    //TREE_print(output_tree);
    
     
     exit(0);

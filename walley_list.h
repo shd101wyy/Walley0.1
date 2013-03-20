@@ -107,10 +107,16 @@ bool list(TREE *tree, Token_List *tl){
                 list_tl=list_tl->next;
             }
             list_tl=temp_tl;
+            
+            
             if (existed_equal) {
+                tree->name="table";
                 printf("IT IS TABLE BUT NOT LIST\n");
-                exit(0);
+                return pairs(tree, list_tl);
+                //exit(0);
             }
+            
+            
             else{
                 return elements(tree, list_tl);
             }
@@ -169,7 +175,7 @@ bool value(TREE *tree, Token_List *tl){
         else if (strcmp("list_table", tl->current_token.TOKEN_CLASS)==0){
             tree->name=tl->current_token.TOKEN_STRING;
             tree->token_class=tl->current_token.TOKEN_CLASS;
-            printf("LIST_TABLE\n");
+            //printf("LIST_TABLE\n");
             return list(tree, tl);
         }
         else{

@@ -70,6 +70,9 @@ bool expr(TREE *tree, Token_List *tl);
 bool s_term(TREE *tree, Token_List *tl);
 bool p_term(TREE *tree, Token_List *tl);
 
+//walley_table
+bool pairs(TREE *tree, Token_List *tl);
+
 struct VAR;
 struct TOKEN;
 
