@@ -78,6 +78,51 @@ table_elements -> table_expr
 table_expr -> '[' (string|int) ']' '=' (value)
 */
 
+bool list(TREE *tree, Token_List *tl){
+    int length_of_tl=TL_length(tl);
+    // check = existed
+    bool existed_equal=FALSE;
+    
+    if (length_of_tl==1) {
+        char *list_string=tl->current_token.TOKEN_STRING;
+        int length_of_list_string=(int)strlen(list_string);
+        if (list_string[0]=='[' && list_string[length_of_list_string-1]==']') {
+            // list_string [1,2]
+            // list_string2 1,2
+            char *list_string2=(char*)malloc(sizeof(char)*(length_of_list_string-2+1));
+            int i=0;
+            for (; i<length_of_list_string-2; i++) {
+                list_string2[i]=list_string[i+1];
+            }
+            list_string2[i]=0;
+            
+            // check whether it is table
+            Token_List *list_tl=Walley_Lexical_Analyzie(list_string2);
+            Token_List *temp_tl=list_tl;
+            while (list_tl->next!=NULL) {
+                if (strcmp(list_tl->current_token.TOKEN_STRING, "=")==0) {
+                    existed_equal=TRUE;
+                    break;
+                }
+                list_tl=list_tl->next;
+            }
+            list_tl=temp_tl;
+            if (existed_equal) {
+                printf("IT IS TABLE BUT NOT LIST\n");
+                exit(0);
+            }
+            else{
+                return elements(tree, list_tl);
+            }
+            
+        }
+        else
+            return FALSE;
+    }
+    else
+        return FALSE;
+}
+
 bool elements(TREE *tree, Token_List *tl){
     int length_of_tl=TL_length(tl);
     int index_of_comma=TL_indexOfTokenThatHasTokenString(tl, ",");
@@ -108,6 +153,8 @@ bool value(TREE *tree, Token_List *tl){
         //   num
         // | id
         // | string
+        // | list
+        // | table
         if (strcmp("num", tl->current_token.TOKEN_CLASS)==0
             ||strcmp("string", tl->current_token.TOKEN_CLASS)==0
             ||strcmp("id", tl->current_token.TOKEN_CLASS)==0) {
@@ -115,55 +162,21 @@ bool value(TREE *tree, Token_List *tl){
             tree->token_class=tl->current_token.TOKEN_CLASS;
             return TRUE;
         }
+        // | list
+        // | table
+        else if (strcmp("list_table", tl->current_token.TOKEN_CLASS)==0){
+            tree->name=tl->current_token.TOKEN_STRING;
+            tree->token_class=tl->current_token.TOKEN_CLASS;
+            printf("LIST_TABLE\n");
+            return list(tree, tl);
+        }
         else{
             return FALSE;
         }
     }
+    // expr
     else{
-        //  table
-        // |list
-        if (strcmp("[", tl->current_token.TOKEN_CLASS)==0) {
-            int index_of_final_bracket=TL_indexOfFinalBracket(tl, 0);
-            if (index_of_final_bracket==-1) {
-                Walley_Print_Error(TL_toString(tl), "incomplete list or table", 0);
-                return FALSE;
-            }
-            else if (index_of_final_bracket!=length_of_tl-1){
-                Walley_Print_Error(TL_toString(tl), "wrong index of ] for list or table", 0);
-                return FALSE;
-
-            }
-            else{
-                Token_List *temp_tl=tl;
-                bool is_table=FALSE;
-                while (tl->next!=NULL) {
-                    if (strcmp(tl->current_token.TOKEN_CLASS, "assignment_operator")==0) {
-                        is_table=TRUE;
-                        break;
-                    }
-                    tl=tl->next;
-                }
-                tl=temp_tl;
-                // table
-                if (is_table) {
-                    tree->name="table";
-                    tree->token_class="";
-                    printf("It is table\n");
-                    exit(0);
-                }
-                // list
-                else{
-                    tree->name="list";
-                    tree->token_class="";
-                    printf("It is list\n");
-                    exit(0);
-                }
-            }
-        }
-        // expr
-        else{
             return expr(tree, tl);
-        }
     }
 }
 

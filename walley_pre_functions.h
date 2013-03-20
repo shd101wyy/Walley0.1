@@ -63,7 +63,8 @@ bool s_term(TREE *tree, Token_List *tl);
 
 //walley_list:
 bool value(TREE *tree, Token_List *tl);
-
+bool elements(TREE *tree, Token_List *tl);
+bool list(TREE *tree, Token_List *tl);
 
 
 

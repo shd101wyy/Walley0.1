@@ -76,10 +76,12 @@
  
  //   left_p     -> '('
  //   right_p    -> ')'
- //  left_rp    -> '['
- //   right_rp   -> ']'
- //   left_fep   -> '{'   //function expression parenthesis
+  //   left_fep   -> '{'   //function expression parenthesis
  //   right_fep  -> '}'
+ 
+ 
+ // '[' then find ']' to
+    make 'list_table'
  
      (     -> '('
      )    -> ')'
@@ -305,6 +307,8 @@ bool match(char *input_str, int index, char *match_string){
     }
 }
 
+// [0,1]
+// 01234 return 4
 int LIST_indexOfFinalBracket(char *input_str, int index_of_first_bracket){
     int count=0;
     int in_string=FALSE;
@@ -472,8 +476,6 @@ char* Walley_Analyze_Token_Class(char *input_str, int i, int *end){
     // 10 ()[]{}
     if(input_str[i]=='('
        ||input_str[i]==')'
-       ||input_str[i]=='['
-       ||input_str[i]==']'
        ||input_str[i]=='{'
        ||input_str[i]=='}'
        ){
@@ -482,6 +484,15 @@ char* Walley_Analyze_Token_Class(char *input_str, int i, int *end){
         output[0]=input_str[i];
         output[1]=0;
         return output;
+    }
+    
+    if (input_str[i]=='[') {
+        int index_of_final=LIST_indexOfFinalBracket(input_str, i);
+        if (index_of_final==-1) {
+            Walley_Print_Error(input_str, "Can not find final ]", i);
+        }
+        *end=index_of_final+1;
+        return "list_table";
     }
     
     // 11 string
