@@ -56,17 +56,18 @@ typedef struct TREE TREE;
 typedef struct Node_List Node_List;
 
 
-//walley_parse:
-bool factor(TREE *tree, Token_List *tl);
-bool expr(TREE *tree, Token_List *tl);
-bool s_term(TREE *tree, Token_List *tl);
-
 //walley_list:
 bool value(TREE *tree, Token_List *tl);
 bool elements(TREE *tree, Token_List *tl);
 bool list(TREE *tree, Token_List *tl);
 
+//walley_parser:
+bool term(char *token_class_string,char *terminal);
 
+//walley_math_parse:
+bool factor(TREE *tree, Token_List *tl);
+bool expr(TREE *tree, Token_List *tl);
+bool s_term(TREE *tree, Token_List *tl);
 
 
 struct VAR;

@@ -128,7 +128,10 @@ bool elements(TREE *tree, Token_List *tl){
     int index_of_comma=TL_indexOfTokenThatHasTokenString(tl, ",");
     // value
     if (index_of_comma==-1) {
-        return value(tree, tl);
+        int index_of_tl=TREE_INDEX;
+        TREE_addNode(tree,"value","");
+        
+        return value(TREE_getTreeAccordingToIndex(tree, index_of_tl), tl);
     }
     // value ',' elements
     else{
@@ -137,12 +140,11 @@ bool elements(TREE *tree, Token_List *tl){
         
         int index_of_tl1=TREE_INDEX;
         TREE_addNode(tree,"value","");
-        int index_of_tl2=TREE_INDEX;
-        TREE_addNode(tree, "elements", "");
+       
         
         return value(TREE_getTreeAccordingToIndex(tree, index_of_tl1), tl1)&&
-        elements(TREE_getTreeAccordingToIndex(tree, index_of_tl2), tl2);
-        
+        //elements(TREE_getTreeAccordingToIndex(tree, index_of_tl2), tl2);
+        elements(tree, tl2);
     }
 }
 
