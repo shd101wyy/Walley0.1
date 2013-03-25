@@ -40,9 +40,10 @@ if x==1 and x==2:
  
  // find 'and' and 'or' from behind not in ( )
  
- relation -> not relation
+ relation ->
             |relation 'and' relation
             |relation 'or'  relation
+            |not relation
             |simple_relation
 
 
@@ -78,13 +79,6 @@ if x==1 and x==2:
 */
 bool relation(TREE *tree, Token_List *tl){
     int length_of_tl=TL_length(tl);
-    // |not relation
-    if (term(tl->current_token.TOKEN_STRING, "not")) {
-        TREE_addNode(tree, "not", "");
-        int index=TREE_INDEX;
-        TREE_addNodeAtIndex(tree, index-1, "relation", "");
-        return relation(TREE_getTreeAccordingToIndex(tree, index), TL_subtl(tl, 1, length_of_tl));
-    }
     
     Token_List *temp_tl=tl;
     while (tl->next!=NULL) {
@@ -106,7 +100,7 @@ bool relation(TREE *tree, Token_List *tl){
         }
         // |relation 'and' relation
         // |relation 'or'  relation
-        if (count==0 && term(tl->current_token.TOKEN_CLASS, "relation")) {
+        if (count==0 && term(tl->current_token.TOKEN_CLASS, "relation") && strcmp(tl->current_token.TOKEN_STRING, "not")!=0) {
             index_of_and_or=i;
             
             char *and_or_string=tl->current_token.TOKEN_STRING;
@@ -130,6 +124,16 @@ bool relation(TREE *tree, Token_List *tl){
         tl=tl->ahead;
     }
     tl=temp_tl;
+    
+    // |not relation
+    if (term(tl->current_token.TOKEN_STRING, "not")) {
+        
+        TREE_addNode(tree, "not", "");
+        int index=TREE_INDEX;
+        TREE_addNodeAtIndex(tree, index-1, "relation", "");
+        return relation(TREE_getTreeAccordingToIndex(tree, index), TL_subtl(tl, 1, length_of_tl));
+    }
+
     
     return simple_relation(tree, tl);
 }
