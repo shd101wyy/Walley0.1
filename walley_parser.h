@@ -6,7 +6,7 @@
 //  Copyright (c) 2013年 shd101wyy. All rights reserved.
 //
 
-#include "walley_judge.h"
+#include "walley_statements.h"
 
 /*
  ============================================================================================================
@@ -159,10 +159,16 @@ TREE parser(Token_List *tl){
     //TREE_print(output_tree);
     
     // test relation
-    TREE_initWithName(&output_tree,"relation");
-    relation(&output_tree, tl);
-    TREE_print(output_tree);
+    //TREE_initWithName(&output_tree,"relation");
+    //relation(&output_tree, tl);
+    //TREE_print(output_tree);
     
+    
+    // test relation
+    TREE_initWithName(&output_tree,"statements");
+    statements(&output_tree, tl);
+    TREE_print(output_tree);
+
     exit(0);
 }
 

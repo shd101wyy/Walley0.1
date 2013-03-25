@@ -89,6 +89,19 @@ bool class_property(TREE *tree, Token_List *tl);
 bool simple_relation(TREE *tree, Token_List *tl);
 bool relation(TREE *tree, Token_List *tl);
 
+//walley_statments
+bool if_stms(TREE *tree, Token_List *tl);
+bool elif_stms(TREE *tree, Token_List *tl);
+bool else_stms(TREE *tree, Token_List *tl);
+bool while_stms(TREE *tree, Token_List *tl);
+bool for_stms(TREE *tree, Token_List *tl);
+bool func_stms(TREE *tree, Token_List *tl);
+bool statements(TREE *tree, Token_List *tl);
+
+
+
+
+
 
 struct VAR;
 struct TOKEN;

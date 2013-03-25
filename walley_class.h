@@ -23,6 +23,9 @@
  class_property-> class_property '.' id     // a.length
                 | class_property '.' func   // a.length()
                 | id
+                | string
+                | list
+                | table
 */
 
 bool class_property(TREE *tree, Token_List *tl){
@@ -56,14 +59,28 @@ bool class_property(TREE *tree, Token_List *tl){
         tl=tl->ahead;
     }
     tl=temp_tl;
-    //printf("index of dot %d %d\n",index_of_dot,length_of_tl);
-    //TL_print(tl);
+
     // id
-    if (index_of_dot==-1&&length_of_tl==1&&term(tl->current_token.TOKEN_CLASS, "id")) {
+    // string
+    if (index_of_dot==-1&&length_of_tl==1&&(term(tl->current_token.TOKEN_CLASS, "id")||term(tl->current_token.TOKEN_CLASS, "string"))) {
         //int index=TREE_INDEX;
         tree->name=tl->current_token.TOKEN_STRING;
         tree->token_class="instance_name";
         return TRUE;
+    }
+    // list
+    // table 
+    else if (index_of_dot==-1&&length_of_tl==1&&term(tl->current_token.TOKEN_CLASS, "list_table")) {
+        //int index=TREE_INDEX;
+        tree->name=tl->current_token.TOKEN_STRING;
+        tree->token_class="instance_name";
+        int index=TREE_INDEX;
+        TREE_addNode(tree, "list", "");
+        //return TRUE;
+        return list(TREE_getTreeAccordingToIndex(tree, index), tl);
+    }
+    else if (index_of_dot==-1){
+        return FALSE;
     }
     //class_property '.' id     // a.length
     //class_property '.' func   // a.length()
