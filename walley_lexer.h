@@ -348,6 +348,10 @@ int LIST_indexOfFinalBracket(char *input_str, int index_of_first_bracket){
 char* Walley_Analyze_Token_Class(char *input_str, int i, int *end){
     int length=(int)strlen(input_str);
     //  1  m_operator
+    if (match(input_str, i, "**")) {
+        *end=i+2;
+        return "m_operator";
+    }
     if (match(input_str, i, "+")
         ||match(input_str, i, "-")
         ||match(input_str, i, "*")
@@ -358,10 +362,7 @@ char* Walley_Analyze_Token_Class(char *input_str, int i, int *end){
         *end=i+1;
         return "m_operator";
     }
-    if (match(input_str, i, "**")) {
-        *end=i+2;
-        return "m_operator";
-    }
+    
     
     
     

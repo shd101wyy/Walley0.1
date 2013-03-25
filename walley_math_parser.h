@@ -281,9 +281,11 @@ bool p_term(TREE *tree, Token_List *tl){
         }
         
         //    p_term "^" factor
-        if (count_of_parenthesis==0 && strcmp("^", tl->current_token.TOKEN_STRING)==0) {
-            char *sign=tl->current_token.TOKEN_STRING;
-            
+        if (count_of_parenthesis==0 && (strcmp("^", tl->current_token.TOKEN_STRING)==0
+                                            ||strcmp("**", tl->current_token.TOKEN_STRING)==0 )) {
+            //char *sign=tl->current_token.TOKEN_STRING;
+            char *sign="^";
+
             tl=temp_tl;
             int index_of_first_sign=i;
             Token_List *tl1=TL_subtl(tl, 0, index_of_first_sign);
