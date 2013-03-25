@@ -85,6 +85,11 @@ bool func(TREE *tree, Token_List *tl);
 //walley_class
 bool class_property(TREE *tree, Token_List *tl);
 
+//walley_judge
+bool simple_relation(TREE *tree, Token_List *tl);
+bool relation(TREE *tree, Token_List *tl);
+
+
 struct VAR;
 struct TOKEN;
 

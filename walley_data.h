@@ -162,6 +162,24 @@ int TL_indexOfTokenThatHasTokenString(Token_List *tl, char *token_string){
     return output;
 }
 
+int TL_indexOfTokenThatHasTokenClass(Token_List *tl, char *token_class){
+    int output=-1;
+    int i=0;
+    while (tl->next!=NULL) {
+        if (strcmp(tl->current_token.TOKEN_CLASS, token_class)==0) {
+            return i;
+        }
+        tl=tl->next;
+        i++;
+    }
+    if (strcmp(tl->current_token.TOKEN_CLASS, token_class)==0) {
+        return i;
+    }
+    
+    return output;
+}
+
+
 
 
 char *TL_toString(Token_List *tl){
