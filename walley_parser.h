@@ -6,7 +6,7 @@
 //  Copyright (c) 2013年 shd101wyy. All rights reserved.
 //
 
-#include "walley_assignment.h"
+#include "walley_class.h"
 
 /*
  ============================================================================================================
@@ -97,53 +97,6 @@ bool term(char *token_class_string,char *terminal){
 
 
 
-/*
- def func(params):
- 
- func-> id
-      | id '.' id
- */
-
-
-/*
- 
- params-> params ',' params
-       -> value
- 
- */
-
-bool func(TREE *tree, Token_List *tl){
-    int length_of_tl=TL_length(tl);
-    // id
-    if (length_of_tl==1) {
-        if(strcmp(tl->current_token.TOKEN_CLASS, "id")==0){
-            TREE_addNode(tree,tl->current_token.TOKEN_STRING,"id");
-            return TRUE;
-        }
-        else{
-            return FALSE;
-        }
-    }
-    // id '.' id
-    else if (length_of_tl==3)
-    {
-        Token token0=TL_tokenAtIndex(tl, 0);
-        Token token1=TL_tokenAtIndex(tl, 1);
-        Token token2=TL_tokenAtIndex(tl, 2);
-        if (term(token0.TOKEN_CLASS, "id")&&term(token1.TOKEN_STRING, ".")&&term(token2.TOKEN_CLASS, "id")) {
-            TREE_addNode(tree, token0.TOKEN_STRING,"id");
-            TREE_addNode(tree, token1.TOKEN_STRING,"");
-            TREE_addNode(tree, token2.TOKEN_STRING,"id");
-            return TRUE;
-        }
-        else{
-            return FALSE;
-        }
-    }
-    else{
-        return FALSE;
-    }
-}
 
 
 
@@ -154,9 +107,9 @@ TREE parser(Token_List *tl){
     TREE output_tree;
     
     // test expr
-    //TREE_initWithName(&output_tree,"expr");
-    //expr(&output_tree, tl);
-    //TREE_print(output_tree);
+    TREE_initWithName(&output_tree,"expr");
+    expr(&output_tree, tl);
+    TREE_print(output_tree);
     
     // test value
     //TREE_initWithName(&output_tree,"value");
@@ -180,10 +133,24 @@ TREE parser(Token_List *tl){
     //TREE_print(output_tree);
     
     // test assignment
-    TREE_initWithName(&output_tree,"assignment");
-    assignment(&output_tree, tl);
-    TREE_print(output_tree);
+    //TREE_initWithName(&output_tree,"assignment");
+    //assignment(&output_tree, tl);
+    //TREE_print(output_tree);
    
+    // test params
+    //TREE_initWithName(&output_tree,"params");
+    //params(&output_tree, tl);
+    //TREE_print(output_tree);
+    
+    // test func
+    //TREE_initWithName(&output_tree,"func");
+    //func(&output_tree, tl);
+    //TREE_print(output_tree);
+
+    // test class_property
+    //TREE_initWithName(&output_tree,"class_property");
+    //class_property(&output_tree, tl);
+    //TREE_print(output_tree);
     
     exit(0);
 }

@@ -78,6 +78,12 @@ bool list_s(TREE *tree, Token_List *tl);
 bool var_name(TREE *tree, Token_List *tl);
 bool var_value(TREE *tree, Token_List *tl);
 
+//walley_function
+bool params(TREE *tree, Token_List *tl);
+bool func(TREE *tree, Token_List *tl);
+
+//walley_class
+bool class_property(TREE *tree, Token_List *tl);
 
 struct VAR;
 struct TOKEN;

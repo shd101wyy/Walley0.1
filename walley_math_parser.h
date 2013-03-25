@@ -189,7 +189,6 @@ bool expr(TREE *tree, Token_List *tl){
 }
 
 bool s_term(TREE *tree, Token_List *tl){
-    
     //s_term -> s_term "*" p_term
     //|  s_term "/" p_term
     //|  p_term
@@ -223,6 +222,7 @@ bool s_term(TREE *tree, Token_List *tl){
             int index_of_first_sign=i;
             Token_List *tl1=TL_subtl(tl, 0, index_of_first_sign);
             Token_List *tl2=TL_subtl(tl, index_of_first_sign+1, length_of_tl);
+            
             
             //TREE_addNode(tree, sign);
             tree->name=sign;
@@ -319,41 +319,21 @@ bool p_term(TREE *tree, Token_List *tl){
     return factor(tree, tl);
 }
 
-
+//factor -> value
+//| (expr)
 bool factor(TREE *tree, Token_List *tl){
     int length_of_tl=TL_length(tl);
-    if (length_of_tl==1) {
-        printf("length is 1 %s\n",tl->current_token.TOKEN_STRING);
+    //| (expr)
+    if (term(TL_tokenAtIndex(tl, 0).TOKEN_STRING,"(")&&term(TL_tokenAtIndex(tl, length_of_tl-1).TOKEN_STRING, ")")) {
+        tree->name="expr";
+        tree->token_class="";
         
-        // |num
-        /*
-        if (term(tl->current_token.TOKEN_CLASS, "num")) {
-            tree->name=tl->current_token.TOKEN_STRING;
-            tree->token_class="num";
-            //TREE_addNode(tree, tl->current_token.TOKEN_STRING);
-            return TRUE;
-        }
-        else
-            return FALSE;
-         */
-        return value(tree, tl);
+        
+        return expr(tree, TL_subtl(tl, 1, length_of_tl-1));
     }
+    // value
     else{
-        Token token0=TL_tokenAtIndex(tl, 0);
-        Token tokenf=TL_tokenAtIndex(tl, length_of_tl-1);
-        // |'(' expr ')'
-        if (term(token0.TOKEN_STRING, "(")&&term(tokenf.TOKEN_STRING, ")")) {
-            // int index=TREE_INDEX-1;
-            // TREE_addNode(tree, "expr");
-            tree->name="expr";
-            tree->token_class="";
-            
-            
-            return expr(tree, TL_subtl(tl, 1, length_of_tl-1));
-            ;
-        }
-        else
-            return FALSE;
+        return value(tree, tl);
     }
 }
 

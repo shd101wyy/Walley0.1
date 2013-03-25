@@ -60,6 +60,8 @@ int TL_indexOfFinalBracket(Token_List *tl, int index_of_first_bracket){
  | string
  | list
  | table
+ | func
+ | class_property
  | expr
 
  
@@ -163,8 +165,6 @@ bool value(TREE *tree, Token_List *tl){
         //   num
         // | id
         // | string
-        // | list
-        // | table
         if (strcmp("num", tl->current_token.TOKEN_CLASS)==0
             ||strcmp("string", tl->current_token.TOKEN_CLASS)==0
             ||strcmp("id", tl->current_token.TOKEN_CLASS)==0) {
@@ -184,9 +184,13 @@ bool value(TREE *tree, Token_List *tl){
             return FALSE;
         }
     }
+    
+    // func
+    // class_property
     // expr
     else{
-            return expr(tree, tl);
+        
+        return func(tree, tl)|| class_property(tree, tl) ||expr(tree, tl);
     }
 }
 
