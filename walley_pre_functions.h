@@ -63,6 +63,7 @@ bool list(TREE *tree, Token_List *tl);
 
 //walley_parser:
 bool term(char *token_class_string,char *terminal);
+Token_List *TREE_convertAST(TREE tree);
 
 //walley_math_parse:
 bool factor(TREE *tree, Token_List *tl);
@@ -97,6 +98,10 @@ bool while_stms(TREE *tree, Token_List *tl);
 bool for_stms(TREE *tree, Token_List *tl);
 bool func_stms(TREE *tree, Token_List *tl);
 bool statements(TREE *tree, Token_List *tl);
+
+
+
+
 
 
 

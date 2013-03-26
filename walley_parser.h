@@ -99,7 +99,7 @@ bool term(char *token_class_string,char *terminal){
 
 
 
-
+// Generate AST
 TREE parser(Token_List *tl){
     // reset TREE_INDEX value
     TREE_INDEX=0;
@@ -164,15 +164,85 @@ TREE parser(Token_List *tl){
     //TREE_print(output_tree);
     
     
-    // test relation
+    // test statements
     TREE_initWithName(&output_tree,"statements");
     statements(&output_tree, tl);
     TREE_print(output_tree);
 
-    exit(0);
+    //exit(0);
+    
+    return output_tree;
 }
 
 
+
+// Convert AST to token list
+/*
+    +
+   / \
+   3  4
+ 
+ convert to ->
+ 
+ 3 4 +
+ 
+    +
+   / \
+  *   /
+ / \  / \
+ 1 2  3  4
+ 
+ conver to ->
+ 
+ 1 2 * 3 4 / +
+ 
+ */
+
+Token_List *TREE_convertAST(TREE tree){
+    Token_List *output_tl;
+    TL_init(&output_tl);
+    
+    Node_List *nl=tree.node_list;
+    int length_of_nl=NL_length(nl);
+    
+    if (length_of_nl!=0) {
+        int i=0;
+        for (; i<length_of_nl; i++) {
+            TREE temp_tree=nl->node;
+            
+            Token_List *temp_tl=TREE_convertAST(temp_tree);
+            int length_of_temp_tl=TL_length(temp_tl);
+            int j=0;
+            for (; j<length_of_temp_tl; j++) {
+                TL_addToken(&output_tl, temp_tl->current_token);
+                temp_tl=temp_tl->next;
+            }
+            
+            nl=nl->next;
+        }
+        
+        Token addToken;
+        addToken.TOKEN_STRING=tree.name;
+        addToken.TOKEN_CLASS=tree.token_class;
+        addToken.TOKEN_START=0;
+        addToken.TOKEN_END=0;
+        TL_addToken(&output_tl, addToken);
+
+        
+    }
+    else{
+        Token addToken;
+        addToken.TOKEN_STRING=tree.name;
+        addToken.TOKEN_CLASS=tree.token_class;
+        addToken.TOKEN_START=0;
+        addToken.TOKEN_END=0;
+        TL_addToken(&output_tl, addToken);
+        return output_tl;
+    }
+    
+    return output_tl;
+    
+}
 
 
 

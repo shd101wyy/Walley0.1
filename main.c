@@ -11,7 +11,19 @@
 int main(int argc, char **argv)
 {
    
-       
+    
+    
+    char *to_analyze_str="3*(2+5)";
+    struct TL *tl=Walley_Lexical_Analyzie(to_analyze_str);
+    TL_print(tl);
+    TREE output_tree=parser(tl);
+    
+    Token_List *output_tl=TREE_convertAST(output_tree);
+    printf("AFTER CONVERTING==========\n");
+    TL_print(output_tl);
+    exit(0);
+    
+    
     if (argc==2) {
         char *file_name=argv[1];
         VM_Run_File(file_name);
