@@ -100,9 +100,45 @@ bool func_stms(TREE *tree, Token_List *tl);
 bool statements(TREE *tree, Token_List *tl);
 
 
+//walley_var
+struct Var;
+typedef struct Var Var;
+struct Var_List;
+typedef struct Var_List Var_List;
 
 
+//walley_vm
 
+struct Stack;
+typedef struct Stack Stack;
+enum OPCODE;
+char *OPCODE_getFromOpcode(enum OPCODE opcode);
+enum OPCODE OPCODE_getFromString(char *input_str);
+
+struct OPERATION;
+typedef struct OPERATION OPERATION;
+
+void OPERATION_print(OPERATION operation);
+void REGISTER_Print();
+//void STACK_Print();
+char *const_value(char *input_str);
+//int register_index(char *input_str);
+char *load_value(char *input_str);
+struct OL;
+typedef struct OL Operation_List;
+void OL_init(struct OL **ol);
+void OL_print(struct OL *ol);
+void OL_append(struct OL **ol, OPERATION operation);
+int OL_length(struct OL *ol);
+void VM_RUN_ONE_COMMAND(OPERATION operation);
+bool pass(char *value1, char *value2, enum OPCODE opcode);
+void VM_Run_Command(struct OL *ol);
+void VM_Run_File(char *file_name);
+void VM_init();
+
+
+int GLOBAL_OFFSET=0;
+Var_List *GLOBAL_VAR_LIST;
 
 
 

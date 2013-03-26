@@ -6,21 +6,28 @@
 //  Copyright (c) 2013年 shd101wyy. All rights reserved.
 //
 
-#include "walley_vm.h"
+#include "walley_code_generation.h"
 
 int main(int argc, char **argv)
 {
    
     
     
-    char *to_analyze_str="3*(2+5)";
-    struct TL *tl=Walley_Lexical_Analyzie(to_analyze_str);
-    TL_print(tl);
-    TREE output_tree=parser(tl);
+     
+     VM_init();
+     
+     char *to_analyze_str="x=12+3";
+     struct TL *tl=Walley_Lexical_Analyzie(to_analyze_str);
+     TL_print(tl);
+     TREE output_tree=parser(tl);
+     Token_List *output_tl=TREE_convertAST(output_tree);
+     printf("\nAFTER CONVERTING==========\n");
+     TL_print(output_tl);
+     
+     Operation_List *ol=CG(output_tl);
+     printf("\nOPERATION LIST============\n");
+     OL_print(ol);
     
-    Token_List *output_tl=TREE_convertAST(output_tree);
-    printf("AFTER CONVERTING==========\n");
-    TL_print(output_tl);
     exit(0);
     
     
@@ -44,6 +51,22 @@ int main(int argc, char **argv)
         else if (strcmp(argv[1],"vm")==0) {
             char *file_name=argv[2];
             VM_Run_File(file_name);
+        }
+        else if (strcmp(argv[1],"cg")==0) {
+            
+            VM_init();
+            
+            char *to_analyze_str=argv[2];
+            struct TL *tl=Walley_Lexical_Analyzie(to_analyze_str);
+            TL_print(tl);
+            TREE output_tree=parser(tl);
+            Token_List *output_tl=TREE_convertAST(output_tree);
+            printf("\nAFTER CONVERTING==========\n");
+            TL_print(output_tl);
+            
+            Operation_List *ol=CG(output_tl);
+            printf("\nOPERATION LIST============\n");
+            OL_print(ol);
         }
 
         

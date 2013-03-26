@@ -416,9 +416,13 @@ return CL_toString(cl);
 }
 
 
-
-
-
+char *intToCString(double num1){
+    int num1_int=(int)num1;
+    char *temp=(char*)malloc(sizeof(char)*100);
+    sprintf(temp, "%d",num1_int);
+    return temp;
+    
+}
 
 
 

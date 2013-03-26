@@ -1,19 +1,19 @@
 
-#include "walley_parser.h"
+#include "walley_var.h"
+
+
 struct Stack{
     char *value;
 };
 
 /*
- SETG 0 #1
+ SET 0 #1
  PRINT 0
  LT 0 #10
- JMP 6
- LOADG r0 0
- ADD r0 r0 #1
- SETG 0 r0
+ JMP 4
+ ADD 0 0 #1
  PRINT 0
- JMP -6
+ JMP -4
  PRINT "FINISH LOOP!!!"
  HALT
  
@@ -24,12 +24,6 @@ struct Stack{
  print "Finish Loop"
  */
 
-// eg var_name :a  address :0
-//    then found value of a at address 0
-struct Var_Table{
-    char *var_name;
-    int address;
-};
 
 
 // #3  means const value
@@ -43,13 +37,16 @@ enum OPCODE{
     DIV,      // 03 DIV arg0 arg1 arg2 ; /
     MOD,      // 04 MOD arg0 arg1 arg2 ; %
     POW,      // 05 POW arg0 arg1 arg2 ; ^
-    LOADG,    // 06 LOADG dest from   ; load global value
-    LOADL,    // 07 LOADL dest from   ; load local value
+    SET,      // 06 SET dest src       ; SET 0 #100; set const 100 in register address 0; SET 0 1, set value in register 1 to register 0
+    SETNONE,  // 07 SETNONE dest       ; SET none to dest
+    //LOADG,    // 06 LOADG dest from   ; load global value
+    //LOADL,    // 07 LOADL dest from   ; load local value
     PRINT,    // 08 PRINT arg0         ;
     HALT,     // 09 HALT               ;
-    SETG,     // 10 SETG dest value    ; set global value
-    SETL,     // 11 SETL dest value    ; set local value
-    MOVE,     // 12 MOVE dest from     ; move value
+    SETCONS,    //10 SETCONS dest value;  SETCONS 0 100, set const value 100 to register 0
+    //SETG,     // 10 SETG dest value    ; set global value
+    //SETL,     // 11 SETL dest value    ; set local value
+    //MOVE,     // 12 MOVE dest from     ; move value
     JMP,      // 13 JMP steps          ; jump steps.. eg jump -2   --> jump back 2 steps
     $,        // 14 annotation 
     EQ,       // 15 EQ arg0 arg1  ; if arg0==arg1 continue next next sentence, else run next sentence; == EQUAL
@@ -85,11 +82,14 @@ char *OPCODE_getFromOpcode(enum OPCODE opcode){
         case POW:
             return "POW";
             break;
-        case LOADG:
-            return "LOADG";
+        case SET:
+            return "SET";
             break;
-        case LOADL:
-            return "LOADL";
+        case SETNONE:
+            return "SETNONE";
+            break;
+        case SETCONS:
+            return "SETCONS";
             break;
         case PRINT:
             return "PRINT";
@@ -97,15 +97,8 @@ char *OPCODE_getFromOpcode(enum OPCODE opcode){
         case HALT:
             return "HALT";
             break;
-        case SETG:
-            return "SETG";
-            break;
-        case SETL:
-            return "SETL";
-            break;
-        case MOVE:
-            return "MOVE";
-            break;
+        
+        
         case JMP:
             return "JMP";
             break;
@@ -131,6 +124,8 @@ char *OPCODE_getFromOpcode(enum OPCODE opcode){
             return "JMPB";
             break;
         default:
+            printf("Error..Unavailable opcode\n");
+            exit(0);
             break;
     }
 }
@@ -154,27 +149,24 @@ enum OPCODE OPCODE_getFromString(char *input_str){
     else if (strcmp(input_str,"POW")==0) {
         return POW;
     }
-    else if (strcmp(input_str,"LOADG")==0) {
-        return LOADG;
+    else if (strcmp(input_str,"SET")==0) {
+        return SET;
     }
-    else if (strcmp(input_str,"LOADL")==0) {
-        return LOADL;
+    else if (strcmp(input_str,"SETNONE")==0) {
+        return SETNONE;
     }
+    else if (strcmp(input_str,"SETCONS")==0) {
+        return SETCONS;
+    }
+    
     else if (strcmp(input_str,"PRINT")==0) {
         return PRINT;
     }
     else if (strcmp(input_str,"HALT")==0) {
         return HALT;
     }
-    else if (strcmp(input_str,"SETG")==0) {
-        return SETG;
-    }
-    else if (strcmp(input_str,"SETL")==0) {
-        return SETL;
-    }
-    else if (strcmp(input_str,"MOVE")==0) {
-        return MOVE;
-    }
+    
+    
     else if (strcmp(input_str,"JMP")==0) {
         return JMP;
     }
@@ -205,12 +197,12 @@ enum OPCODE OPCODE_getFromString(char *input_str){
     }
 }
 
-typedef struct OPERATION{
+struct OPERATION{
     enum OPCODE opcode;
     char *arg0;
     char *arg1;
     char *arg2;
-}OPERATION;
+};
 
 void OPERATION_print(OPERATION operation){
     printf("%s %s %s %s\n",OPCODE_getFromOpcode(operation.opcode),operation.arg0,operation.arg1,operation.arg2);
@@ -221,25 +213,36 @@ typedef struct REGISTER{
 }REGISTER;
 
 
-#define MAX_STACK 256
+#define MAX_STACK 256  // stop using this now 
+#define MAX_REGISTERS 256
 #define MAX_LOCAL_VALUE 60
-#define REGISTER_NUM 4
+
+
 int PC=0;
-int GLOBAL_COUNT=0;
+//int GLOBAL_OFFSET=0; i move this value to walley_pre_functions
 int LOCAL_COUNT=255;
-struct Stack stack[MAX_STACK];
-REGISTER register_w[REGISTER_NUM];
+
+
+
+
+
+//Stack stack[MAX_STACK];
+REGISTER register_w[MAX_REGISTERS];
 
 void REGISTER_Print(){
     int i=0;
     printf("REGISTER\n");
     printf("========\n");
-    for (; i<REGISTER_NUM; i++) {
+    for (; i<MAX_REGISTERS; i++) {
+        if (register_w[i].value==NULL) {
+            continue;
+        }
         printf("[%d] --> %s\n",i,register_w[i].value);
     }
     printf("\n\n");
 }
 
+/*
 void STACK_Print(){
     int i=MAX_STACK-1;
     printf("STACK\n");
@@ -253,7 +256,7 @@ void STACK_Print(){
     printf("\n\n");
     
 }
-
+*/
 
 // #100 return 100
 char *const_value(char *input_str){
@@ -267,11 +270,16 @@ char *const_value(char *input_str){
     return return_value;
 }
 
+/*
 // r1 return 1
 int register_index(char *input_str){
+    
+    // LOADG 0 #100
+    // load const 100 to register 0
     if (input_str[0]!='r') {
-        printf("Error..it is not register\n");
-        exit(0);
+        //printf("Error..it is not register\n");
+        //exit(0);
+        return atoi(input_str);
     }
     int length=(int)strlen(input_str);
     char *return_value=(char*)malloc(sizeof(char)*length);
@@ -281,24 +289,28 @@ int register_index(char *input_str){
     }
     return_value[i]=0;
     int return_int=atoi(return_value);
-    if (return_int>=REGISTER_NUM) {
+    if (return_int>=MAX_REGISTERS) {
         printf("Error..unavailable register %d\n",return_int);
         exit(0);
     }
     return return_int;
 }
+*/
 
 // #100 return 100
-// r1 return value in r1
+// 1 return value in 1
 char *load_value(char *input_str){
     if (input_str[0]=='#') {
         return const_value(input_str);
     }
+    /*
     else if (input_str[0]=='r'){
         return register_w[register_index(input_str)].value;
     }
     else
         return stack[atoi(input_str)].value;
+     */
+    return register_w[atoi(input_str)].value;
 }
 
 char *add(char *num1, char *num2){
@@ -393,48 +405,63 @@ int OL_length(struct OL *ol){
 void VM_RUN_ONE_COMMAND(OPERATION operation){
     //printf("=====\n");
     //OPERATION_print(operation);
-    char *arg0=NULL;
+    //char *arg0=NULL;
     char *arg1=NULL;
     char *arg2=NULL;
     int r_index1=-1;
-    int r_index2=-1;
-    int s_index=-1;
+    //int r_index2=-1;
+    //int s_index=-1;
     char *print_str=NULL;
     char *print_str2=NULL;
     
     switch (operation.opcode) {
+            /*
         case LOADG:
             // LOAD r1 #100
             r_index1=register_index(operation.arg0);
             arg1=load_value(operation.arg1);
             register_w[r_index1].value=arg1;
             break;
-            
+            */
+            /*
         case MOVE:
             // MOVE r1 r2
             r_index1=register_index(operation.arg0);
             r_index2=register_index(operation.arg1);
             register_w[r_index1].value=register_w[r_index2].value;
             break;
-            
-            
+             */
+        case SET:
+            // SET 0 1
+            // SET 0 #100
+            register_w[atoi(operation.arg0)].value=load_value(operation.arg1);
+            break;
+        case SETNONE:
+            // SETNONE 0
+            register_w[atoi(operation.arg0)].value="none";
+            break;
+        case SETCONS:
+            // SETCONS 0 100
+            register_w[atoi(operation.arg0)].value=operation.arg1;
+            break;
+            /*
         case SETG:
             // SETG 0 r1
             s_index=atoi(operation.arg0);
             arg1=load_value(operation.arg1);
             stack[s_index].value=arg1;
             break;
-            
+            */
             
             // ADD SUB MULT DIV MOD POW only support num now
         case ADD:
-            // ADD r0 r0 r1
+            // ADD 0 0 1
             //printf("%s %s\n",operation.arg2,operation.arg1);
             arg2=load_value(operation.arg2);
             arg1=load_value(operation.arg1);
             //printf("%s %s\n",arg2,arg1);
 
-            r_index1=register_index(operation.arg0);
+            r_index1=atoi(operation.arg0);
             register_w[r_index1].value=add(arg1, arg2);
             break;
             
@@ -443,7 +470,7 @@ void VM_RUN_ONE_COMMAND(OPERATION operation){
             // SUB r0 r0 r1   r0=r0-r1
             arg2=load_value(operation.arg2);
             arg1=load_value(operation.arg1);
-            r_index1=register_index(operation.arg0);
+            r_index1=atoi(operation.arg0);
             register_w[r_index1].value=sub(arg1, arg2);
             break;
             
@@ -452,8 +479,8 @@ void VM_RUN_ONE_COMMAND(OPERATION operation){
             // SUB r0 r0 r1   r0=r0-r1
             arg2=load_value(operation.arg2);
             arg1=load_value(operation.arg1);
-            r_index1=register_index(operation.arg0);
-            register_w[r_index1].value=sub(arg1, arg2);
+            r_index1=atoi(operation.arg0);
+            register_w[r_index1].value=mul(arg1, arg2);
             break;
             
             
@@ -461,7 +488,7 @@ void VM_RUN_ONE_COMMAND(OPERATION operation){
             // SUB r0 r0 r1   r0=r0-r1
             arg2=load_value(operation.arg2);
             arg1=load_value(operation.arg1);
-            r_index1=register_index(operation.arg0);
+            r_index1=atoi(operation.arg0);
             register_w[r_index1].value=divide(arg1, arg2);
             break;
             
@@ -470,7 +497,7 @@ void VM_RUN_ONE_COMMAND(OPERATION operation){
             // SUB r0 r0 r1   r0=r0-r1
             arg2=load_value(operation.arg2);
             arg1=load_value(operation.arg1);
-            r_index1=register_index(operation.arg0);
+            r_index1=atoi(operation.arg0);
             register_w[r_index1].value=mod(arg1, arg2);
             break;
             
@@ -479,7 +506,7 @@ void VM_RUN_ONE_COMMAND(OPERATION operation){
             // SUB r0 r0 r1   r0=r0-r1
             arg2=load_value(operation.arg2);
             arg1=load_value(operation.arg1);
-            r_index1=register_index(operation.arg0);
+            r_index1=atoi(operation.arg0);
             register_w[r_index1].value=power(arg1, arg2);
             break;
         case PRINT:
@@ -516,7 +543,7 @@ void VM_RUN_ONE_COMMAND(OPERATION operation){
 }
 
 bool pass(char *value1, char *value2, enum OPCODE opcode){
-    bool pass=FALSE;
+    //bool pass=FALSE;
     if (stringIsDigit(value1)&&stringIsDigit(value2)) {
         double v1=atof(value1);
         double v2=atof(value2);
@@ -864,7 +891,14 @@ void VM_Run_File(char *file_name){
     printf("lines %d\n",lines);
     OL_print(ol);
     VM_Run_Command(ol);
+    
+    printf("\n=======REGISTER====\n");
+    REGISTER_Print();
+    
+}
 
+void VM_init(){
+    VL_init(&GLOBAL_VAR_LIST);
 }
 
 
