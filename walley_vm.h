@@ -44,20 +44,24 @@ enum OPCODE{
     PRINT,    // 08 PRINT arg0         ;
     HALT,     // 09 HALT               ;
     SETCONS,    //10 SETCONS dest value;  SETCONS 0 100, set const value 100 to register 0
+    AND,        //11 AND dest src1 src2;  AND 0 0 1.  and the value in 0 and value in 1, then put true or false in 0
+    OR,         //12 OR dest src1 src2 ;  OR 0 0 1.   or the value in 0 and value in 1, then put true or false in 0
     //SETG,     // 10 SETG dest value    ; set global value
     //SETL,     // 11 SETL dest value    ; set local value
     //MOVE,     // 12 MOVE dest from     ; move value
     JMP,      // 13 JMP steps          ; jump steps.. eg jump -2   --> jump back 2 steps
     $,        // 14 annotation 
     EQ,       // 15 EQ arg0 arg1  ; if arg0==arg1 continue next next sentence, else run next sentence; == EQUAL
+              // 15 EQ dest arg0 arg1  ; if arg0==arg1 save true in dest, else save false in dest
+
     /*
      eg:
      EQ #12 #12
      JMP -2        // this sentence will not be run because 12==12
      PRINT "EQUAL" // directly run this sentence after EQ
      */
-    LT,       // 16 LT arg0 arg1  ; if arg0<arg1  ...                   , else ...           ; < less than
-    LE,       // 17 LE arg0 arg1  ; if arg0<=arg2 ...                   , else ...           ; <= less than or equal
+    LT,       // 16 LT dest arg0 arg1  ; if arg0<arg1  ...                   , else ...           ; < less than
+    LE,       // 17 LE dest arg0 arg1  ; if arg0<=arg2 ...                   , else ...           ; <= less than or equal
     LABEL,    // 18 LABEL 0       ; save place to jump to
     JMPA,     // 19 JMPA 0        ; jump AHEAD to LABEL 0
     JMPB      // 20 JMPB 0        ; jump BACK to LABEL 0
@@ -97,7 +101,12 @@ char *OPCODE_getFromOpcode(enum OPCODE opcode){
         case HALT:
             return "HALT";
             break;
-        
+        case AND:
+            return "AND";
+            break;
+        case OR:
+            return "OR";
+            break;
         
         case JMP:
             return "JMP";
@@ -164,6 +173,12 @@ enum OPCODE OPCODE_getFromString(char *input_str){
     }
     else if (strcmp(input_str,"HALT")==0) {
         return HALT;
+    }
+    else if (strcmp(input_str,"AND")==0) {
+        return AND;
+    }
+    else if (strcmp(input_str,"OR")==0) {
+        return OR;
     }
     
     
@@ -387,7 +402,29 @@ void OL_append(struct OL **ol, OPERATION operation){
     temp_ol->ahead=(*current_ol);
     (*current_ol)->next=temp_ol;
     //(*current_ol)->next->ahead=(*current_ol);
-    
+}
+
+// true true and --> true
+char* judge(char *value1, char *value2, char *and_or){
+    //
+    char *return_judge;
+    if (term(and_or, "and")) {
+        if (term("false", value1)||term("false",value2)) {
+            return_judge="false";
+        }
+            return_judge="true";
+    }
+    else if (term(and_or, "or")){
+        if (term("true", value2)||term("true", value2)) {
+            return_judge="true";
+        }
+        return_judge="false";
+    }
+    else{
+        printf("Error..and_or\n");
+        exit(0);
+    }
+    return return_judge;
 }
 
 int OL_length(struct OL *ol){
@@ -413,6 +450,7 @@ void VM_RUN_ONE_COMMAND(OPERATION operation){
     //int s_index=-1;
     char *print_str=NULL;
     char *print_str2=NULL;
+    char *can_pass="";
     
     switch (operation.opcode) {
             /*
@@ -509,6 +547,22 @@ void VM_RUN_ONE_COMMAND(OPERATION operation){
             r_index1=atoi(operation.arg0);
             register_w[r_index1].value=power(arg1, arg2);
             break;
+        
+        // AND 0 0 1
+        case AND:
+            can_pass=judge(load_value(operation.arg1),load_value(operation.arg2),"and");
+            register_w[atoi(operation.arg0)].value=can_pass;
+            break;
+            
+        // OR 0 0 1
+        // 1 true
+        // 0 false
+        // then 0-> true
+        case OR:
+            can_pass=judge(load_value(operation.arg1),load_value(operation.arg2),"or");
+            register_w[atoi(operation.arg0)].value=can_pass;
+            break;
+            
         case PRINT:
             print_str=operation.arg0;
             if (print_str[0]=='"') {

@@ -37,8 +37,8 @@
                 | '<='
                 | '!='
  
-    true_flase -> 'True'
-                | 'False'
+    true_flase -> 'true'
+                | 'false'
  
     relation ->  'and'
                 |'or'
@@ -393,11 +393,11 @@ char* Walley_Analyze_Token_Class(char *input_str, int i, int *end){
         return "judge_sign";
     }
     
-    if (match(input_str, i, "True")) {
+    if (match(input_str, i, "true")) {
         *end=i+4;
         return "true_of_false";
     }
-    if (match(input_str, i, "False")) {
+    if (match(input_str, i, "false")) {
         *end=i+5;
         return "true_of_false";
     }

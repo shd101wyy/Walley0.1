@@ -120,6 +120,50 @@
  
  
  */
+/*
+    LOGIC
+ 
+    and
+   /   \
+   <    <
+  3 4  6 5
+ 
+ 3 4 < 6 5 < and
+ 
+ offset=0
+ #3 SETCONS 0 3
+    offset++ ->1
+ 
+ #4 SETCONS 1 4
+    offset++ ->2
+ 
+ offset-=2 --> 0
+ #< LT 0 0 1   $if < then save true, else save false;
+ offset++ -> 1
+ 
+ #6 SETCONS 1 6
+ offset++ ->2
+ 
+ #5 SETCONS 2 5
+ offset++ ->3
+ 
+ offset-=2 -> 1
+ #< LT 1 1 2
+ offset++ -> 2
+ 
+ //now register
+   1 false
+   0 true
+ 
+ offset-=2 -> 0
+ #and
+ AND 0 0 1
+ offset++ -> 1
+ // now register
+    1 false
+    0 false
+ 
+ */
 
 // NOW I CAN ONLY GENERATE CODE FOR assignmnet
 bool ism_operator(char *input_str){
@@ -133,6 +177,8 @@ bool ism_operator(char *input_str){
     }
     return FALSE;
 }
+
+
 Operation_List *CG(Token_List *tl){
     Operation_List *ol;
     OL_init(&ol);
@@ -163,7 +209,15 @@ Operation_List *CG(Token_List *tl){
             }
             else{
                 printf("VAR EXISTED\n");
-                exit(0);
+
+                OPERATION op;
+                op.opcode=SET;
+                op.arg0=intToCString(GLOBAL_OFFSET);
+                op.arg1=intToCString(var_address);
+                op.arg2=NULL;
+                OL_append(&ol, op);
+                
+                GLOBAL_OFFSET++;
             }
         }
         
@@ -237,12 +291,8 @@ Operation_List *CG(Token_List *tl){
             printf("ONLY SUPPORT NUM AND ID now\n");
             exit(0);
         }
-        
-        
-        
         tl=tl->next;
     }
     return ol;
 }
-
 

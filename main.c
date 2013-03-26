@@ -16,7 +16,7 @@ int main(int argc, char **argv)
      
      VM_init();
      
-     char *to_analyze_str="x=12+3";
+     char *to_analyze_str="if 3>4 and 4>6:";
      struct TL *tl=Walley_Lexical_Analyzie(to_analyze_str);
      TL_print(tl);
      TREE output_tree=parser(tl);
@@ -24,9 +24,9 @@ int main(int argc, char **argv)
      printf("\nAFTER CONVERTING==========\n");
      TL_print(output_tl);
      
-     Operation_List *ol=CG(output_tl);
-     printf("\nOPERATION LIST============\n");
-     OL_print(ol);
+     //Operation_List *ol=CG(output_tl);
+     //printf("\nOPERATION LIST============\n");
+     //OL_print(ol);
     
     exit(0);
     
