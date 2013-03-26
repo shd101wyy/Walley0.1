@@ -64,7 +64,8 @@ enum OPCODE{
     LE,       // 17 LE dest arg0 arg1  ; if arg0<=arg2 ...                   , else ...           ; <= less than or equal
     LABEL,    // 18 LABEL 0       ; save place to jump to
     JMPA,     // 19 JMPA 0        ; jump AHEAD to LABEL 0
-    JMPB      // 20 JMPB 0        ; jump BACK to LABEL 0
+    JMPB,     // 20 JMPB 0        ; jump BACK to LABEL 0
+    NOT       // 21 NOT dest      ; NOT 0, change value in 0 to opposite-> true to false, false to true
 };
 char *OPCODE_getFromOpcode(enum OPCODE opcode){
     switch (opcode) {
@@ -131,6 +132,9 @@ char *OPCODE_getFromOpcode(enum OPCODE opcode){
             break;
         case JMPB:
             return "JMPB";
+            break;
+        case NOT:
+            return "NOT";
             break;
         default:
             printf("Error..Unavailable opcode\n");
@@ -206,6 +210,10 @@ enum OPCODE OPCODE_getFromString(char *input_str){
     else if (strcmp(input_str, "JMPB")==0){
         return JMPB;
     }
+    else if (strcmp(input_str, "NOT")==0){
+        return NOT;
+    }
+
     else{
         printf("Error.. wrong opcode %s\n",input_str);
         exit(0);
@@ -553,7 +561,18 @@ void VM_RUN_ONE_COMMAND(OPERATION operation){
             can_pass=judge(load_value(operation.arg1),load_value(operation.arg2),"and");
             register_w[atoi(operation.arg0)].value=can_pass;
             break;
-            
+        //NOT 0
+        case NOT:
+            can_pass=register_w[atoi(operation.arg0)].value;
+            if (term(can_pass, "true")) {
+                can_pass="false";
+            }
+            else{
+                can_pass="true";
+            }
+            register_w[atoi(operation.arg0)].value=can_pass;
+            break;
+        
         // OR 0 0 1
         // 1 true
         // 0 false
