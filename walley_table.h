@@ -23,7 +23,7 @@
 //bool table(TREE *tree, Token_List *tl){
 //
 //}
-
+/*
 bool pairs(TREE *tree, Token_List *tl){
     int index_of_comma=TL_indexOfTokenThatHasTokenString(tl, ",");
     int length_of_tl=TL_length(tl);
@@ -75,3 +75,4 @@ bool pairs(TREE *tree, Token_List *tl){
         }
     }
 }
+*/

@@ -73,6 +73,8 @@
      then -> 'then'
     
      end  -> 'end'
+ 
+     @   -> '@'
 
  
     assignment_operator -> '='
@@ -469,6 +471,12 @@ char* Walley_Analyze_Token_Class(char *input_str, int i, int *end){
     if (match(input_str, i, "end")) {
         *end=i+3;
         return "end";
+    }
+    
+    // @
+    if (match(input_str, i, "@")) {
+        *end=i+1;
+        return "@";
     }
     
     // 5) switch
