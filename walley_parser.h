@@ -112,10 +112,10 @@ TREE parser(Token_List *tl){
     //TREE_print(output_tree);
     
     // test value
-    TREE_initWithName(&output_tree,"value");
-    int is_value=value(&output_tree, tl);
-    printf("is_value %d\n",is_value);
-    TREE_print(output_tree);
+    //TREE_initWithName(&output_tree,"value");
+    //int is_value=value(&output_tree, tl);
+    //printf("is_value %d\n",is_value);
+    //TREE_print(output_tree);
 
     // test elements
     //TREE_initWithName(&output_tree,"elements");
@@ -165,9 +165,9 @@ TREE parser(Token_List *tl){
     
     
     // test statements
-    //TREE_initWithName(&output_tree,"statements");
-    //statements(&output_tree, tl);
-    //TREE_print(output_tree);
+    TREE_initWithName(&output_tree,"statements");
+    statements(&output_tree, tl);
+    TREE_print(output_tree);
     
     // test table_expr
     //int x=12;

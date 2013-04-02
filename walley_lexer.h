@@ -74,6 +74,8 @@
     
      end  -> 'end'
  
+     local -> 'local'
+ 
      @   -> '@'
 
  
@@ -477,6 +479,12 @@ char* Walley_Analyze_Token_Class(char *input_str, int i, int *end){
     if (match(input_str, i, "@")) {
         *end=i+1;
         return "@";
+    }
+    
+    // local
+    if (match(input_str, i, "local")) {
+        *end=i+5;
+        return "local";
     }
     
     // 5) switch

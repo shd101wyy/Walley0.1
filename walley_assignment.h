@@ -15,6 +15,7 @@
  
  
  assignment-> var_name '=' var_value
+            | 'local' assignment
  
  var_name->var_name ',' var_name
           | id
@@ -30,6 +31,15 @@
 
 bool assignment(TREE *tree, Token_List *tl){
     Token_List *temp_tl=tl;
+    //            | 'local' assignment
+    if (term(tl->current_token.TOKEN_STRING, "local")) {
+        TREE_addNode(tree, "local", "");
+        int length_of_tl=TL_length(tl);
+        return assignment(tree, TL_subtl(tl, 1, length_of_tl));
+    }
+    
+    
+    
     int count_of_equal=0;
     int index_of_equal;
     int i=0;

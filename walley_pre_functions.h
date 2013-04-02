@@ -59,8 +59,6 @@ typedef struct Node_List Node_List;
 
 
 //walley_list:
-bool table_elements(TREE *tree, Token_List *tl,int *key_index);
-bool table_expr(TREE *tree, Token_List *tl,int *key_index);
 bool value(TREE *tree, Token_List *tl);
 bool elements(TREE *tree, Token_List *tl);
 bool list(TREE *tree, Token_List *tl);
@@ -76,7 +74,10 @@ bool s_term(TREE *tree, Token_List *tl);
 bool p_term(TREE *tree, Token_List *tl);
 
 //walley_table
-bool pairs(TREE *tree, Token_List *tl);
+bool table(TREE *tree, Token_List *tl,int *key_index);
+bool table_elements(TREE *tree, Token_List *tl,int *key_index);
+bool table_expr(TREE *tree, Token_List *tl,int *key_index);
+//bool pairs(TREE *tree, Token_List *tl);
 
 //walley_assignment
 bool list_s(TREE *tree, Token_List *tl);
