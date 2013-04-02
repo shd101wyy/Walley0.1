@@ -163,7 +163,7 @@ bool table_expr(TREE *tree, Token_List *tl,int *key_index){
     }
     
     //    |'[' (string|int) ']' '=' (value)
-    else if (term(tl->current_token.TOKEN_CLASS, "list_table")){
+    else if (term(tl->current_token.TOKEN_CLASS, "list_table") && TL_indexOfTokenThatHasTokenString(tl, "=")!=-1){
         // THIS PLACE HAS SOME PROBLEM
         printf("'[' (string|int) ']' '=' (value)  HAS NOT BEEN IMPLEMENTED\n");
         exit(0);
