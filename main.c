@@ -13,7 +13,7 @@ int main(int argc, char **argv)
    
     
     
-     
+     /*
      VM_init();
      
      char *to_analyze_str="if 3>4 and 4>6:";
@@ -30,7 +30,7 @@ int main(int argc, char **argv)
     
     exit(0);
     
-    
+    */
     if (argc==2) {
         char *file_name=argv[1];
         VM_Run_File(file_name);

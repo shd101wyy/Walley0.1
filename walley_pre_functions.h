@@ -44,6 +44,8 @@ int main(int argc, char **argv);
 struct TOKEN;
 struct TL;
 
+// new Global Var on April 1st
+bool INCOMPLETE_STATEMENT=FALSE;
 
 typedef struct TOKEN Token;
 typedef struct TL Token_List;

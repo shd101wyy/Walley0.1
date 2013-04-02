@@ -10,38 +10,37 @@
 
 /*
 
- if x>=0 :
+ if x>=0 then
  
- if_stms  -> 'if' relation ':'
- elif_stms-> 'elif' relation ':'
- else_stms-> 'else' ':'
+ if_stms  -> 'if' relation 'then'
+ elif_stms-> 'elif' relation 'then'
+ else_stms-> 'else'
  
  ===========
  
- while x<=0 :
+ while x<=0 then
  
- while_stms -> 'while' relation ':'
+ while_stms -> 'while' relation 'then'
  
 
  ===========
  
- for i=0;i<10;i++:
- for ;i<10;i++:
- for i<10;i++
+ for i=0,i<10,i++ then
+ for i<10,i++ then
  
  // not support 'for i in range(10):' kind of for statements now
  
  for_stms ->
- |  'for' simple_relation ';' assignment ':'
- |  'for' ';' simple_relation ';' assignment ':'
- |  'for' assignment ';' simple_relation ';' assignment ':'
+ |  'for' simple_relation ',' assignment 'then'
+ |  'for' ',' simple_relation ',' assignment 'then'
+ |  'for' assignment ',' simple_relation ',' assignment 'then'
  
  
  ===========
  
- def add(num1,num2):
+ def add(num1,num2) then
  
- func_stms -> 'def' func ':'
+ func_stms -> 'def' func 'then'
  
 
  ===========
@@ -70,46 +69,61 @@ now
 
 
 //============================================================================================
-//  if_stms  -> 'if' relation ':'
+//  if_stms  -> 'if' relation 'then'
+
 bool if_stms(TREE *tree, Token_List *tl){
     int length_of_tl=TL_length(tl);
     
-    //'if' relation ':'
-    if (term(tl->current_token.TOKEN_STRING, "if") &&term(TL_tokenAtIndex(tl, length_of_tl-1).TOKEN_STRING, ":") && length_of_tl>2) {
+    //'if' relation ''
+    if (term(tl->current_token.TOKEN_STRING, "if")) {
+        if (term(TL_tokenAtIndex(tl, length_of_tl-1).TOKEN_STRING, "then") && length_of_tl>2) {
+            Token_List *relation_tl=TL_subtl(tl, 1, length_of_tl-1);
+
+            TREE_addNode(tree, "if", "");
+            int index=TREE_INDEX;
+            TREE_addNode(tree, "relation", "");
+            return relation(TREE_getTreeAccordingToIndex(tree, index), relation_tl);
+        }
+        // incomplete
+        else{
+            INCOMPLETE_STATEMENT=TRUE;
+            return FALSE;
+        }
         
-        Token_List *relation_tl=TL_subtl(tl, 1, length_of_tl-1);
-        
-        TREE_addNode(tree, "if", "");
-        int index=TREE_INDEX;
-        TREE_addNode(tree, "relation", "");
-        return relation(TREE_getTreeAccordingToIndex(tree, index), relation_tl);
     }
     
     return FALSE;
 }
 
-// elif_stms-> 'elif' relation ':'
+// elif_stms-> 'elif' relation 'then'
 bool elif_stms(TREE *tree, Token_List *tl){
     int length_of_tl=TL_length(tl);
-    //'if' relation ':'
-    if (term(tl->current_token.TOKEN_STRING, "elif") &&term(TL_tokenAtIndex(tl, length_of_tl-1).TOKEN_STRING, ":") && length_of_tl>2) {
-        
-        Token_List *relation_tl=TL_subtl(tl, 1, length_of_tl-1);
-        
-        TREE_addNode(tree, "elif", "");
-        int index=TREE_INDEX;
-        TREE_addNode(tree, "relation", "");
-        return relation(TREE_getTreeAccordingToIndex(tree, index), relation_tl);
+    //'elif' relation 'then'
+    if (term(tl->current_token.TOKEN_STRING, "elif")) {
+        if (term(TL_tokenAtIndex(tl, length_of_tl-1).TOKEN_STRING, "then") && length_of_tl>2) {
+            Token_List *relation_tl=TL_subtl(tl, 1, length_of_tl-1);
+            
+            TREE_addNode(tree, "elif", "");
+            int index=TREE_INDEX;
+            TREE_addNode(tree, "relation", "");
+            return relation(TREE_getTreeAccordingToIndex(tree, index), relation_tl);
+
+        }
+        // incomplete
+        else{
+            INCOMPLETE_STATEMENT=TRUE;
+            return FALSE;
+        }
     }
     return FALSE;
 }
 
-// else_stms-> 'else' ':'
+// else_stms-> 'else'
 bool else_stms(TREE *tree, Token_List *tl){
     int length_of_tl=TL_length(tl);
     
-    // 'else' ':'
-    if (length_of_tl==2 && term(tl->current_token.TOKEN_STRING, "else") && term(tl->next->current_token.TOKEN_STRING, ":")) {
+    // 'else'
+    if (length_of_tl==1 && term(tl->current_token.TOKEN_STRING, "else")) {
         TREE_addNode(tree, "else", "");
         return TRUE;
     }
@@ -118,17 +132,25 @@ bool else_stms(TREE *tree, Token_List *tl){
 }
 
 //==================================================
-// while_stms -> 'while' relation ':'
+// while_stms -> 'while' relation 'then'
 bool while_stms(TREE *tree, Token_List *tl){
     int length_of_tl=TL_length(tl);
-    //'while' relation ':'
-    if (term(tl->current_token.TOKEN_STRING, "while") && term(TL_tokenAtIndex(tl, length_of_tl-1).TOKEN_STRING, ":") &&length_of_tl>2) {
-        Token_List *relation_tl=TL_subtl(tl, 1, length_of_tl-1);
-        
-        TREE_addNode(tree, "while", "");
-        int index=TREE_INDEX;
-        TREE_addNode(tree, "relation", "");
-        return relation(TREE_getTreeAccordingToIndex(tree, index), relation_tl);
+    //'while' relation 'then'
+    if (term(tl->current_token.TOKEN_STRING, "while")) {
+        if (term(TL_tokenAtIndex(tl, length_of_tl-1).TOKEN_STRING, "then") &&length_of_tl>2) {
+            Token_List *relation_tl=TL_subtl(tl, 1, length_of_tl-1);
+            
+            TREE_addNode(tree, "while", "");
+            int index=TREE_INDEX;
+            TREE_addNode(tree, "relation", "");
+            return relation(TREE_getTreeAccordingToIndex(tree, index), relation_tl);
+
+        }
+        // incomplete
+        else{
+            INCOMPLETE_STATEMENT=TRUE;
+            return FALSE;
+        }
     }
     return FALSE;
 }
@@ -136,15 +158,17 @@ bool while_stms(TREE *tree, Token_List *tl){
 //=================================================
 
 /*
- ; is not in ()
+ , is not in ()
  for_stms ->
- |  'for' simple_relation ';' assignment ':'
- |  'for' ';' simple_relation ';' assignment ':'
- |  'for' assignment ';' simple_relation ';' assignment ':'
+ |  'for' simple_relation ',' assignment 'then'
+ |  'for' ',' simple_relation ',' assignment 'then'
+ |  'for' assignment ',' simple_relation ',' assignment 'then'
  
  
  */
 
+// i didn't change semi_colon to comma
+// cuz i used to use semi_colon
 bool for_stms(TREE *tree, Token_List *tl){
     
     int length_of_tl=TL_length(tl);
@@ -175,10 +199,10 @@ bool for_stms(TREE *tree, Token_List *tl){
             continue;
         }
         
-        if (count_of_p==0 && term(tl->current_token.TOKEN_STRING, ";")) {
+        if (count_of_p==0 && term(tl->current_token.TOKEN_STRING, ",")) {
             
             
-            //mistake... to many ;
+            //mistake... to many ,
             if (index<2) {
                 index_of_semi_colon[index]=i;
                 index++;
@@ -190,13 +214,20 @@ bool for_stms(TREE *tree, Token_List *tl){
         tl=tl->next;
     }
     tl=temp_tl;
+    
+    // incomplete
+    if (term(tl->current_token.TOKEN_STRING, "for")&&term(TL_tokenAtIndex(tl, length_of_tl-1).TOKEN_STRING, "then")==FALSE) {
+        INCOMPLETE_STATEMENT=TRUE;
+        return FALSE;
+    }
+    
     if (term(tl->current_token.TOKEN_STRING, "for")
-        &&term(TL_tokenAtIndex(tl, length_of_tl-1).TOKEN_STRING, ":")
+        &&term(TL_tokenAtIndex(tl, length_of_tl-1).TOKEN_STRING, "then")
         &&length_of_tl!=2
         &&num_of_semi_colon!=0
         &&num_of_semi_colon<=2
         ) {
-        // |  'for' simple_relation ';' assignment ':'
+        // |  'for' simple_relation ',' assignment 'then'
         if (num_of_semi_colon==1) {
             Token_List *simple_relation_tl=TL_subtl(tl, 1, index_of_semi_colon[0]);
             Token_List *assignment_tl=TL_subtl(tl, index_of_semi_colon[0]+1, length_of_tl-1);
@@ -210,11 +241,11 @@ bool for_stms(TREE *tree, Token_List *tl){
             return simple_relation(TREE_getTreeAccordingToIndex(tree, index_of_sr), simple_relation_tl)
             && assignment(TREE_getTreeAccordingToIndex(tree, index_of_a), assignment_tl);
         }
-        //|  'for' ';' simple_relation ';' assignment ':'
-        //|  'for' assignment ';' simple_relation ';' assignment ':'
+        //|  'for' ',' simple_relation ',' assignment 'then'
+        //|  'for' assignment ',' simple_relation ',' assignment 'then'
         else{
-            //|  'for' ';' simple_relation ';' assignment ':'
-            if (term(tl->next->current_token.TOKEN_STRING, ";")) {
+            //|  'for' ',' simple_relation ',' assignment 'then'
+            if (term(tl->next->current_token.TOKEN_STRING, ",")) {
                 Token_List *simple_relation_tl=TL_subtl(tl, 2, index_of_semi_colon[1]);
                 Token_List *assignment_tl=TL_subtl(tl, index_of_semi_colon[1]+1, length_of_tl-1);
                 
@@ -227,8 +258,7 @@ bool for_stms(TREE *tree, Token_List *tl){
                 return simple_relation(TREE_getTreeAccordingToIndex(tree, index_of_sr), simple_relation_tl)
                 && assignment(TREE_getTreeAccordingToIndex(tree, index_of_a), assignment_tl);
             }
-            //|  'for' assignment ';' simple_relation ';' assignment ':'
-            
+            //|  'for' assignment ',' simple_relation ',' assignment 'then'            
             else{
                 Token_List *assignment_tl1=TL_subtl(tl, 1, index_of_semi_colon[0]);
                 Token_List *simple_relation_tl=TL_subtl(tl, index_of_semi_colon[0]+1, index_of_semi_colon[1]);
@@ -253,18 +283,26 @@ bool for_stms(TREE *tree, Token_List *tl){
 
 
 //========================
-// func_stms -> 'def' func ':'
+// func_stms -> 'def' func 'then'
 bool func_stms(TREE *tree, Token_List *tl){
     int length_of_tl=TL_length(tl);
-    //'def' func ':'
-    if (length_of_tl>2 && term(tl->current_token.TOKEN_STRING, "def")&&term(TL_tokenAtIndex(tl, length_of_tl-1).TOKEN_STRING, ":")) {
-        TREE_addNode(tree, "def", "");
-        
-        Token_List *func_tl=TL_subtl(tl, 1, length_of_tl-1);
-        
-        int index=TREE_INDEX;
-        TREE_addNode(tree, "func","");
-        return func(TREE_getTreeAccordingToIndex(tree, index), func_tl);
+    //'def' func 'then'
+    if (term(tl->current_token.TOKEN_STRING, "def")) {
+        if (length_of_tl>2 && term(TL_tokenAtIndex(tl, length_of_tl-1).TOKEN_STRING, "then")) {
+            TREE_addNode(tree, "def", "");
+            
+            Token_List *func_tl=TL_subtl(tl, 1, length_of_tl-1);
+            
+            int index=TREE_INDEX;
+            TREE_addNode(tree, "func","");
+            return func(TREE_getTreeAccordingToIndex(tree, index), func_tl);
+        }
+        // incomplete 
+        else{
+            INCOMPLETE_STATEMENT=TRUE;
+            return FALSE;
+        }
+       
     }
     return FALSE;
 

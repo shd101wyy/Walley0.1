@@ -69,6 +69,10 @@
      def_stat -> 'def'
      
      class_stat -> 'class'
+ 
+     then -> 'then'
+    
+     end  -> 'end'
 
  
     assignment_operator -> '='
@@ -453,6 +457,18 @@ char* Walley_Analyze_Token_Class(char *input_str, int i, int *end){
         ||match(input_str, i, "class")) {
         *end=i+5;
         return "keyword";
+    }
+    
+    // then
+    if (match(input_str, i, "then")) {
+        *end=i+4;
+        return "then";
+    }
+    
+    // end
+    if (match(input_str, i, "end")) {
+        *end=i+3;
+        return "end";
     }
     
     // 5) switch
