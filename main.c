@@ -10,8 +10,19 @@
 
 int main(int argc, char **argv)
 {
-   
-    
+    // test Code_Generation Function
+    char *to_analyze_str="x=12+3*6";
+    struct TL *tl=Walley_Lexical_Analyzie(to_analyze_str);
+    TL_print(tl);
+    TREE output_tree=parser(tl);
+    Var_List *local_var_list;
+    VL_init(&local_var_list);
+    VL_init(&GLOBAL_VAR_LIST);
+    Operation_List *ol;
+    OL_init(&ol);
+    Code_Generation(output_tree, &ol, &local_var_list);
+    OL_print(ol);
+    exit(0);
     
      /*
      VM_init();

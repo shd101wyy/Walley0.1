@@ -15,7 +15,7 @@
  
  
  assignment-> var_name '=' var_value
-            | 'local' assignment
+            | 'local' var_name '=' var_value
  
  var_name->var_name ',' var_name
           | id
@@ -31,11 +31,10 @@
 
 bool assignment(TREE *tree, Token_List *tl){
     Token_List *temp_tl=tl;
-    //            | 'local' assignment
+    // | 'local' var_name '=' var_value
+    bool is_local=FALSE;
     if (term(tl->current_token.TOKEN_STRING, "local")) {
-        TREE_addNode(tree, "local", "");
-        int length_of_tl=TL_length(tl);
-        return assignment(tree, TL_subtl(tl, 1, length_of_tl));
+        is_local=TRUE;
     }
     
     
@@ -105,7 +104,10 @@ bool assignment(TREE *tree, Token_List *tl){
             //printf("now_var_name---> %s\n",var_name_str);
             //printf("now_var_value---> %s\n",var_value_str);
             
-            
+            // local variable
+            if (is_local) {
+                TREE_addNode(TREE_getTreeAccordingToIndex(tree, index),"local", "");
+            }
             TREE_addTree(TREE_getTreeAccordingToIndex(tree, index), var_name_nl->node);
             TREE_addTree(TREE_getTreeAccordingToIndex(tree, index), var_value_nl->node);
 

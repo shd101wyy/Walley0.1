@@ -211,12 +211,14 @@ TREE parser(Token_List *tl){
  / \  / \
  1 2  3  4
  
- conver to ->
+ conver to -> postfix
  
  1 2 * 3 4 / +
  
  */
 
+
+// change to postfix token list
 Token_List *TREE_convertAST(TREE tree){
     Token_List *output_tl;
     TL_init(&output_tl);

@@ -222,7 +222,7 @@ Operation_List *CG(Token_List *tl){
                 printf("VAR EXISTED\n");
 
                 OPERATION op;
-                op.opcode=SET;
+                op.opcode=SETG;
                 op.arg0=intToCString(GLOBAL_OFFSET);
                 op.arg1=intToCString(var_address);
                 op.arg2=NULL;
@@ -283,7 +283,7 @@ Operation_List *CG(Token_List *tl){
             
             VL_addVarAccordingToVarNameAndAddress(&GLOBAL_VAR_LIST, register_w[GLOBAL_OFFSET].value, GLOBAL_OFFSET);
             OPERATION op;
-            op.opcode=SET;
+            op.opcode=SETG;
             op.arg0=intToCString(GLOBAL_OFFSET);
             op.arg1=intToCString(GLOBAL_OFFSET+1);
             op.arg2=NULL;
@@ -306,4 +306,213 @@ Operation_List *CG(Token_List *tl){
     }
     return ol;
 }
+
+
+// input_str   12 num  --> #12
+// input_str   x id   -->  0       $address of x
+//                      none    $does not exist
+char *getValue(TREE tree, Var_List *local_var_list){
+    // check number first
+    // then
+    // check local first
+    // then check Global
+    if (term(tree.token_class, "num")) {
+        char *return_value=(char*)malloc(sizeof(char)*(2+(int)strlen(tree.name)));
+        return_value[0]='#';
+        int i=0;
+        for (; i<(int)strlen(tree.name); i++) {
+            return_value[i+1]=tree.name[i];
+        }
+        return_value[i+1]=0;
+        return return_value;
+    }
+    else{
+        // check local
+        while (local_var_list->next!=NULL) {
+            if (term(local_var_list->current_var.var_name, tree.name)) {
+                return intToCString(local_var_list->current_var.address);
+            }
+            local_var_list=local_var_list->next;
+        }
+        if (term(local_var_list->current_var.var_name, tree.name)) {
+            return intToCString(local_var_list->current_var.address);
+        }
+        
+        
+        // check global
+        while (GLOBAL_VAR_LIST->next!=NULL) {
+            if (term(GLOBAL_VAR_LIST->current_var.var_name, tree.name)) {
+                return intToCString(GLOBAL_VAR_LIST->current_var.address);
+            }
+            GLOBAL_VAR_LIST=GLOBAL_VAR_LIST->next;
+        }
+        if (term(GLOBAL_VAR_LIST->current_var.var_name, tree.name)) {
+            return intToCString(GLOBAL_VAR_LIST->current_var.address);
+        }
+
+    }
+    return "none";
+}
+
+void Code_Generation(TREE tree, Operation_List **ol, Var_List **local_var_list){
+    Var var;
+    OPERATION op;
+    op.arg0=NULL;
+    op.arg1=NULL;
+    op.arg2=NULL;
+
+    // statements..
+    if (term(tree.name, "statements")) {
+        Node_List *nl=tree.node_list;
+        while (nl->next!=NULL) {
+            Code_Generation(nl->node, ol,local_var_list);
+            nl=nl->next;
+        }
+        Code_Generation(nl->node, ol,local_var_list);
+        return ;
+    }
+    
+    // global
+    if (term(tree.name, "=")) {
+        
+        // x=12+3
+        Node_List *nl=tree.node_list;
+        // x=12+3
+        if (NL_length(nl)==2) {
+            // save var_name
+            op.opcode=SETG;
+            op.arg0=intToCString(GLOBAL_OFFSET);
+            op.arg1="none";
+            
+            // add to global var list
+            var.address=GLOBAL_OFFSET;
+            var.var_name=nl->node.name;
+            VL_addVar(&GLOBAL_VAR_LIST, var);
+            
+            OL_append(ol, op);
+            
+            GLOBAL_OFFSET++;
+            
+            if (ism_operator(nl->next->node.name)) {
+                // x=12+3
+                // add 12+3
+                Code_Generation(nl->next->node,ol,local_var_list);
+            }
+            else{
+                // x=12
+                // 12
+                op.opcode=SETG;
+                op.arg0=intToCString(GLOBAL_OFFSET);
+                op.arg1=getValue(nl->next->node, *local_var_list);
+                
+                OL_append(ol, op);
+                
+                GLOBAL_OFFSET++;
+            }
+            
+            
+            GLOBAL_OFFSET-=2;
+            op.opcode=SETG;
+            op.arg0=intToCString(GLOBAL_OFFSET);
+            op.arg1=intToCString(GLOBAL_OFFSET+1);
+            
+            OL_append(ol, op);
+            
+            GLOBAL_OFFSET++;
+            
+            
+            
+        }
+        else{
+            printf("Does not support function def like x=def (a,b) ... now\n");
+            exit(0);
+        }
+    }
+    
+    if (ism_operator(tree.name)) {
+        // left
+        Node_List *nl=tree.node_list;
+        if (ism_operator(nl->node.name)) {
+            Code_Generation(nl->node, ol, local_var_list);
+        }
+        else{
+            op.opcode=SETG;
+            op.arg0=intToCString(GLOBAL_OFFSET);
+            op.arg1=getValue(nl->node, *local_var_list);
+            
+            OL_append(ol, op);
+            GLOBAL_OFFSET++;
+        }
+        
+        // right
+        if (ism_operator(nl->next->node.name)) {
+            Code_Generation(nl->next->node, ol, local_var_list);
+        }
+        else{
+            op.opcode=SETG;
+            op.arg0=intToCString(GLOBAL_OFFSET);
+            op.arg1=getValue(nl->next->node, *local_var_list);
+            
+            OL_append(ol, op);
+            GLOBAL_OFFSET++;
+        }
+        
+        
+        GLOBAL_OFFSET-=2;
+        
+        if (term(tree.name, "+")) {
+            op.opcode=ADD;
+        }
+        else if (term(tree.name, "-")) {
+            op.opcode=SUB;
+        }
+        else if (term(tree.name, "*")) {
+            op.opcode=MUL;
+        }
+        else if (term(tree.name, "/")) {
+            op.opcode=DIV;
+        }
+        else if (term(tree.name, "%")) {
+            op.opcode=MOD;
+        }
+        else if (term(tree.name, "^")) {
+            op.opcode=POW;
+        }
+        else{
+            printf("m_operator error\n");
+            exit(0);
+        }
+        
+        op.arg0=intToCString(GLOBAL_OFFSET);
+        op.arg1=intToCString(GLOBAL_OFFSET);
+        op.arg2=intToCString(GLOBAL_OFFSET+1);
+        
+        OL_append(ol, op);
+        
+        GLOBAL_OFFSET++;
+        
+    }
+    
+    
+    
+    
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
