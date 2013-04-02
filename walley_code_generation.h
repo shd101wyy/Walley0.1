@@ -123,6 +123,8 @@
 /*
     LOGIC
  
+    not
+     |
     and
    /   \
    <    <
@@ -163,6 +165,15 @@
     1 false
     0 false
  
+ offset-=1
+ #not
+ NOT 0
+ offset++ ->1
+ // now register
+    1 false
+    0 true
+ 
+ NOT
  */
 
 // NOW I CAN ONLY GENERATE CODE FOR assignmnet
