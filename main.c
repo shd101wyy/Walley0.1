@@ -11,7 +11,7 @@
 int main(int argc, char **argv)
 {
     // test Code_Generation Function
-    char *to_analyze_str="x=12+3*6";
+    char *to_analyze_str="x=[1,[2,3],4]";
     struct TL *tl=Walley_Lexical_Analyzie(to_analyze_str);
     TL_print(tl);
     TREE output_tree=parser(tl);

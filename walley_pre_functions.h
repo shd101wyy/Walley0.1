@@ -146,6 +146,8 @@ int GLOBAL_OFFSET=0;
 Var_List *GLOBAL_VAR_LIST;
 
 
+//walley_code_generation
+int TABLE_LIST_INDEX=0;
 
 
 

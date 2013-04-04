@@ -54,18 +54,15 @@ enum OPCODE{
     EQ,       // 15 EQ arg0 arg1  ; if arg0==arg1 continue next next sentence, else run next sentence; == EQUAL
               // 15 EQ dest arg0 arg1  ; if arg0==arg1 save true in dest, else save false in dest
 
-    /*
-     eg:
-     EQ #12 #12
-     JMP -2        // this sentence will not be run because 12==12
-     PRINT "EQUAL" // directly run this sentence after EQ
-     */
     LT,       // 16 LT dest arg0 arg1  ; if arg0<arg1  ...                   , else ...           ; < less than
     LE,       // 17 LE dest arg0 arg1  ; if arg0<=arg2 ...                   , else ...           ; <= less than or equal
     LABEL,    // 18 LABEL 0       ; save place to jump to
     JMPA,     // 19 JMPA 0        ; jump AHEAD to LABEL 0
     JMPB,     // 20 JMPB 0        ; jump BACK to LABEL 0
-    NOT       // 21 NOT dest      ; NOT 0, change value in 0 to opposite-> true to false, false to true
+    NOT,      // 21 NOT dest      ; NOT 0, change value in 0 to opposite-> true to false, false to true
+    NEWTABLE,  // 24
+    TADD,        //25
+    ENDTABLE      //26
 };
 char *OPCODE_getFromOpcode(enum OPCODE opcode){
     switch (opcode) {
@@ -135,6 +132,15 @@ char *OPCODE_getFromOpcode(enum OPCODE opcode){
             break;
         case NOT:
             return "NOT";
+            break;
+        case NEWTABLE:
+            return "NEWTABLE";
+            break;
+        case TADD:
+            return "TADD";
+            break;
+        case ENDTABLE:
+            return "ENDTABLE";
             break;
         default:
             printf("Error..Unavailable opcode\n");
@@ -213,7 +219,12 @@ enum OPCODE OPCODE_getFromString(char *input_str){
     else if (strcmp(input_str, "NOT")==0){
         return NOT;
     }
-
+    else if(term(input_str, "NEWTABLE"))
+        return NEWTABLE;
+    else if(term(input_str, "TADD"))
+        return TADD;
+    else if (term(input_str, "ENDTABLE"))
+        return ENDTABLE;
     else{
         printf("Error.. wrong opcode %s\n",input_str);
         exit(0);
