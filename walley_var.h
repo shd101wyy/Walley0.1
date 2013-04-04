@@ -23,9 +23,13 @@ struct Var_List{
 void VL_init(Var_List **vl){
     (*vl)=(Var_List *)malloc(sizeof(Var_List)*1);
     (*vl)->next=NULL;
+    (*vl)->current_var.var_name=NULL;
+    (*vl)->current_var.address=-1;
 }
 
 void VL_addVar(Var_List **vl, Var add_var){
+
+    
     if ((*vl)->current_var.var_name==NULL) {
         (*vl)->current_var=add_var;
     }
@@ -36,8 +40,7 @@ void VL_addVar(Var_List **vl, Var add_var){
         }
         Var_List *temp_vl;
         VL_init(&temp_vl);
-        temp_vl->current_var.var_name=add_var.var_name;
-        temp_vl->current_var.address=add_var.address;
+        temp_vl->current_var=add_var;
         (*current_vl)->next=temp_vl;
     }
 }
@@ -64,6 +67,14 @@ int VL_address(Var_List *vl, char *var_name){
     }
     //does not find
     return -1;
+}
+
+void VL_printVL(Var_List *vl){
+    while (vl->next!=NULL) {
+        printf("%s  %d\n",vl->current_var.var_name,vl->current_var.address);
+        vl=vl->next;
+    }
+    printf("%s  %d\n",vl->current_var.var_name,vl->current_var.address);
 }
 
 

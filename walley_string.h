@@ -82,12 +82,11 @@ void Walley_Print_Error(char *input_str,char *error_message,int error_start_inde
  
  */
 //================= STRING LIST ============================================================================
-struct SL;
+
 struct SL{
     char *string_content;
     struct SL *next;
 };
-typedef struct SL Str_List;
 
 
 void SL_initSLWithString(struct SL **string_list, char *init_string){

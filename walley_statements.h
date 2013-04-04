@@ -44,6 +44,8 @@
  
 
  ===========
+ end_stm -> 'end'
+ ===========
  does not support:
     class
     switch
@@ -62,8 +64,10 @@ now
  |  while_stms
  |  for_stms
  |  func_stms
+ |  end_stm
  |  assignment
  |  expr
+ 
 
 */
 
@@ -307,7 +311,13 @@ bool func_stms(TREE *tree, Token_List *tl){
     return FALSE;
 
 }
-
+bool end_stm(TREE *tree, Token_List *tl){
+    if (TL_length(tl)==1 && term(tl->current_token.TOKEN_CLASS, "end")) {
+        TREE_addNode(tree, "end","");
+        return TRUE;
+    }
+    return FALSE;
+}
 //========================
 /*
  
@@ -318,8 +328,10 @@ bool func_stms(TREE *tree, Token_List *tl){
  |  while_stms
  |  for_stms
  |  func_stms
+ |  end_stm
  |  assignment
  |  expr
+ 
  
  
  */
@@ -332,6 +344,7 @@ bool statements(TREE *tree, Token_List *tl){
         ||while_stms(tree, tl)
         ||for_stms(tree, tl)
         ||func_stms(tree, tl)
+        ||end_stm(tree, tl)
         ||assignment(tree, tl)
         ||expr(tree, tl);
     

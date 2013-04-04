@@ -62,7 +62,8 @@ enum OPCODE{
     NOT,      // 21 NOT dest      ; NOT 0, change value in 0 to opposite-> true to false, false to true
     NEWTABLE,  // 24
     TADD,        //25
-    ENDTABLE      //26
+    ENDTABLE,      //26
+    TEST        //27
 };
 char *OPCODE_getFromOpcode(enum OPCODE opcode){
     switch (opcode) {
@@ -141,6 +142,9 @@ char *OPCODE_getFromOpcode(enum OPCODE opcode){
             break;
         case ENDTABLE:
             return "ENDTABLE";
+            break;
+        case TEST:
+            return "TEST";
             break;
         default:
             printf("Error..Unavailable opcode\n");
@@ -225,6 +229,8 @@ enum OPCODE OPCODE_getFromString(char *input_str){
         return TADD;
     else if (term(input_str, "ENDTABLE"))
         return ENDTABLE;
+    else if (term(input_str, "TEST"))
+        return TEST;
     else{
         printf("Error.. wrong opcode %s\n",input_str);
         exit(0);
@@ -389,6 +395,7 @@ struct OL{
     OPERATION operation;
     struct OL *next;
     struct OL *ahead;
+    int current_index;
 };
 
 void OL_init(struct OL **ol){
@@ -396,13 +403,14 @@ void OL_init(struct OL **ol){
     (*ol)->operation.opcode=$;
     (*ol)->next=NULL;
     (*ol)->ahead=NULL;
+    (*ol)->current_index=0;
 }
 void OL_print(struct OL *ol){
     while (ol->next!=NULL) {
-        printf("|%s| |%s| |%s| |%s|\n",OPCODE_getFromOpcode(ol->operation.opcode),ol->operation.arg0,ol->operation.arg1,ol->operation.arg2);
+        printf("%d:|%s| |%s| |%s| |%s|\n",ol->current_index,OPCODE_getFromOpcode(ol->operation.opcode),ol->operation.arg0,ol->operation.arg1,ol->operation.arg2);
         ol=ol->next;
     }
-    printf("|%s| |%s| |%s| |%s|\n",OPCODE_getFromOpcode(ol->operation.opcode),ol->operation.arg0,ol->operation.arg1,ol->operation.arg2);
+    printf("%d:|%s| |%s| |%s| |%s|\n",ol->current_index,OPCODE_getFromOpcode(ol->operation.opcode),ol->operation.arg0,ol->operation.arg1,ol->operation.arg2);
     
 }
 
@@ -418,6 +426,7 @@ void OL_append(struct OL **ol, OPERATION operation){
     while ((*current_ol)->next!=NULL) {
         current_ol=&((*current_ol)->next);
     }
+    temp_ol->current_index=(*current_ol)->current_index+1;
     temp_ol->ahead=(*current_ol);
     (*current_ol)->next=temp_ol;
     //(*current_ol)->next->ahead=(*current_ol);

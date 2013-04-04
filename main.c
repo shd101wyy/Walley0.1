@@ -7,20 +7,35 @@
 //
 
 #include "walley_code_generation.h"
-
-int main(int argc, char **argv)
-{
-    // test Code_Generation Function
-    char *to_analyze_str="x=[1,[2,3],4]";
+Operation_List *ol;
+void Test(char *input_str){
+    char *to_analyze_str=input_str;
     struct TL *tl=Walley_Lexical_Analyzie(to_analyze_str);
     TL_print(tl);
     TREE output_tree=parser(tl);
     Var_List *local_var_list;
     VL_init(&local_var_list);
-    VL_init(&GLOBAL_VAR_LIST);
-    Operation_List *ol;
-    OL_init(&ol);
     Code_Generation(output_tree, &ol, &local_var_list);
+    
+    OPERATION op;
+    op.opcode=$;
+    op.arg0="===================";
+    OL_append(&ol, op);
+    
+}
+int main(int argc, char **argv)
+{
+    // test Code_Generation Function
+    OL_init(&ol);
+    VL_init(&GLOBAL_VAR_LIST);
+    SL_initSL(&STATEMENTS_LIST);
+    Test("if 3>4 then");
+    Test("x=5");
+    Test("else");
+    Test("x=2");
+    Test("x=6");
+    Test("end");
+    //Test("y=x+4");
     OL_print(ol);
     exit(0);
     

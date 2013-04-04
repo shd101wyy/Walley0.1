@@ -327,29 +327,35 @@ char *getValue(TREE tree, Var_List *local_var_list){
         return return_value;
     }
     else{
-        // check local
-        while (local_var_list->next!=NULL) {
+        if (local_var_list->current_var.var_name!=NULL) {
+            // check local
+            while (local_var_list->next!=NULL) {
+                if (term(local_var_list->current_var.var_name, tree.name)) {
+                    return intToCString(local_var_list->current_var.address);
+                }
+                local_var_list=local_var_list->next;
+            }
             if (term(local_var_list->current_var.var_name, tree.name)) {
                 return intToCString(local_var_list->current_var.address);
             }
-            local_var_list=local_var_list->next;
-        }
-        if (term(local_var_list->current_var.var_name, tree.name)) {
-            return intToCString(local_var_list->current_var.address);
+
         }
         
-        
-        // check global
-        while (GLOBAL_VAR_LIST->next!=NULL) {
+       
+        if (GLOBAL_VAR_LIST->current_var.var_name!=NULL) {
+            // check global
+            while (GLOBAL_VAR_LIST->next!=NULL) {
+                if (term(GLOBAL_VAR_LIST->current_var.var_name, tree.name)) {
+                    return intToCString(GLOBAL_VAR_LIST->current_var.address);
+                }
+                GLOBAL_VAR_LIST=GLOBAL_VAR_LIST->next;
+            }
             if (term(GLOBAL_VAR_LIST->current_var.var_name, tree.name)) {
                 return intToCString(GLOBAL_VAR_LIST->current_var.address);
             }
-            GLOBAL_VAR_LIST=GLOBAL_VAR_LIST->next;
-        }
-        if (term(GLOBAL_VAR_LIST->current_var.var_name, tree.name)) {
-            return intToCString(GLOBAL_VAR_LIST->current_var.address);
-        }
 
+        }
+       
     }
     return "none";
 }
@@ -368,7 +374,124 @@ void Code_Generation(TREE tree, Operation_List **ol, Var_List **local_var_list){
         if (term(nl->node.name, "if")) {
             nl=nl->next;
             Code_Generation(nl->node, ol, local_var_list);
-            // relation
+            
+            //finish dealing with relation and simple relation
+            
+            // meet TEST
+            GLOBAL_VAR_LIST--;
+            op.opcode=TEST;
+            op.arg0=intToCString(GLOBAL_OFFSET);
+            OL_append(ol, op);
+            
+            GLOBAL_OFFSET++;
+            
+            SL_addString(&STATEMENTS_LIST, "if");
+        }
+        // elif statements
+        else if (term(nl->node.name, "elif")){
+            
+            // pop ahead
+            SL_pop(&STATEMENTS_LIST);
+            
+            // jmp back
+            int jump_final=OL_length(*ol);
+            Operation_List **temp_ol=&(*ol);
+            while ((*temp_ol)->next!=NULL) {
+                temp_ol=&((*temp_ol)->next);
+            }
+            while ((*temp_ol)->ahead!=NULL) {
+                if ((*temp_ol)->operation.opcode==TEST && (*temp_ol)->operation.arg1==NULL) {
+                    (*temp_ol)->operation.arg1=intToCString(jump_final-(*temp_ol)->current_index);
+                    break;
+                }
+                temp_ol=&((*temp_ol)->ahead);
+            }
+            // push elif
+            SL_addString(&STATEMENTS_LIST, "elif");
+            
+            nl=nl->next;
+            Code_Generation(nl->node, ol, local_var_list);
+            
+            //finish dealing with relation and simple relation
+            
+            // meet TEST
+            GLOBAL_VAR_LIST--;
+            op.opcode=TEST;
+            op.arg0=intToCString(GLOBAL_OFFSET);
+            OL_append(ol, op);
+            
+            GLOBAL_OFFSET++;
+            
+            
+            return;
+        }
+        else if (term(nl->node.name, "else")){
+            
+            
+            // pop ahead
+            SL_pop(&STATEMENTS_LIST);
+            
+            // jmp back
+            int jump_final=OL_length(*ol);
+            Operation_List **temp_ol=&(*ol);
+            while ((*temp_ol)->next!=NULL) {
+                temp_ol=&((*temp_ol)->next);
+            }
+            while ((*temp_ol)->ahead!=NULL) {
+                if ((*temp_ol)->operation.opcode==TEST && (*temp_ol)->operation.arg1==NULL) {
+                    (*temp_ol)->operation.arg1=intToCString(jump_final-(*temp_ol)->current_index);
+                    break;
+                }
+                temp_ol=&((*temp_ol)->ahead);
+            }
+            // push else
+            SL_addString(&STATEMENTS_LIST, "else");
+            
+            temp_ol=&((*temp_ol)->ahead);
+            op.opcode=NOT;
+            op.arg0=(*temp_ol)->operation.arg0;
+            op.arg1=NULL;
+            OL_append(ol, op);
+            
+            op.opcode=TEST;
+            op.arg0=(*temp_ol)->operation.arg0;
+            op.arg1=NULL;
+            OL_append(ol, op);
+            
+            //finish dealing with relation and simple relation
+            
+                       
+            //GLOBAL_OFFSET++;
+            
+            
+            return;
+        }
+        else if (term(nl->node.name, "end")){
+           
+            // only support if elif else now
+            // need to check poped statement...
+            SL_print(STATEMENTS_LIST);
+            // pop ahead
+            SL_pop(&STATEMENTS_LIST);
+            
+            // jmp back
+            int jump_final=OL_length(*ol);
+            Operation_List **temp_ol=&(*ol);
+
+            while ((*temp_ol)->next!=NULL) {
+                temp_ol=&((*temp_ol)->next);
+            }
+
+            while ((*temp_ol)->ahead!=NULL) {
+                if ((*temp_ol)->operation.opcode==TEST && (*temp_ol)->operation.arg1==NULL) {
+                    (*temp_ol)->operation.arg1=intToCString(jump_final-(*temp_ol)->current_index);
+                    break;
+                }
+                temp_ol=&((*temp_ol)->ahead);
+            }
+            
+            return;
+
         }
         else{
             while (nl->next!=NULL) {
@@ -390,8 +513,7 @@ void Code_Generation(TREE tree, Operation_List **ol, Var_List **local_var_list){
             Code_Generation(nl->node, ol, local_var_list);
             nl=nl->next;
         }
-        printf("%s\n",temp_tree.name);
-        printf("ENTER HERE\n");
+       
         
         GLOBAL_OFFSET-=2;
         char *judge_sign=temp_tree.name;
@@ -527,20 +649,32 @@ void Code_Generation(TREE tree, Operation_List **ol, Var_List **local_var_list){
         if (NL_length(nl)==2) {
             // add current_global_offset to 
             // save the offset for var_name
-            int current_global_offset=GLOBAL_OFFSET;
-            // save var_name
-            op.opcode=SETG;
-            op.arg0=intToCString(GLOBAL_OFFSET);
-            op.arg1="none";
-            
-            // add to global var list
-            var.address=GLOBAL_OFFSET;
-            var.var_name=nl->node.name;
-            VL_addVar(&GLOBAL_VAR_LIST, var);
-            
-            OL_append(ol, op);
-            
-            GLOBAL_OFFSET++;
+            // check var_name address
+            char *var_name_address=getValue(tree.node_list->node, *local_var_list);
+            int current_global_offset;// =GLOBAL_OFFSET;
+            // does not exsit
+            if (term(var_name_address, "none")) {
+                // save var_name
+                current_global_offset=GLOBAL_OFFSET;
+                op.opcode=SETG;
+                op.arg0=intToCString(current_global_offset);
+                op.arg1="none";
+                
+                // add to global var list
+                var.address=GLOBAL_OFFSET;
+                var.var_name=nl->node.name;
+                VL_addVar(&GLOBAL_VAR_LIST, var);
+                
+                
+                OL_append(ol, op);
+                
+                GLOBAL_OFFSET++;
+            }
+            // exist
+            else{
+                current_global_offset=atoi(var_name_address);
+                
+            }
            
             // right side
             Code_Generation(nl->next->node, ol, local_var_list);

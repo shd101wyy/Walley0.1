@@ -39,6 +39,9 @@ typedef int bool;
 
 int main(int argc, char **argv);
 
+// walley_string:
+struct SL;
+typedef struct SL Str_List;
 
 //walley_data:
 struct TOKEN;
@@ -102,6 +105,7 @@ bool else_stms(TREE *tree, Token_List *tl);
 bool while_stms(TREE *tree, Token_List *tl);
 bool for_stms(TREE *tree, Token_List *tl);
 bool func_stms(TREE *tree, Token_List *tl);
+bool end_stm(TREE *tree, Token_List *tl);
 bool statements(TREE *tree, Token_List *tl);
 
 
@@ -110,7 +114,7 @@ struct Var;
 typedef struct Var Var;
 struct Var_List;
 typedef struct Var_List Var_List;
-
+void VL_printVL(Var_List *vl);
 
 //walley_vm
 
@@ -148,6 +152,9 @@ Var_List *GLOBAL_VAR_LIST;
 
 //walley_code_generation
 int TABLE_LIST_INDEX=0;
+bool NOW_IF=FALSE;
+int IF_START=0;
+Str_List *STATEMENTS_LIST;
 
 
 
