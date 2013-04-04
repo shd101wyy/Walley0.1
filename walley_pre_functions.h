@@ -155,6 +155,7 @@ int TABLE_LIST_INDEX=0;
 bool NOW_IF=FALSE;
 int IF_START=0;
 Str_List *STATEMENTS_LIST;
+Str_List *WHILE_LIST_OL_INDEX;  // save ol index for while
 
 
 

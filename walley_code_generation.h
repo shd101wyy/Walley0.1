@@ -370,6 +370,26 @@ void Code_Generation(TREE tree, Operation_List **ol, Var_List **local_var_list){
     // statements..
     if (term(tree.name, "statements")) {
         Node_List *nl=tree.node_list;
+        // while statements
+        if (term(nl->node.name, "while")) {
+            int current_while_index=OL_length(*ol);
+            SL_addString(&WHILE_LIST_OL_INDEX, intToCString(current_while_index));
+            
+            nl=nl->next;
+            Code_Generation(nl->node, ol, local_var_list);
+            
+            //finish dealing with relation and simple relation
+            
+            // meet TEST
+            GLOBAL_VAR_LIST--;
+            op.opcode=TEST;
+            op.arg0=intToCString(GLOBAL_OFFSET);
+            OL_append(ol, op);
+            
+            GLOBAL_OFFSET++;
+            
+            SL_addString(STATEMENTS_LIST, "while");
+        }
         // if statements
         if (term(nl->node.name, "if")) {
             nl=nl->next;
@@ -472,26 +492,30 @@ void Code_Generation(TREE tree, Operation_List **ol, Var_List **local_var_list){
             // need to check poped statement...
             SL_print(STATEMENTS_LIST);
             // pop ahead
-            SL_pop(&STATEMENTS_LIST);
-            
-            // jmp back
-            int jump_final=OL_length(*ol);
-            Operation_List **temp_ol=&(*ol);
-
-            while ((*temp_ol)->next!=NULL) {
-                temp_ol=&((*temp_ol)->next);
+            char *stm=SL_pop(&STATEMENTS_LIST);
+            if (term(stm, "while")) {
+                
             }
+            else{
+                // if elif else sentences
+                // jmp back
+                int jump_final=OL_length(*ol);
+                Operation_List **temp_ol=&(*ol);
 
-            while ((*temp_ol)->ahead!=NULL) {
-                if ((*temp_ol)->operation.opcode==TEST && (*temp_ol)->operation.arg1==NULL) {
-                    (*temp_ol)->operation.arg1=intToCString(jump_final-(*temp_ol)->current_index);
-                    break;
+                while ((*temp_ol)->next!=NULL) {
+                    temp_ol=&((*temp_ol)->next);
                 }
-                temp_ol=&((*temp_ol)->ahead);
-            }
-            
-            return;
 
+                while ((*temp_ol)->ahead!=NULL) {
+                    if ((*temp_ol)->operation.opcode==TEST && (*temp_ol)->operation.arg1==NULL) {
+                        (*temp_ol)->operation.arg1=intToCString(jump_final-(*temp_ol)->current_index);
+                        break;
+                    }
+                    temp_ol=&((*temp_ol)->ahead);
+                }
+            }
+            return;
+                
         }
         else{
             while (nl->next!=NULL) {
