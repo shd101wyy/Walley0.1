@@ -149,6 +149,15 @@ void VM_init();
 int GLOBAL_OFFSET=0;
 Var_List *GLOBAL_VAR_LIST;
 
+//walley_function_data_structure
+struct Function_List;
+typedef struct Function_List Function_List;
+void FL_init(Function_List **fl);
+void FL_addFuncName(Function_List **fl, char *add_func_name);
+void FL_addOperation(Function_List **fl, OPERATION op);
+int FL_length(Function_List *fl);
+void FL_print(Function_List *fl);
+
 
 //walley_code_generation
 int TABLE_LIST_INDEX=0;
@@ -156,7 +165,10 @@ bool NOW_IF=FALSE;
 int IF_START=0;
 Str_List *STATEMENTS_LIST;
 Str_List *WHILE_LIST_OL_INDEX;  // save ol index for while
+bool IS_LOCAL_VAR=FALSE;
 
+int LOCAL_OFFSET=0;
+bool NOW_FUNCTION=FALSE;  // if now function, add operation to local operation list
 
 
 struct VAR;

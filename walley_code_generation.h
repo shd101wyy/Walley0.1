@@ -6,7 +6,7 @@
 //  Copyright (c) 2013年 shd101wyy. All rights reserved.
 //
 
-#include "walley_vm.h"
+#include "walley_function_data_type.h"
 
 /*
  x = 12-5*6
@@ -360,7 +360,7 @@ char *getValue(TREE tree, Var_List *local_var_list){
     return "none";
 }
 
-void Code_Generation(TREE tree, Operation_List **ol, Var_List **local_var_list){
+void Code_Generation(TREE tree, Operation_List **ol, Var_List **local_var_list, Function_List **fl, int *OFFSET){
     Var var;
     OPERATION op;
     op.arg0=NULL;
@@ -377,7 +377,7 @@ void Code_Generation(TREE tree, Operation_List **ol, Var_List **local_var_list){
             SL_addString(&WHILE_LIST_OL_INDEX, intToCString(current_while_index));
             
             nl=nl->next;
-            Code_Generation(nl->node, ol, local_var_list);
+            Code_Generation(nl->node, ol, local_var_list,fl,OFFSET);
             
             //finish dealing with relation and simple relation
             
@@ -395,7 +395,7 @@ void Code_Generation(TREE tree, Operation_List **ol, Var_List **local_var_list){
         // if statements
         else if (term(nl->node.name, "if")) {
             nl=nl->next;
-            Code_Generation(nl->node, ol, local_var_list);
+            Code_Generation(nl->node, ol, local_var_list,fl,OFFSET);
             
             //finish dealing with relation and simple relation
             
@@ -432,7 +432,7 @@ void Code_Generation(TREE tree, Operation_List **ol, Var_List **local_var_list){
             SL_addString(&STATEMENTS_LIST, "elif");
             
             nl=nl->next;
-            Code_Generation(nl->node, ol, local_var_list);
+            Code_Generation(nl->node, ol, local_var_list,fl,OFFSET);
             
             //finish dealing with relation and simple relation
             
@@ -488,6 +488,72 @@ void Code_Generation(TREE tree, Operation_List **ol, Var_List **local_var_list){
             
             return;
         }
+        // def statements
+        else if (term(nl->node.name, "def")){
+            printf("Begin to Define a function\n");
+            
+            LOCAL_OFFSET=0;
+            
+            //( statements( def)( func(call add)( params(id num1)(id num2))))
+            TREE func_tree=nl->next->node;
+            char *func_name=func_tree.node_list->node.name;
+            
+            //add func_name
+            FL_addFuncName(fl, func_name);
+
+            
+            TREE param_tree=func_tree.node_list->next->node;
+            int params_num=NL_length(param_tree.node_list);
+            
+            Node_List *params_nl=param_tree.node_list;
+            //add params to local var list and local operation list;
+            int i=0;
+            for (; i<params_num; i++) {
+                char *param_name=params_nl->node.name;
+                
+                // add to local var list
+                Var param_var;
+                param_var.address=LOCAL_OFFSET;
+                param_var.var_name=param_name;
+                VL_addVar(local_var_list, param_var);
+                
+                // add to local operation list
+                OPERATION temp_op;
+                temp_op.opcode=SETL;
+                temp_op.arg0=intToCString(LOCAL_OFFSET);
+                temp_op.arg1="none";
+                temp_op.arg2=NULL;
+                FL_addOperation(fl, temp_op);
+                
+                
+                LOCAL_OFFSET++;
+                
+                params_nl=params_nl->next;
+                
+            }
+            
+            // add return
+            // add to local var list
+            Var param_var;
+            param_var.address=LOCAL_OFFSET;
+            param_var.var_name="return";
+            VL_addVar(local_var_list, param_var);
+            
+            // add to local operation list
+            OPERATION temp_op;
+            temp_op.opcode=SETL;
+            temp_op.arg0=intToCString(LOCAL_OFFSET);
+            temp_op.arg1="none";
+            temp_op.arg2=NULL;
+            FL_addOperation(fl, temp_op);
+            
+            
+            LOCAL_OFFSET++;
+                
+            NOW_FUNCTION=TRUE;
+            
+            SL_addString(&STATEMENTS_LIST, "def");
+        }
         else if (term(nl->node.name, "end")){
            
             // only support if elif else now
@@ -518,6 +584,24 @@ void Code_Generation(TREE tree, Operation_List **ol, Var_List **local_var_list){
                 }
 
             }
+            else if(term(stm, "def")){
+                printf("Finish defining function\n");
+                
+                // check whether finish all function define..
+                Str_List *temp_sl=STATEMENTS_LIST;
+                int length_of_temp_sl=SL_length(temp_sl);
+                int i=0;
+                
+                NOW_FUNCTION=FALSE;
+                for (; i<length_of_temp_sl; i++) {
+                    if (term(temp_sl->string_content, "def")) {
+                        NOW_FUNCTION=TRUE;
+                        break;
+                    }
+                }
+                
+                
+            }
             else{
                 // if elif else sentences
                 // jmp back
@@ -539,12 +623,13 @@ void Code_Generation(TREE tree, Operation_List **ol, Var_List **local_var_list){
             return;
                 
         }
+        
         else{
             while (nl->next!=NULL) {
-                Code_Generation(nl->node, ol,local_var_list);
+                Code_Generation(nl->node, ol,local_var_list,fl,OFFSET);
                 nl=nl->next;
             }
-            Code_Generation(nl->node, ol,local_var_list);
+            Code_Generation(nl->node, ol,local_var_list,fl,OFFSET);
             return ;
         }
     }
@@ -556,7 +641,7 @@ void Code_Generation(TREE tree, Operation_List **ol, Var_List **local_var_list){
         int length_of_nl=NL_length(nl);
         int i=0;
         for (; i<length_of_nl; i++) {
-            Code_Generation(nl->node, ol, local_var_list);
+            Code_Generation(nl->node, ol, local_var_list,fl,OFFSET);
             nl=nl->next;
         }
        
@@ -592,7 +677,7 @@ void Code_Generation(TREE tree, Operation_List **ol, Var_List **local_var_list){
         int length_of_nl=NL_length(nl);
         int i=0;
         for (; i<length_of_nl; i++) {
-            Code_Generation(nl->node, ol, local_var_list);
+            Code_Generation(nl->node, ol, local_var_list,fl,OFFSET);
             nl=nl->next;
         }
         
@@ -637,7 +722,7 @@ void Code_Generation(TREE tree, Operation_List **ol, Var_List **local_var_list){
     }
     // value
     if (term(tree.name, "value")) {
-        Code_Generation(tree.node_list->node, ol, local_var_list);
+        Code_Generation(tree.node_list->node, ol, local_var_list,fl,OFFSET);
         return;
     }
     // table
@@ -651,7 +736,7 @@ void Code_Generation(TREE tree, Operation_List **ol, Var_List **local_var_list){
         int i=0;
         int length_of_nl=NL_length(nl);
         for (; i<length_of_nl; i++) {
-            Code_Generation(nl->node, ol, local_var_list);
+            Code_Generation(nl->node, ol, local_var_list,fl,OFFSET);
             nl=nl->next;
         }
         
@@ -671,11 +756,11 @@ void Code_Generation(TREE tree, Operation_List **ol, Var_List **local_var_list){
         
         // table
         if (term(value_tree.node_list->node.token_class,"table")) {
-            Code_Generation(value_tree, ol, local_var_list);
+            Code_Generation(value_tree, ol, local_var_list,fl,OFFSET);
         }
         // not table
         else{
-            Code_Generation(value_tree, ol, local_var_list);
+            Code_Generation(value_tree, ol, local_var_list,fl,OFFSET);
         // add value
         GLOBAL_OFFSET--;
         op.opcode=TADD;
@@ -726,7 +811,7 @@ void Code_Generation(TREE tree, Operation_List **ol, Var_List **local_var_list){
             }
            
             // right side
-            Code_Generation(nl->next->node, ol, local_var_list);
+            Code_Generation(nl->next->node, ol, local_var_list,fl,OFFSET);
             
             
             //GLOBAL_OFFSET-=2;
@@ -808,20 +893,20 @@ void Code_Generation(TREE tree, Operation_List **ol, Var_List **local_var_list){
         // left
         Node_List *nl=tree.node_list;
         if (ism_operator(nl->node.name)) {
-            Code_Generation(nl->node, ol, local_var_list);
+            Code_Generation(nl->node, ol, local_var_list,fl,OFFSET);
         }
         else{
             // num or id
-            Code_Generation(nl->node, ol, local_var_list);
+            Code_Generation(nl->node, ol, local_var_list,fl,OFFSET);
         }
         
         // right
         if (ism_operator(nl->next->node.name)) {
-            Code_Generation(nl->next->node, ol, local_var_list);
+            Code_Generation(nl->next->node, ol, local_var_list,fl,OFFSET);
         }
         else{
             // num or id
-            Code_Generation(nl->next->node, ol, local_var_list);
+            Code_Generation(nl->next->node, ol, local_var_list,fl,OFFSET);
 
         }
         

@@ -8,6 +8,7 @@
 
 #include "walley_code_generation.h"
 Operation_List *ol;
+Function_List *fl;
 void Test(char *input_str){
     char *to_analyze_str=input_str;
     struct TL *tl=Walley_Lexical_Analyzie(to_analyze_str);
@@ -15,7 +16,13 @@ void Test(char *input_str){
     TREE output_tree=parser(tl);
     Var_List *local_var_list;
     VL_init(&local_var_list);
-    Code_Generation(output_tree, &ol, &local_var_list);
+    if (NOW_FUNCTION) {
+        Code_Generation(output_tree, &ol, &local_var_list,&fl,&LOCAL_OFFSET);
+    }
+    else{
+        Code_Generation(output_tree, &ol, &local_var_list,&fl,&GLOBAL_OFFSET);
+
+    }
     
     OPERATION op;
     op.opcode=$;
@@ -30,11 +37,19 @@ int main(int argc, char **argv)
     VL_init(&GLOBAL_VAR_LIST);
     SL_initSL(&STATEMENTS_LIST);
     SL_initSL(&WHILE_LIST_OL_INDEX);
-    Test("x=1");
-    Test("while x<5 then");
-    Test("x=x+1");
-    Test("y=2");
-    Test("end");
+    FL_init(&fl);
+    
+    Test("def add(num1,num2) then");
+    
+    printf("\n\n@@@@@@@@@@\n");
+    FL_print(fl);
+    printf("============\n\n\n");
+    
+    //Test("x=1");
+    //Test("while x<5 then");
+    //Test("x=x+1");
+    //Test("y=2");
+    //Test("end");
     //Test("x=6");
     //Test("end");
     //Test("y=x+4");

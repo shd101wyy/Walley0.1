@@ -38,7 +38,7 @@ enum OPCODE{
     MOD,      // 04 MOD arg0 arg1 arg2 ; %
     POW,      // 05 POW arg0 arg1 arg2 ; ^
     SETG,      // 06 SET dest src       ; SET 0 #100; set const 100 in register address 0; SET 0 1, set value in register 1 to register 0
-    SETNONE,  // 07 SETNONE dest       ; SET none to dest
+    SETL,  // 07 SETNONE dest       ; SET none to dest
     //LOADG,    // 06 LOADG dest from   ; load global value
     //LOADL,    // 07 LOADL dest from   ; load local value
     PRINT,    // 08 PRINT arg0         ;
@@ -88,8 +88,8 @@ char *OPCODE_getFromOpcode(enum OPCODE opcode){
         case SETG:
             return "SETG";
             break;
-        case SETNONE:
-            return "SETNONE";
+        case SETL:
+            return "SETL";
             break;
         case SETCONS:
             return "SETCONS";
@@ -175,8 +175,8 @@ enum OPCODE OPCODE_getFromString(char *input_str){
     else if (strcmp(input_str,"SETG")==0) {
         return SETG;
     }
-    else if (strcmp(input_str,"SETNONE")==0) {
-        return SETNONE;
+    else if (strcmp(input_str,"SETL")==0) {
+        return SETL;
     }
     else if (strcmp(input_str,"SETCONS")==0) {
         return SETCONS;
@@ -502,10 +502,10 @@ void VM_RUN_ONE_COMMAND(OPERATION operation){
             // SET 0 #100
             register_w[atoi(operation.arg0)].value=load_value(operation.arg1);
             break;
-        case SETNONE:
+        //case SETNONE:
             // SETNONE 0
-            register_w[atoi(operation.arg0)].value="none";
-            break;
+        //    register_w[atoi(operation.arg0)].value="none";
+        //    break;
         case SETCONS:
             // SETCONS 0 100
             register_w[atoi(operation.arg0)].value=operation.arg1;
