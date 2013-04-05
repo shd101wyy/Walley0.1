@@ -30,13 +30,16 @@
 */
 
 bool assignment(TREE *tree, Token_List *tl){
-    Token_List *temp_tl=tl;
+    printf("CHECK ASSIGNMENT\n");
+    TL_print(tl);
     // | 'local' var_name '=' var_value
     bool is_local=FALSE;
     if (term(tl->current_token.TOKEN_STRING, "local")) {
         is_local=TRUE;
     }
     
+    Token_List *temp_tl=tl;
+
     
     
     int count_of_equal=0;
@@ -58,6 +61,7 @@ bool assignment(TREE *tree, Token_List *tl){
     }
     
     else{
+        printf("ENTER HERE\n");
         
         int length_of_tl=TL_length(tl);
 
@@ -66,7 +70,14 @@ bool assignment(TREE *tree, Token_List *tl){
         TREE_INDEX=0;
         TREE var_name_tree;
         TREE_initWithName(&var_name_tree, "var_name");
-        Token_List *var_name_list=TL_subtl(tl, 0, index_of_equal);
+        Token_List *var_name_list;
+        // exclude local
+        if (is_local) {
+            var_name_list=TL_subtl(tl, 1, index_of_equal);
+        }
+        else{
+            var_name_list=TL_subtl(tl, 0, index_of_equal);
+        }
         var_name(&var_name_tree, var_name_list);
 
         

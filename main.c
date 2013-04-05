@@ -11,16 +11,21 @@ Operation_List *ol;
 Function_List *fl;
 void Test(char *input_str){
     char *to_analyze_str=input_str;
+    printf("input_str--------> %s\n",input_str);
     struct TL *tl=Walley_Lexical_Analyzie(to_analyze_str);
     TL_print(tl);
     TREE output_tree=parser(tl);
+    printf("output_tree----------\n");
+    TREE_print(output_tree);
+    printf("=====================\n");
     Var_List *local_var_list;
     VL_init(&local_var_list);
     if (NOW_FUNCTION) {
-        Code_Generation(output_tree, &ol, &local_var_list,&fl,&LOCAL_OFFSET);
+        Code_Generation(output_tree, &(fl->current_ol), &local_var_list,&(fl->next_in_function),&GLOBAL_OFFSET);
+
     }
     else{
-        Code_Generation(output_tree, &ol, &local_var_list,&fl,&GLOBAL_OFFSET);
+        Code_Generation(output_tree, &ol, &local_var_list,&fl,&LOCAL_OFFSET);
 
     }
     
@@ -32,6 +37,7 @@ void Test(char *input_str){
 }
 int main(int argc, char **argv)
 {
+    
     // test Code_Generation Function
     OL_init(&ol);
     VL_init(&GLOBAL_VAR_LIST);
@@ -40,21 +46,17 @@ int main(int argc, char **argv)
     FL_init(&fl);
     
     Test("def add(num1,num2) then");
+    Test("local x=x+1");
+    Test("end");
+
     
     printf("\n\n@@@@@@@@@@\n");
     FL_print(fl);
     printf("============\n\n\n");
     
-    //Test("x=1");
-    //Test("while x<5 then");
-    //Test("x=x+1");
-    //Test("y=2");
-    //Test("end");
-    //Test("x=6");
-    //Test("end");
-    //Test("y=x+4");
     OL_print(ol);
     exit(0);
+     
     
      /*
      VM_init();
@@ -74,6 +76,8 @@ int main(int argc, char **argv)
     exit(0);
     
     */
+
+    
     if (argc==2) {
         char *file_name=argv[1];
         VM_Run_File(file_name);
@@ -95,6 +99,7 @@ int main(int argc, char **argv)
             char *file_name=argv[2];
             VM_Run_File(file_name);
         }
+        /*
         else if (strcmp(argv[1],"cg")==0) {
             
             VM_init();
@@ -111,6 +116,7 @@ int main(int argc, char **argv)
             printf("\nOPERATION LIST============\n");
             OL_print(ol);
         }
+         */
 
         
     }
