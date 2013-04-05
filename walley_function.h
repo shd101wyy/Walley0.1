@@ -8,6 +8,9 @@
 
 #include "walley_assignment.h"
 /*
+ 
+ x = def '(' params ')' then
+ 
  def func_name(params):
      ------------------
      func

@@ -373,6 +373,7 @@ void Code_Generation(TREE tree, Operation_List **ol, Var_List **local_var_list){
         // while statements
         if (term(nl->node.name, "while")) {
             int current_while_index=OL_length(*ol);
+            printf("@@@@ %d\n",current_while_index);
             SL_addString(&WHILE_LIST_OL_INDEX, intToCString(current_while_index));
             
             nl=nl->next;
@@ -497,7 +498,7 @@ void Code_Generation(TREE tree, Operation_List **ol, Var_List **local_var_list){
             if (term(stm, "while")) {
                 char *jmp_num_str=SL_pop(&WHILE_LIST_OL_INDEX);
                 op.opcode=JMP;
-                op.arg0=intToCString(-(OL_length(*ol)-atoi(jmp_num_str)));
+                op.arg0=intToCString(-1*((OL_length(*ol)-atoi(jmp_num_str))));
                 OL_append(ol, op);
                 
                 // jmp back
@@ -692,6 +693,9 @@ void Code_Generation(TREE tree, Operation_List **ol, Var_List **local_var_list){
         Node_List *nl=tree.node_list;
         // x=12+3
         if (NL_length(nl)==2) {
+            
+            
+            
             // add current_global_offset to 
             // save the offset for var_name
             // check var_name address
@@ -736,6 +740,63 @@ void Code_Generation(TREE tree, Operation_List **ol, Var_List **local_var_list){
             GLOBAL_OFFSET=current_global_offset+1;
             
             
+            // check whether in while statements
+            // if in statements,
+            //increase all arg0, arg1,arg2,arg3 above TEST below while_index(which is stored in WHILE_LIST_OL_INDEX) by 1.
+            if (STATEMENTS_LIST->string_content!=NULL&&term(var_name_address,"none")) {
+                Str_List *temp_sl=STATEMENTS_LIST;
+                while (temp_sl->next!=NULL) {
+                    temp_sl=temp_sl->next;
+                }
+                char *check_while_str=temp_sl->string_content;
+
+                
+                if (term("while", check_while_str)) {
+                    
+                    temp_sl=WHILE_LIST_OL_INDEX;
+                    while (temp_sl->next!=NULL) {
+                        temp_sl=temp_sl->next;
+                    }
+                    char* while_index_str=temp_sl->string_content;
+                    
+                    int while_index=atoi(while_index_str);
+                    
+                    Operation_List **temp_ol=&(*ol);
+                    
+                    while ((*temp_ol)->current_index!=while_index) {
+                        temp_ol=&((*temp_ol)->next);
+                    }
+                    
+                    while ((*temp_ol)->operation.opcode!=TEST) {
+                        if ((*temp_ol)->operation.arg0!=NULL) {
+                            (*temp_ol)->operation.arg0=intToCString(atoi((*temp_ol)->operation.arg0)+1);
+                        }
+                        if ((*temp_ol)->operation.arg1!=NULL&&(*temp_ol)->operation.opcode!=SETG) {
+                            (*temp_ol)->operation.arg1=intToCString(atoi((*temp_ol)->operation.arg1)+1);
+                        }
+                        if ((*temp_ol)->operation.arg2!=NULL) {
+                            (*temp_ol)->operation.arg2=intToCString(atoi((*temp_ol)->operation.arg2)+1);
+                        }
+                    temp_ol=&((*temp_ol)->next);
+                    }
+
+                    // change test
+                    if ((*temp_ol)->operation.arg0!=NULL) {
+                        (*temp_ol)->operation.arg0=intToCString(atoi((*temp_ol)->operation.arg0)+1);
+                    }
+                    if ((*temp_ol)->operation.arg1!=NULL) {
+                        (*temp_ol)->operation.arg1=intToCString(atoi((*temp_ol)->operation.arg1)+1);
+                    }
+                    if ((*temp_ol)->operation.arg2!=NULL) {
+                        (*temp_ol)->operation.arg2=intToCString(atoi((*temp_ol)->operation.arg2)+1);
+                    }
+                    
+                    OL_print(*ol);
+                    
+                }
+                
+                return;
+            }
         }
         else{
             printf("Does not support function def like x=def (a,b) ... now\n");
