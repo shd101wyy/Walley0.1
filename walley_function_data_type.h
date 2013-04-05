@@ -13,6 +13,7 @@ struct Function_List{
     Operation_List *current_ol;
     struct Function_List *next;
     struct Function_List *next_in_function;
+    Var_List *local_var_list;
 };
 
 void FL_init(Function_List **fl){
@@ -21,6 +22,9 @@ void FL_init(Function_List **fl){
     (*fl)->current_ol=NULL;
     (*fl)->next=NULL;
     (*fl)->next_in_function=NULL;
+    
+    (*fl)->local_var_list=NULL;
+    VL_init(&((*fl)->local_var_list));
 }
 
 void FL_addFuncName(Function_List **fl, char *add_func_name){

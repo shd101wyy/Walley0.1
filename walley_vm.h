@@ -63,7 +63,8 @@ enum OPCODE{
     NEWTABLE,  // 24
     TADD,        //25
     ENDTABLE,      //26
-    TEST        //27
+    TEST,        //27
+    LOADTOG     // 28
 };
 char *OPCODE_getFromOpcode(enum OPCODE opcode){
     switch (opcode) {
@@ -145,6 +146,9 @@ char *OPCODE_getFromOpcode(enum OPCODE opcode){
             break;
         case TEST:
             return "TEST";
+            break;
+        case LOADTOG:
+            return "LOADTOG";
             break;
         default:
             printf("Error..Unavailable opcode\n");
@@ -231,6 +235,8 @@ enum OPCODE OPCODE_getFromString(char *input_str){
         return ENDTABLE;
     else if (term(input_str, "TEST"))
         return TEST;
+    else if (term(input_str, "LOADTOG"))
+        return LOADTOG;
     else{
         printf("Error.. wrong opcode %s\n",input_str);
         exit(0);

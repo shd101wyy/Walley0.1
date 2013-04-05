@@ -15,23 +15,21 @@ void Test(char *input_str){
     struct TL *tl=Walley_Lexical_Analyzie(to_analyze_str);
     TL_print(tl);
     TREE output_tree=parser(tl);
-    printf("output_tree----------\n");
-    TREE_print(output_tree);
-    printf("=====================\n");
-    Var_List *local_var_list;
-    VL_init(&local_var_list);
     if (NOW_FUNCTION) {
-        Code_Generation(output_tree, &(fl->current_ol), &local_var_list,&(fl->next_in_function),&GLOBAL_OFFSET);
+    
+        Code_Generation(output_tree, &(fl->current_ol),&(fl->next_in_function),&(fl->local_var_list) ,&LOCAL_OFFSET);
 
     }
     else{
-        Code_Generation(output_tree, &ol, &local_var_list,&fl,&LOCAL_OFFSET);
+        Code_Generation(output_tree, &ol,&fl,&GLOBAL_VAR_LIST,&GLOBAL_OFFSET);
 
     }
     
     OPERATION op;
     op.opcode=$;
     op.arg0="===================";
+    op.arg1=NULL;
+    op.arg2=NULL;
     OL_append(&ol, op);
     
 }
@@ -45,8 +43,11 @@ int main(int argc, char **argv)
     SL_initSL(&WHILE_LIST_OL_INDEX);
     FL_init(&fl);
     
+    Test("a=1");
+    Test("y=2");
     Test("def add(num1,num2) then");
-    Test("local x=x+1");
+    Test("x=3");
+    Test("y=4");
     Test("end");
 
     
