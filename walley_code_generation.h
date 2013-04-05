@@ -381,24 +381,25 @@ void Code_Generation(TREE tree, Operation_List **ol, Var_List **local_var_list){
             //finish dealing with relation and simple relation
             
             // meet TEST
-            GLOBAL_VAR_LIST--;
+            GLOBAL_OFFSET--;
             op.opcode=TEST;
             op.arg0=intToCString(GLOBAL_OFFSET);
             OL_append(ol, op);
             
             GLOBAL_OFFSET++;
             
-            SL_addString(STATEMENTS_LIST, "while");
+            SL_addString(&STATEMENTS_LIST, "while");
+            return;
         }
         // if statements
-        if (term(nl->node.name, "if")) {
+        else if (term(nl->node.name, "if")) {
             nl=nl->next;
             Code_Generation(nl->node, ol, local_var_list);
             
             //finish dealing with relation and simple relation
             
             // meet TEST
-            GLOBAL_VAR_LIST--;
+            GLOBAL_OFFSET--;
             op.opcode=TEST;
             op.arg0=intToCString(GLOBAL_OFFSET);
             OL_append(ol, op);
@@ -435,7 +436,7 @@ void Code_Generation(TREE tree, Operation_List **ol, Var_List **local_var_list){
             //finish dealing with relation and simple relation
             
             // meet TEST
-            GLOBAL_VAR_LIST--;
+            GLOBAL_OFFSET--;
             op.opcode=TEST;
             op.arg0=intToCString(GLOBAL_OFFSET);
             OL_append(ol, op);
@@ -494,7 +495,27 @@ void Code_Generation(TREE tree, Operation_List **ol, Var_List **local_var_list){
             // pop ahead
             char *stm=SL_pop(&STATEMENTS_LIST);
             if (term(stm, "while")) {
+                char *jmp_num_str=SL_pop(&WHILE_LIST_OL_INDEX);
+                op.opcode=JMP;
+                op.arg0=intToCString(-(OL_length(*ol)-atoi(jmp_num_str)));
+                OL_append(ol, op);
                 
+                // jmp back
+                int jump_final=OL_length(*ol);
+                Operation_List **temp_ol=&(*ol);
+                
+                while ((*temp_ol)->next!=NULL) {
+                    temp_ol=&((*temp_ol)->next);
+                }
+                
+                while ((*temp_ol)->ahead!=NULL) {
+                    if ((*temp_ol)->operation.opcode==TEST && (*temp_ol)->operation.arg1==NULL) {
+                        (*temp_ol)->operation.arg1=intToCString(jump_final-(*temp_ol)->current_index);
+                        break;
+                    }
+                    temp_ol=&((*temp_ol)->ahead);
+                }
+
             }
             else{
                 // if elif else sentences
