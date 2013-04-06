@@ -175,6 +175,11 @@ Var_List *GLOBAL_VAR_LIST;
 
 Var_List_Set *LOCAL_VAR_SET;
 
+Function_List *FUNCTION_LIST;
+Operation_List *OPERATION_LIST;
+
+
+//=============
 
 
 struct VAR;

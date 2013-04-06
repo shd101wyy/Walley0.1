@@ -7,22 +7,18 @@
 //
 
 #include "walley.h"
-Operation_List *ol;
-Function_List *fl;
 void Test(char *input_str){
     char *to_analyze_str=input_str;
     printf("input_str--------> %s\n",input_str);
     struct TL *tl=Walley_Lexical_Analyzie(to_analyze_str);
     TL_print(tl);
     TREE output_tree=parser(tl);
-    if (NOW_FUNCTION) {
     
-        Code_Generation(output_tree, &(fl->current_ol),&(fl->next_in_function) ,&LOCAL_OFFSET);
-
+    if (NOW_FUNCTION) {
+        Code_Generation(output_tree, &(FUNCTION_LIST->current_ol),&(FUNCTION_LIST->next_in_function) ,&LOCAL_OFFSET);
     }
     else{
-        Code_Generation(output_tree, &ol,&fl,&GLOBAL_OFFSET);
-
+        Code_Generation(output_tree, &OPERATION_LIST,&FUNCTION_LIST,&GLOBAL_OFFSET);
     }
     
     OPERATION op;
@@ -30,15 +26,13 @@ void Test(char *input_str){
     op.arg0="===================";
     op.arg1=NULL;
     op.arg2=NULL;
-    OL_append(&ol, op);
+    OL_append(&OPERATION_LIST, op);
     
 }
 int main(int argc, char **argv)
 {
     
     // test Code_Generation Function
-    OL_init(&ol);
-    FL_init(&fl);
     
     Walley_Init();
     
@@ -49,15 +43,16 @@ int main(int argc, char **argv)
     //Test("y=4");
     //Test("end");
     Test("x=1");
-    Test("x=x+1");
+    Test("while x<5 then");
+    Test("end");
     
     
     
     printf("\n\n@@@@@@@@@@\n");
-    FL_print(fl);
+    FL_print(FUNCTION_LIST);
     printf("============\n\n\n");
     
-    OL_print(ol);
+    OL_print(OPERATION_LIST);
     exit(0);
      
     

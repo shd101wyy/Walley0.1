@@ -12,4 +12,6 @@ void Walley_Init(){
     VL_init(&GLOBAL_VAR_LIST);
     SL_initSL(&STATEMENTS_LIST);
     SL_initSL(&WHILE_LIST_OL_INDEX);
+    FL_init(&FUNCTION_LIST);
+    OL_init(&OPERATION_LIST);
 }

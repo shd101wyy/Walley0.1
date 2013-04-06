@@ -270,6 +270,15 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl,int *OFF
     op.arg0=NULL;
     op.arg1=NULL;
     op.arg2=NULL;
+    
+    int CURRENT_VAR_SET_INDEX=VLS_length(LOCAL_VAR_SET);
+    printf("current_var_set_index %d\n",CURRENT_VAR_SET_INDEX);
+    
+    bool NOW_LOCAL=FALSE;
+    if (SL_length(WHILE_LIST_OL_INDEX)!=0) {
+        NOW_LOCAL=TRUE;
+    }
+    printf("NOW_LOCAL %d\n",NOW_LOCAL);
 
     // statements..
     if (term(tree.name, "statements")) {
@@ -690,10 +699,10 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl,int *OFF
         return;
     }
     
-    // num or id
-    if (term(tree.token_class, "num")||term(tree.token_class, "id")) {
+    // num
+    if (term(tree.token_class, "num")) {
         op.opcode=SETG;
-        if (IS_LOCAL_VAR || NOW_FUNCTION) {
+        if (NOW_LOCAL) {
             op.opcode=SETL;
         }
         op.arg0=intToCString((*OFFSET));
@@ -707,6 +716,68 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl,int *OFF
         
         (*OFFSET)++;
         OL_append(ol, op);
+        return;
+
+    }
+    // id
+    if (term(tree.token_class, "id")) {
+        
+        // local
+        if (NOW_LOCAL) {
+            
+            int var_set_index;
+            char *var_value;
+            getValue(tree, &var_set_index, &var_value);
+            
+            // does not exist
+            if (var_set_index==-1) {
+                op.opcode=SETL;
+                op.arg0=intToCString((*OFFSET));
+                op.arg1="none";
+                
+                (*OFFSET)++;
+                OL_append(ol, op);
+
+            }
+            // exist and
+            // is current var set
+            else if(CURRENT_VAR_SET_INDEX==var_set_index){
+                op.opcode=SETL;
+                op.arg0=intToCString((*OFFSET));
+                op.arg1=var_value;
+                
+                
+                (*OFFSET)++;
+                OL_append(ol, op);
+            }
+            // exist
+            // but is not current var set
+            else{
+                op.opcode=SET;
+                op.arg0=intToCString(var_set_index);
+                op.arg1=intToCString(*OFFSET);
+                op.arg2=var_value;
+                
+                (*OFFSET)++;
+                OL_append(ol, op);
+            }
+            
+        }
+        // global
+        else{
+            op.opcode=SETG;
+            op.arg0=intToCString((*OFFSET));
+            
+            int var_set_index;
+            char *var_value;
+            getValue(tree, &var_set_index, &var_value);
+            op.arg1=var_value;
+            
+            op.arg2=NULL;
+            
+            (*OFFSET)++;
+            OL_append(ol, op);
+        }
         return;
     }
     // value
@@ -766,6 +837,14 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl,int *OFF
         // x=12+3
         Node_List *nl=tree.node_list;
         int length_of_nl=NL_length(nl);
+        
+        // eg
+        // x=12         # x is available
+        // local y=12   # y is not available
+        // can not assign local inside global scope
+        if (term(nl->node.name, "local") && CURRENT_VAR_SET_INDEX==0) {
+            return;
+        }
         if (term(nl->node.name, "local")) {
             printf("### IS LOCAL\n");
             IS_LOCAL_VAR=TRUE;
@@ -774,8 +853,67 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl,int *OFF
         NL_print(nl);
         // x=12+3
         if (length_of_nl==2||(length_of_nl==3&&IS_LOCAL_VAR)) {
+            // global
+            // so OFFSET == GLOBAL_OFFSET
+            if (NOW_LOCAL==FALSE) {
+                char *var_name_address; 
+                int var_set_index;
+                getValue(nl->node, &var_set_index, &var_name_address);
+                
+                printf("var_set_index %d    var_name_adderss %s\n",var_set_index,var_name_address);
+                
+                int current__offset;
+                int value__offset;
+                
+                // var does not exist
+                if (term(var_name_address, "none")) {
+                    current__offset=(*OFFSET);
+                    op.opcode=SETG;
+                    
+                    op.arg0=intToCString(current__offset);
+                    op.arg1="none";
+                    
+                    OL_append(ol, op);
+                    
+                    Var temp_var;
+                    temp_var.address=current__offset;
+                    temp_var.var_name=nl->node.name;
+                    VL_addVar(&GLOBAL_VAR_LIST, temp_var);
+                    
+                    
+                    (*OFFSET)++;
+                    value__offset=(*OFFSET);
+                }
+                // var exist
+                else{
+                    printf("EXIST");
+                    current__offset=atoi(var_name_address);
+                    value__offset=(*OFFSET);
+                }
+                
+                
+                
+                
+                // right side
+                Code_Generation(nl->next->node, ol,fl,OFFSET);
+                op.opcode=SETG;
+                
+                op.arg0=intToCString(current__offset);
+                op.arg1=intToCString(value__offset);
+                
+                OL_append(ol, op);
+                
+                (*OFFSET)=value__offset;
+                
+            }
             
-
+            // local
+            else{
+                
+            }
+           
+            
+            /*
             // THE OFFSET HERE HAS A LOT PROBLEMS
             
             // add current_global_offset to 
@@ -919,6 +1057,7 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl,int *OFF
                 return;
             }
             IS_LOCAL_VAR=FALSE;
+             */
         }
         else{
             printf("Does not support function def like x=def (a,b) ... now\n");

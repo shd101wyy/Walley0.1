@@ -101,7 +101,7 @@ void SL_initSL(struct SL **string_list){
 }
 
 int SL_length(struct SL *string_list){
-    if (string_list==NULL) {
+    if (string_list==NULL || string_list->string_content==NULL) {
         return 0;
     }
     int length=0;
