@@ -115,6 +115,8 @@ typedef struct Var Var;
 struct Var_List;
 typedef struct Var_List Var_List;
 void VL_printVL(Var_List *vl);
+struct Var_List_Set;
+typedef struct Var_List_Set Var_List_Set;
 
 //walley_vm
 
@@ -146,8 +148,6 @@ void VM_Run_File(char *file_name);
 void VM_init();
 
 
-int GLOBAL_OFFSET=0;
-Var_List *GLOBAL_VAR_LIST;
 
 //walley_function_data_structure
 struct Function_List;
@@ -169,6 +169,12 @@ bool IS_LOCAL_VAR=FALSE;
 
 int LOCAL_OFFSET=0;
 bool NOW_FUNCTION=FALSE;  // if now function, add operation to local operation list
+
+int GLOBAL_OFFSET=0;
+Var_List *GLOBAL_VAR_LIST;
+
+Var_List_Set *LOCAL_VAR_SET;
+
 
 
 struct VAR;

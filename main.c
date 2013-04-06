@@ -6,7 +6,7 @@
 //  Copyright (c) 2013年 shd101wyy. All rights reserved.
 //
 
-#include "walley_code_generation.h"
+#include "walley.h"
 Operation_List *ol;
 Function_List *fl;
 void Test(char *input_str){
@@ -17,11 +17,11 @@ void Test(char *input_str){
     TREE output_tree=parser(tl);
     if (NOW_FUNCTION) {
     
-        Code_Generation(output_tree, &(fl->current_ol),&(fl->next_in_function),&(fl->local_var_list) ,&LOCAL_OFFSET);
+        Code_Generation(output_tree, &(fl->current_ol),&(fl->next_in_function) ,&LOCAL_OFFSET);
 
     }
     else{
-        Code_Generation(output_tree, &ol,&fl,&GLOBAL_VAR_LIST,&GLOBAL_OFFSET);
+        Code_Generation(output_tree, &ol,&fl,&GLOBAL_OFFSET);
 
     }
     
@@ -38,18 +38,20 @@ int main(int argc, char **argv)
     
     // test Code_Generation Function
     OL_init(&ol);
-    VL_init(&GLOBAL_VAR_LIST);
-    SL_initSL(&STATEMENTS_LIST);
-    SL_initSL(&WHILE_LIST_OL_INDEX);
     FL_init(&fl);
     
-    Test("a=1");
-    Test("y=2");
-    Test("def add(num1,num2) then");
-    Test("x=3");
-    Test("y=4");
-    Test("end");
-
+    Walley_Init();
+    
+    //Test("a=1");
+    //Test("y=2");
+    //Test("def add(num1,num2) then");
+    //Test("x=3");
+    //Test("y=4");
+    //Test("end");
+    Test("x=1");
+    Test("x=x+1");
+    
+    
     
     printf("\n\n@@@@@@@@@@\n");
     FL_print(fl);

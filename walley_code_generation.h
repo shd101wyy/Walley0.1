@@ -189,129 +189,11 @@ bool ism_operator(char *input_str){
     return FALSE;
 }
 
-/*
-Operation_List *CG(Token_List *tl){
-    Operation_List *ol;
-    OL_init(&ol);
-    
-    
-    int length_of_tl=TL_length(tl);
-    int i=0;
-    
-    for (; i<length_of_tl; i++) {
-        if (tl->current_token.TOKEN_CLASS==NULL) {
-            printf("TOKEN_CLASS==NULL\n");
-            exit(0);
-        }
-        else if (term(tl->current_token.TOKEN_CLASS, "id")) {
-            // check whether existed
-            int var_address=VL_address(GLOBAL_VAR_LIST, tl->current_token.TOKEN_STRING);
-            // dose not exist
-            if (var_address==-1) {
-                printf("VAR DOES NOT EXIST\n");
-                OPERATION op;
-                op.opcode=SETCONS;
-                op.arg0=intToCString(GLOBAL_OFFSET);
-                op.arg1=tl->current_token.TOKEN_STRING;
-                op.arg2=NULL;
-                OL_append(&ol, op);
-                
-                GLOBAL_OFFSET++;
-            }
-            else{
-                printf("VAR EXISTED\n");
-
-                OPERATION op;
-                op.opcode=SETG;
-                op.arg0=intToCString(GLOBAL_OFFSET);
-                op.arg1=intToCString(var_address);
-                op.arg2=NULL;
-                OL_append(&ol, op);
-                
-                GLOBAL_OFFSET++;
-            }
-        }
-        
-        else if(term(tl->current_token.TOKEN_CLASS, "num")){
-            OPERATION op;
-            op.opcode=SETCONS;
-            op.arg0=intToCString(GLOBAL_OFFSET);
-            op.arg1=tl->current_token.TOKEN_STRING;
-            op.arg2=NULL;
-            OL_append(&ol, op);
-            
-            GLOBAL_OFFSET++;
-        }
-        
-        else if (ism_operator(tl->current_token.TOKEN_STRING)){
-            GLOBAL_OFFSET-=2;
-            OPERATION op;
-            if (term(tl->current_token.TOKEN_STRING, "+")) {
-                op.opcode=ADD;
-            }
-            else if (term(tl->current_token.TOKEN_STRING, "-")) {
-                op.opcode=SUB;
-            }
-            else if (term(tl->current_token.TOKEN_STRING, "*")) {
-                op.opcode=MUL;
-            }
-            else if (term(tl->current_token.TOKEN_STRING, "/")) {
-                op.opcode=DIV;
-            }
-            else if (term(tl->current_token.TOKEN_STRING, "%")) {
-                op.opcode=MOD;
-            }
-            else if (term(tl->current_token.TOKEN_STRING, "^")) {
-                op.opcode=POW;
-            }
-            else{
-                printf("m_operator error\n");
-                exit(0);
-            }
-            op.arg0=intToCString(GLOBAL_OFFSET);
-            op.arg1=intToCString(GLOBAL_OFFSET);
-            op.arg2=intToCString(GLOBAL_OFFSET+1);
-            
-            
-            OL_append(&ol, op);
-            
-            GLOBAL_OFFSET++;
-
-        }
-        else if (term(tl->current_token.TOKEN_STRING, "=")){
-            GLOBAL_OFFSET-=2;
-            
-            VL_addVarAccordingToVarNameAndAddress(&GLOBAL_VAR_LIST, register_w[GLOBAL_OFFSET].value, GLOBAL_OFFSET);
-            OPERATION op;
-            op.opcode=SETG;
-            op.arg0=intToCString(GLOBAL_OFFSET);
-            op.arg1=intToCString(GLOBAL_OFFSET+1);
-            op.arg2=NULL;
-            
-            OL_append(&ol, op);
-            //register_w[GLOBAL_OFFSET].value=register_w[GLOBAL_OFFSET+1].value;
-            
-            GLOBAL_OFFSET++;
-            
-        }
-        else if (term(tl->current_token.TOKEN_STRING, "statements")){
-            
-        }
-        
-        else{
-            printf("ONLY SUPPORT NUM AND ID now\n");
-            exit(0);
-        }
-        tl=tl->next;
-    }
-    return ol;
-}
-*/
 
 // input_str   12 num  --> #12
 // input_str   x id   -->  0       $address of x
 //                      none    $does not exist
-char *getValue(TREE tree, Var_List *local_var_list){
+void getValue(TREE tree, int *var_set_index, char **var_value){
     // check number first
     // then
     // check local first
@@ -324,43 +206,65 @@ char *getValue(TREE tree, Var_List *local_var_list){
             return_value[i+1]=tree.name[i];
         }
         return_value[i+1]=0;
-        return return_value;
+        *var_value=return_value;
+        *var_set_index=-1;
+        return;
     }
     else{
-        if (local_var_list->current_var.var_name!=NULL && local_var_list!=GLOBAL_VAR_LIST) {
-            // check local
-            while (local_var_list->next!=NULL) {
-                if (term(local_var_list->current_var.var_name, tree.name)) {
-                    return intToCString(local_var_list->current_var.address);
+        
+        Var_List_Set *temp_vls=LOCAL_VAR_SET;
+        while (temp_vls->next!=NULL) {
+            Var_List *local_var_list=temp_vls->current_var_list;
+            
+            if (local_var_list->current_var.var_name!=NULL && local_var_list!=GLOBAL_VAR_LIST) {
+                // check local
+                while (local_var_list->next!=NULL) {
+                    // find
+                    if (term(local_var_list->current_var.var_name, tree.name)) {
+                        *var_set_index=temp_vls->index;
+                        *var_value=intToCString(local_var_list->current_var.address);
+                        return;
+                    }
+                    local_var_list=local_var_list->next;
                 }
-                local_var_list=local_var_list->next;
-            }
-            if (term(local_var_list->current_var.var_name, tree.name)) {
-                return intToCString(local_var_list->current_var.address);
+                if (term(local_var_list->current_var.var_name, tree.name)) {
+                    *var_set_index=temp_vls->index;
+                    *var_value=intToCString(local_var_list->current_var.address);
+                    return;
+                }
+                
             }
 
+            temp_vls=temp_vls->next;
         }
         
+              
        
         if (GLOBAL_VAR_LIST->current_var.var_name!=NULL) {
             // check global
             while (GLOBAL_VAR_LIST->next!=NULL) {
                 if (term(GLOBAL_VAR_LIST->current_var.var_name, tree.name)) {
-                    return intToCString(GLOBAL_VAR_LIST->current_var.address);
+                    *var_set_index=0;
+                    *var_value=intToCString(GLOBAL_VAR_LIST->current_var.address);
+                    return;
                 }
                 GLOBAL_VAR_LIST=GLOBAL_VAR_LIST->next;
             }
             if (term(GLOBAL_VAR_LIST->current_var.var_name, tree.name)) {
-                return intToCString(GLOBAL_VAR_LIST->current_var.address);
+                *var_set_index=0;
+                *var_value=intToCString(GLOBAL_VAR_LIST->current_var.address);
+                return;
             }
 
         }
        
     }
-    return "none";
+    
+    *var_set_index=-1;
+    *var_value="none";
 }
 
-void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl,Var_List **current_var_list,int *OFFSET){
+void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl,int *OFFSET){
     Var var;
     OPERATION op;
     op.arg0=NULL;
@@ -377,8 +281,15 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl,Var_List
             printf("@@@@ %d\n",current_while_index);
             SL_addString(&WHILE_LIST_OL_INDEX, intToCString(current_while_index));
             
+            // begin new local registers
+            op.opcode=BEGINLOCAL;
+            OL_append(ol, op);
+            
+            // begin new var set
+            VLS_push(&LOCAL_VAR_SET);
+            
             nl=nl->next;
-            Code_Generation(nl->node, ol,fl,current_var_list,OFFSET);
+            Code_Generation(nl->node, ol,fl,OFFSET);
             
             //finish dealing with relation and simple relation
             
@@ -386,6 +297,8 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl,Var_List
             (*OFFSET)--;
             op.opcode=TEST;
             op.arg0=intToCString((*OFFSET));
+            op.arg1=NULL;
+            op.arg2=NULL;
             OL_append(ol, op);
             
             (*OFFSET)++;
@@ -395,8 +308,17 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl,Var_List
         }
         // if statements
         else if (term(nl->node.name, "if")) {
+            
+            // begin new local registers
+            op.opcode=BEGINLOCAL;
+            OL_append(ol, op);
+            
+            // begin new var set
+            VLS_push(&LOCAL_VAR_SET);
+
+            
             nl=nl->next;
-            Code_Generation(nl->node, ol,fl,current_var_list,OFFSET);
+            Code_Generation(nl->node, ol,fl,OFFSET);
             
             //finish dealing with relation and simple relation
             
@@ -432,8 +354,22 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl,Var_List
             // push elif
             SL_addString(&STATEMENTS_LIST, "elif");
             
+            
+            // free local registers
+            op.opcode=FREELOCAL;
+            OL_append(ol, op);
+            
+            // begin new local registers
+            op.opcode=BEGINLOCAL;
+            OL_append(ol, op);
+            
+            // begin new var set
+            VLS_push(&LOCAL_VAR_SET);
+
+            
+            // parse judge_statements
             nl=nl->next;
-            Code_Generation(nl->node, ol,fl,current_var_list,OFFSET);
+            Code_Generation(nl->node, ol,fl,OFFSET);
             
             //finish dealing with relation and simple relation
             
@@ -470,6 +406,18 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl,Var_List
             // push else
             SL_addString(&STATEMENTS_LIST, "else");
             
+            // free local registers
+            op.opcode=FREELOCAL;
+            OL_append(ol, op);
+            
+            // begin new local registers
+            op.opcode=BEGINLOCAL;
+            OL_append(ol, op);
+
+            // begin new var set
+            VLS_push(&LOCAL_VAR_SET);
+
+            
             temp_ol=&((*temp_ol)->ahead);
             op.opcode=NOT;
             op.arg0=(*temp_ol)->operation.arg0;
@@ -493,14 +441,22 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl,Var_List
         else if (term(nl->node.name, "def")){
             printf("Begin to Define a function\n");
             
+            // begin new var set
+            VLS_push(&LOCAL_VAR_SET);
+
+            
             LOCAL_OFFSET=0;
             
             //( statements( def)( func(call add)( params(id num1)(id num2))))
             TREE func_tree=nl->next->node;
             char *func_name=func_tree.node_list->node.name;
             
-            //add func_name
+            // add func_name
             FL_addFuncName(fl, func_name);
+            
+            // begin new local registers
+            op.opcode=BEGINLOCAL;
+            FL_addOperation(fl, op);
 
             
             TREE param_tree=func_tree.node_list->next->node;
@@ -516,7 +472,7 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl,Var_List
                 Var param_var;
                 param_var.address=LOCAL_OFFSET;
                 param_var.var_name=param_name;
-                VL_addVar(&((*fl)->local_var_list), param_var);
+                VL_addVar(VLS_finalVL(&LOCAL_VAR_SET), param_var);
                 
                 // add to local operation list
                 OPERATION temp_op;
@@ -538,7 +494,7 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl,Var_List
             Var param_var;
             param_var.address=LOCAL_OFFSET;
             param_var.var_name="return";
-            VL_addVar(&((*fl)->local_var_list), param_var);
+            VL_addVar(VLS_finalVL(&LOCAL_VAR_SET), param_var);
             
             // add to local operation list
             OPERATION temp_op;
@@ -560,12 +516,16 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl,Var_List
         }
         else if (term(nl->node.name, "end")){
            
-            // only support if elif else now
+            // only support if elif else while now
             // need to check poped statement...
             SL_print(STATEMENTS_LIST);
             // pop ahead
             char *stm=SL_pop(&STATEMENTS_LIST);
             if (term(stm, "while")) {
+                // end local registers
+                op.opcode=FREELOCAL;
+                OL_append(ol, op);
+                
                 char *jmp_num_str=SL_pop(&WHILE_LIST_OL_INDEX);
                 op.opcode=JMP;
                 op.arg0=intToCString(-1*((OL_length(*ol)-atoi(jmp_num_str))));
@@ -591,7 +551,9 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl,Var_List
             else if(term(stm, "def")){
                 printf("Finish defining function\n");
                 
-
+                // free local registers
+                op.opcode=FREELOCAL;
+                FL_addOperation(fl, op);
                 
                 if (STATEMENTS_LIST->string_content!=NULL) {
                     
@@ -617,6 +579,12 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl,Var_List
             }
             else{
                 // if elif else sentences
+                
+                // end local registers
+                op.opcode=FREELOCAL;
+                OL_append(ol, op);
+                
+                
                 // jmp back
                 int jump_final=OL_length(*ol);
                 Operation_List **temp_ol=&(*ol);
@@ -639,10 +607,10 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl,Var_List
         
         else{
             while (nl->next!=NULL) {
-                Code_Generation(nl->node, ol,fl,current_var_list,OFFSET);
+                Code_Generation(nl->node, ol,fl,OFFSET);
                 nl=nl->next;
             }
-            Code_Generation(nl->node, ol,fl,current_var_list,OFFSET);
+            Code_Generation(nl->node, ol,fl,OFFSET);
             return ;
         }
     }
@@ -654,7 +622,7 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl,Var_List
         int length_of_nl=NL_length(nl);
         int i=0;
         for (; i<length_of_nl; i++) {
-            Code_Generation(nl->node, ol,fl,current_var_list,OFFSET);
+            Code_Generation(nl->node, ol,fl,OFFSET);
             nl=nl->next;
         }
        
@@ -690,7 +658,7 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl,Var_List
         int length_of_nl=NL_length(nl);
         int i=0;
         for (; i<length_of_nl; i++) {
-            Code_Generation(nl->node, ol,fl,current_var_list,OFFSET);
+            Code_Generation(nl->node, ol,fl,OFFSET);
             nl=nl->next;
         }
         
@@ -729,7 +697,12 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl,Var_List
             op.opcode=SETL;
         }
         op.arg0=intToCString((*OFFSET));
-        op.arg1=getValue(tree, (*fl)->local_var_list);
+        
+        int var_set_index;
+        char *var_value;
+        getValue(tree, &var_set_index, &var_value);
+        op.arg1=var_value;
+        
         op.arg2=NULL;
         
         (*OFFSET)++;
@@ -738,7 +711,7 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl,Var_List
     }
     // value
     if (term(tree.name, "value")) {
-        Code_Generation(tree.node_list->node, ol,fl,current_var_list,OFFSET);
+        Code_Generation(tree.node_list->node, ol,fl,OFFSET);
         return;
     }
     // table
@@ -752,7 +725,7 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl,Var_List
         int i=0;
         int length_of_nl=NL_length(nl);
         for (; i<length_of_nl; i++) {
-            Code_Generation(nl->node, ol,fl,current_var_list,OFFSET);
+            Code_Generation(nl->node, ol,fl,OFFSET);
             nl=nl->next;
         }
         
@@ -772,11 +745,11 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl,Var_List
         
         // table
         if (term(value_tree.node_list->node.token_class,"table")) {
-            Code_Generation(value_tree, ol,fl,current_var_list,OFFSET);
+            Code_Generation(value_tree, ol,fl,OFFSET);
         }
         // not table
         else{
-            Code_Generation(value_tree, ol,fl,current_var_list,OFFSET);
+            Code_Generation(value_tree, ol,fl,OFFSET);
         // add value
         (*OFFSET)--;
         op.opcode=TADD;
@@ -808,7 +781,12 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl,Var_List
             // add current_global_offset to 
             // save the offset for var_name
             // check var_name address
-            char *var_name_address=getValue(tree.node_list->node, (*fl)->local_var_list);
+            printf("VAR_NAME %s\n",nl->node.name);
+            
+            char *var_name_address; //=getValue(nl->node, (*fl)->local_var_list);
+            int var_set_index;
+            getValue(nl->node, &var_set_index, &var_name_address);
+            
             int current__offset;// =GLOBAL_OFFSET;
             // does not exsit
             if (term(var_name_address, "none")) {
@@ -828,7 +806,7 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl,Var_List
                 if (IS_LOCAL_VAR) {
                     var.address=(*OFFSET);
                     var.var_name=nl->node.name;
-                    VL_addVar(current_var_list, var);
+                    VL_addVar(VLS_finalVL(&LOCAL_VAR_SET), var);
                 }
                 // add to global var list
                 else{
@@ -850,16 +828,13 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl,Var_List
             // exist
             else{
                 current__offset=atoi(var_name_address);
-                if (IS_LOCAL_VAR==FALSE) {
-                    current__offset=(*OFFSET);
-                    (*OFFSET)++;
-                }
+                printf("Exist %d\n",current__offset);
                 
             }
             
            
             // right side
-            Code_Generation(nl->next->node, ol,fl,current_var_list,OFFSET);
+            Code_Generation(nl->next->node, ol,fl,OFFSET);
             
             
             //GLOBAL_OFFSET-=2;
@@ -955,20 +930,20 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl,Var_List
         // left
         Node_List *nl=tree.node_list;
         if (ism_operator(nl->node.name)) {
-            Code_Generation(nl->node, ol,fl,current_var_list,OFFSET);
+            Code_Generation(nl->node, ol,fl,OFFSET);
         }
         else{
             // num or id
-            Code_Generation(nl->node, ol,fl,current_var_list,OFFSET);
+            Code_Generation(nl->node, ol,fl,OFFSET);
         }
         
         // right
         if (ism_operator(nl->next->node.name)) {
-            Code_Generation(nl->next->node, ol,fl,current_var_list,OFFSET);
+            Code_Generation(nl->next->node, ol,fl,OFFSET);
         }
         else{
             // num or id
-            Code_Generation(nl->next->node, ol,fl,current_var_list,OFFSET);
+            Code_Generation(nl->next->node, ol,fl,OFFSET);
 
         }
         
