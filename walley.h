@@ -14,4 +14,7 @@ void Walley_Init(){
     SL_initSL(&WHILE_LIST_OL_INDEX);
     FL_init(&FUNCTION_LIST);
     OL_init(&OPERATION_LIST);
+    SL_initSL(&LOCAL_OFFSET_LIST);
+    LOCAL_OFFSET=0;
+    GLOBAL_OFFSET=0;
 }

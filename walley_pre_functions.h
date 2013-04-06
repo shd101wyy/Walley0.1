@@ -168,6 +168,7 @@ Str_List *WHILE_LIST_OL_INDEX;  // save ol index for while
 bool IS_LOCAL_VAR=FALSE;
 
 int LOCAL_OFFSET=0;
+Str_List *LOCAL_OFFSET_LIST;    // save LOCAL_OFFSET
 bool NOW_FUNCTION=FALSE;  // if now function, add operation to local operation list
 
 int GLOBAL_OFFSET=0;

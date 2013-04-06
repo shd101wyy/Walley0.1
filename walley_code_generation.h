@@ -297,6 +297,10 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl,int *OFF
             // begin new var set
             VLS_push(&LOCAL_VAR_SET);
             
+            // backup local offset
+            SL_addString(&LOCAL_OFFSET_LIST, intToCString(LOCAL_OFFSET));
+            LOCAL_OFFSET=0;
+            
             nl=nl->next;
             Code_Generation(nl->node, ol,fl,OFFSET);
             
@@ -325,6 +329,9 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl,int *OFF
             // begin new var set
             VLS_push(&LOCAL_VAR_SET);
 
+            // backup local offset
+            SL_addString(&LOCAL_OFFSET_LIST, intToCString(LOCAL_OFFSET));
+            LOCAL_OFFSET=0;
             
             nl=nl->next;
             Code_Generation(nl->node, ol,fl,OFFSET);
@@ -374,6 +381,9 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl,int *OFF
             
             // begin new var set
             VLS_push(&LOCAL_VAR_SET);
+
+            LOCAL_OFFSET=0;
+           
 
             
             // parse judge_statements
@@ -425,7 +435,9 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl,int *OFF
 
             // begin new var set
             VLS_push(&LOCAL_VAR_SET);
-
+          
+            LOCAL_OFFSET=0;
+            
             
             temp_ol=&((*temp_ol)->ahead);
             op.opcode=NOT;
@@ -452,9 +464,16 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl,int *OFF
             
             // begin new var set
             VLS_push(&LOCAL_VAR_SET);
-
             
+            // backup local offset
+            SL_addString(&LOCAL_OFFSET_LIST, intToCString(LOCAL_OFFSET));
             LOCAL_OFFSET=0;
+            
+
+            // backup local offset
+            SL_addString(&LOCAL_OFFSET_LIST, intToCString(LOCAL_OFFSET));
+
+
             
             //( statements( def)( func(call add)( params(id num1)(id num2))))
             TREE func_tree=nl->next->node;
@@ -462,6 +481,7 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl,int *OFF
             
             // add func_name
             FL_addFuncName(fl, func_name);
+            
             
             // begin new local registers
             op.opcode=BEGINLOCAL;
@@ -524,7 +544,10 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl,int *OFF
             FL_init(&((*fl)->next_in_function));
         }
         else if (term(nl->node.name, "end")){
-           
+           // restore LOCAL_OFFSET
+            LOCAL_OFFSET=atoi(SL_pop(&LOCAL_OFFSET_LIST));
+            
+            
             // only support if elif else while now
             // need to check poped statement...
             SL_print(STATEMENTS_LIST);
@@ -701,21 +724,38 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl,int *OFF
     
     // num
     if (term(tree.token_class, "num")) {
-        op.opcode=SETG;
+        // local
         if (NOW_LOCAL) {
+            
             op.opcode=SETL;
+            
+            op.arg0=intToCString((*OFFSET));
+            
+            int var_set_index;
+            char *var_value;
+            getValue(tree, &var_set_index, &var_value);
+            op.arg1=var_value;
+            
+            op.arg2=NULL;
+            
+            (*OFFSET)++;
+            OL_append(ol, op);
         }
-        op.arg0=intToCString((*OFFSET));
+        // global
+        else{
+            op.opcode=SETG;
+            op.arg0=intToCString(GLOBAL_OFFSET);
         
-        int var_set_index;
-        char *var_value;
-        getValue(tree, &var_set_index, &var_value);
-        op.arg1=var_value;
+            int var_set_index;
+            char *var_value;
+            getValue(tree, &var_set_index, &var_value);
+            op.arg1=var_value;
         
-        op.arg2=NULL;
+            op.arg2=NULL;
         
-        (*OFFSET)++;
-        OL_append(ol, op);
+            GLOBAL_OFFSET++;
+            OL_append(ol, op);
+        }
         return;
 
     }

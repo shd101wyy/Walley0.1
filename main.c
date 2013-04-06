@@ -17,6 +17,7 @@ void Test(char *input_str){
     if (NOW_FUNCTION) {
         Code_Generation(output_tree, &(FUNCTION_LIST->current_ol),&(FUNCTION_LIST->next_in_function) ,&LOCAL_OFFSET);
     }
+   
     else{
         Code_Generation(output_tree, &OPERATION_LIST,&FUNCTION_LIST,&GLOBAL_OFFSET);
     }
