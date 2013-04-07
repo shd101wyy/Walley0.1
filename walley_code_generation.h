@@ -8,173 +8,7 @@
 
 #include "walley_function_data_type.h"
 
-/*
- x = 12-5*6
- 
-    =
-   / \
-  x   -
-     /  \
-    12   *
-        / \
-        5  6
- 
- x 12 5 6 * - =
- 
- register_offset=0
- 
- 
- #x  LOADG 0 #x  $register_offset+=1 -> 1
-    
-  0 x
- 
- #12 LOADG 1 #12 $register_offset+=1 -> 2
- 
-  1   12
-  0   x
- 
- #5  LOADG 2 #5  $register_offset+=1 -> 3
- 
-  2  5                                          only 2 registers
-  1  12                                         1  12
-  0  x                                          0  5   move x to other place
 
- #6  LOADG 3 #6  $register_offset+=1 -> 4
- 
-  3  6         only 3 registers                 only 2 registers
-  2  5         2  5                             1  6  move 12 to other place
-  1  12        1  12  move x to other place     0  5
-  0  x         0  6 
- 
- #*  register_offset-=2 --> 2
-     MULT 2 2 3
- 
-  3  6         only 3 registers                 only 2 registers
-  2  30        2 30                             1 6
-  1  12        1 12                             0 30
-  0  x         0  6
- 
-     register_offset+=1 --> 3
- 
- #-  register_offset-=2 --> 1
-     MINUS 1 1 2
- 
-  3  6        only 3 registers                  only 2 registers
-  2  30       2 30                              can not calculate
-  1  -18      1 -18
-  0  x        0 6
- 
-     register_offset+=1 --> 2
- 
- #=  register_offset-=2 --> 0
- 
-    SETG stack_offset r1
-    
- ==
- end
- */
-
-/*
- x=3*4-5/6
- 
-    =
-   x -
-    *   /
-   3 4 5 6
- 
- x 3 4 * 5 6 / - =
- because x does not exist in value_list
- 
- offset=0;
- #x  SETNONE 0
- offset++ ->1
- 
- #3  SETCONS 1 3
- offset++ ->2
- 
- #4  SETCONS 2 4
- offset++ ->3
- 
- #*  offset-=2 ->1
-    MULT 1 1 2
- offset++ ->2
- 
- #5 SETCONS 2 5
- offset++ ->3
- 
- #6 SETCONS 3 6
- offset++ ->4
- 
- #/ offset-=2 ->2
-    DIV 2 2 3
-    offset++ -> 3
- 
- #- offset-=2 -> 1
-    MINUS 1 1 2
-    offset++ ->2
- 
- #= offset-=2 ->0
-    SET 0 1
-    offset++ ->1
- 
- 
- 
- */
-/*
-    LOGIC
- 
-    not
-     |
-    and
-   /   \
-   <    <
-  3 4  6 5
- 
- 3 4 < 6 5 < and
- 
- offset=0
- #3 SETCONS 0 3
-    offset++ ->1
- 
- #4 SETCONS 1 4
-    offset++ ->2
- 
- offset-=2 --> 0
- #< LT 0 0 1   $if < then save true, else save false;
- offset++ -> 1
- 
- #6 SETCONS 1 6
- offset++ ->2
- 
- #5 SETCONS 2 5
- offset++ ->3
- 
- offset-=2 -> 1
- #< LT 1 1 2
- offset++ -> 2
- 
- //now register
-   1 false
-   0 true
- 
- offset-=2 -> 0
- #and
- AND 0 0 1
- offset++ -> 1
- // now register
-    1 false
-    0 false
- 
- offset-=1
- #not
- NOT 0
- offset++ ->1
- // now register
-    1 false
-    0 true
- 
- NOT
- */
 
 // NOW I CAN ONLY GENERATE CODE FOR assignmnet
 bool ism_operator(char *input_str){
@@ -198,6 +32,12 @@ void getValue(TREE tree, int *var_set_index, char **var_value){
     // then
     // check local first
     // then check Global
+    if (term(tree.name, "none")) {
+        
+        *var_set_index=-1;
+        *var_value="none";
+        return;
+    }
     if (term(tree.token_class, "num")) {
         char *return_value=(char*)malloc(sizeof(char)*(2+(int)strlen(tree.name)));
         return_value[0]='#';
@@ -213,7 +53,9 @@ void getValue(TREE tree, int *var_set_index, char **var_value){
     else{
         
         Var_List_Set *temp_vls=LOCAL_VAR_SET;
-        while (temp_vls->next!=NULL) {
+        int length_of_temp_vls=VLS_length(temp_vls);
+        int i=0;
+        for (i=0; i<length_of_temp_vls; i++){
             Var_List *local_var_list=temp_vls->current_var_list;
             
             if (local_var_list->current_var.var_name!=NULL && local_var_list!=GLOBAL_VAR_LIST) {
@@ -531,6 +373,8 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
                 
             }
             
+           
+            
             // add return
             // add to local var list
             Var param_var;
@@ -780,6 +624,8 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
             int var_set_index;
             char *var_value;
             getValue(tree, &var_set_index, &var_value);
+            
+            printf("VAR_NAME %s     var_value %s\n",tree.name,var_value);
             
             // does not exist
             if (var_set_index==-1) {
@@ -1101,151 +947,6 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
             }
            
             }
-            /*
-            // THE OFFSET HERE HAS A LOT PROBLEMS
-            
-            // add current_global_offset to 
-            // save the offset for var_name
-            // check var_name address
-            printf("VAR_NAME %s\n",nl->node.name);
-            
-            char *var_name_address; //=getValue(nl->node, (*fl)->local_var_list);
-            int var_set_index;
-            getValue(nl->node, &var_set_index, &var_name_address);
-            
-            int current__offset;// =GLOBAL_OFFSET;
-            // does not exsit
-            if (term(var_name_address, "none")) {
-                // save var_name
-                
-                current__offset=(*OFFSET);
-                op.opcode=SETG;
-                
-                if (IS_LOCAL_VAR || NOW_FUNCTION) {
-                    op.opcode=SETL;
-                }
-                
-                op.arg0=intToCString(current__offset);
-                op.arg1="none";
-                
-                // add to local var list
-                if (IS_LOCAL_VAR) {
-                    var.address=(*OFFSET);
-                    var.var_name=nl->node.name;
-                    VL_addVar(VLS_finalVL(&LOCAL_VAR_SET), var);
-                }
-                // add to global var list
-                else{
-                    var.address= GLOBAL_OFFSET ;    //(*OFFSET);
-                    var.var_name=nl->node.name;
-                    VL_addVar(&GLOBAL_VAR_LIST, var);
-                    
-                    if (GLOBAL_OFFSET!=(*OFFSET)) {
-                        GLOBAL_OFFSET++;
-
-                    }
-                }
-                
-                
-                OL_append(ol, op);
-                
-                (*OFFSET)++;
-            }
-            // exist
-            else{
-                current__offset=atoi(var_name_address);
-                printf("Exist %d\n",current__offset);
-                
-            }
-            
-           
-            // right side
-            Code_Generation(nl->next->node, ol,fl,OFFSET);
-            
-            
-            //GLOBAL_OFFSET-=2;
-            op.opcode=SETG;
-            if (IS_LOCAL_VAR || NOW_FUNCTION) {
-                op.opcode=SETL;
-            }
-            op.arg0=intToCString(current__offset);
-            op.arg1=intToCString(current__offset+1);
-            
-            OL_append(ol, op);
-            
-            //GLOBAL_OFFSET++;
-            (*OFFSET)=current__offset+1;
-            
-            if (NOW_FUNCTION==TRUE && IS_LOCAL_VAR==FALSE) {
-                op.opcode=LOADTOG;
-                //op.arg0=intToCString(GLOBAL_OFFSET-1);
-                op.arg0=intToCString(current__offset);
-                op.arg1=NULL;
-                op.arg2=NULL;
-                OL_append(ol, op);
-            }
-            
-            
-            
-            // check whether in while statements
-            // if in statements,
-            //increase all arg0, arg1,arg2,arg3 above TEST below while_index(which is stored in WHILE_LIST_OL_INDEX) by 1.
-            if (STATEMENTS_LIST->string_content!=NULL&&term(var_name_address,"none")) {
-                Str_List *temp_sl=STATEMENTS_LIST;
-                while (temp_sl->next!=NULL) {
-                    temp_sl=temp_sl->next;
-                }
-                char *check_while_str=temp_sl->string_content;
-
-                
-                if (term("while", check_while_str)) {
-                    
-                    temp_sl=WHILE_LIST_OL_INDEX;
-                    while (temp_sl->next!=NULL) {
-                        temp_sl=temp_sl->next;
-                    }
-                    char* while_index_str=temp_sl->string_content;
-                    
-                    int while_index=atoi(while_index_str);
-                    
-                    Operation_List **temp_ol=&(*ol);
-                    
-                    while ((*temp_ol)->current_index!=while_index) {
-                        temp_ol=&((*temp_ol)->next);
-                    }
-                    
-                    while ((*temp_ol)->operation.opcode!=TEST) {
-                        if ((*temp_ol)->operation.arg0!=NULL) {
-                            (*temp_ol)->operation.arg0=intToCString(atoi((*temp_ol)->operation.arg0)+1);
-                        }
-                        if ((*temp_ol)->operation.arg1!=NULL&&(*temp_ol)->operation.opcode!=SETG&&(*temp_ol)->operation.opcode!=SETL) {
-                            (*temp_ol)->operation.arg1=intToCString(atoi((*temp_ol)->operation.arg1)+1);
-                        }
-                        if ((*temp_ol)->operation.arg2!=NULL) {
-                            (*temp_ol)->operation.arg2=intToCString(atoi((*temp_ol)->operation.arg2)+1);
-                        }
-                    temp_ol=&((*temp_ol)->next);
-                    }
-
-                    // change test
-                    if ((*temp_ol)->operation.arg0!=NULL) {
-                        (*temp_ol)->operation.arg0=intToCString(atoi((*temp_ol)->operation.arg0)+1);
-                    }
-                    if ((*temp_ol)->operation.arg1!=NULL) {
-                        (*temp_ol)->operation.arg1=intToCString(atoi((*temp_ol)->operation.arg1)+1);
-                    }
-                    if ((*temp_ol)->operation.arg2!=NULL) {
-                        (*temp_ol)->operation.arg2=intToCString(atoi((*temp_ol)->operation.arg2)+1);
-                    }
-                    
-                    OL_print(*ol);
-                    
-                }
-                
-                return;
-            }
-            IS_LOCAL_VAR=FALSE;
-             */
             
         }
         else{

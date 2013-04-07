@@ -125,11 +125,18 @@ bool assignment(TREE *tree, Token_List *tl){
            // TREE_addNode(TREE_getTreeAccordingToIndex(tree, index), var_name_str , "var_name");
            // TREE_addNode(TREE_getTreeAccordingToIndex(tree, index), var_value_str, "var_value");
             
+            // eg x,y=12
+            // then x=12
+            //      y=none
             Node_List *temp_var_value_nl=var_value_nl;
             var_name_nl=var_name_nl->next;
             var_value_nl=var_value_nl->next;
             if (var_value_nl==NULL) {
                 var_value_nl=temp_var_value_nl;
+                var_value_nl->node.name="none";
+                var_value_nl->node.token_class="id";
+                var_value_nl->node.node_list=NULL;
+                
             }
         }
         
