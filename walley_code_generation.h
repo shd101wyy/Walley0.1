@@ -441,7 +441,7 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
                 
                 // free local registers
                 op.opcode=FREELOCAL;
-                FL_addOperation(fl, op);
+                OL_append(ol, op);
                 
                 if (STATEMENTS_LIST->string_content!=NULL) {
                     

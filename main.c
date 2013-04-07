@@ -17,6 +17,7 @@ int main(int argc, char **argv)
     
     Test("def add(num1,num2) then");
     Test("local output=num1+num2");
+    Test("end");
     
     
     
