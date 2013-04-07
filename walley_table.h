@@ -161,12 +161,38 @@ bool table_expr(TREE *tree, Token_List *tl,int *key_index){
         TREE_addNode(tree, "value", "");
         return value(TREE_getTreeAccordingToIndex(tree, index), TL_subtl(tl, 2, length_of_tl));
     }
-    
+    //              0           1       2
     //    |'[' (string|int) ']' '=' (value)
-    else if (term(tl->current_token.TOKEN_CLASS, "list_table") && TL_indexOfTokenThatHasTokenString(tl, "=")!=-1){
+    else if (term(tl->current_token.TOKEN_CLASS, "list_table") && term(tl->next->current_token.TOKEN_STRING, "=")){
         // THIS PLACE HAS SOME PROBLEM
         printf("'[' (string|int) ']' '=' (value)  HAS NOT BEEN IMPLEMENTED\n");
-        exit(0);
+        
+        int length=(int)strlen(tl->current_token.TOKEN_STRING);
+        char *string_inside=(char*)malloc(sizeof(char)*(length-2+1));
+        int i=0;
+        for (; i<length-2; i++) {
+            string_inside[i]=tl->current_token.TOKEN_STRING[i+1];
+        }
+        string_inside[i]=0;
+      
+        
+        int index1=TREE_INDEX;
+        TREE_addNode(tree, "key", "");
+        
+        
+        Token_List *key_tl=Walley_Lexical_Analyzie(string_inside);
+        TREE key_tree;
+        TREE_initWithName(&key_tree, "key");
+        value(&key_tree, key_tl);
+        
+        TREE_addTree(TREE_getTreeAccordingToIndex(tree, index1),key_tree);
+        
+        int index2=TREE_INDEX;
+        TREE_addNode(tree, "value", "");
+        
+        
+        return value(TREE_getTreeAccordingToIndex(tree, index2),TL_subtl(tl, 2, length_of_tl));
+
     }
     //value
     else{

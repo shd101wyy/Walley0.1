@@ -624,9 +624,7 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
             int var_set_index;
             char *var_value;
             getValue(tree, &var_set_index, &var_value);
-            
-            printf("VAR_NAME %s     var_value %s\n",tree.name,var_value);
-            
+                        
             // does not exist
             if (var_set_index==-1) {
                 op.opcode=SETL;

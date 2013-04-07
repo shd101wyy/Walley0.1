@@ -166,11 +166,13 @@ TREE parser(Token_List *tl){
     
     // test statements
     TREE_initWithName(&output_tree,"statements");
-    statements(&output_tree, tl);
+    if(!statements(&output_tree, tl)){
+        printf("Fail to parse statements\n");
+    }
     TREE_print(output_tree);
     
     // test table_expr
-    //int x=12;
+    //int x=0;
     //TREE_initWithName(&output_tree,"table_expr");
     //table_expr(&output_tree, tl,&x);
     //TREE_print(output_tree);

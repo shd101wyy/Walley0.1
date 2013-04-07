@@ -14,10 +14,7 @@ int main(int argc, char **argv)
     // test Code_Generation Function
     
     Walley_Init();
-    
-    Test("def add(num1,num2) then");
-    Test("local output=num1+num2");
-    Test("end");
+    Test("x=[1,2]");
     
     
     

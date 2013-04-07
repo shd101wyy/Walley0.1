@@ -6,7 +6,7 @@
 //  Copyright (c) 2013年 shd101wyy. All rights reserved.
 //
 
-#include "walley_assignment.h"
+#include "walley_assignment_function.h"
 /*
  
  x = def '(' params ')' then
