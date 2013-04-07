@@ -102,8 +102,15 @@ void VLS_push(Var_List_Set **vls){
     while ((*temp_vls)->next!=NULL) {
         temp_vls=&((*temp_vls)->next);
     }
+    
+    // first
+    if ((*temp_vls)->index==1) {
+        (*temp_vls)->current_var_list->current_var.var_name="#";
+        return;
+    }
 
     new_vls->index=(*temp_vls)->index+1;
+    new_vls->current_var_list->current_var.var_name="#";
     (*temp_vls)->next=new_vls;
 
 }

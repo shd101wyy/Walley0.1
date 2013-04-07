@@ -176,6 +176,7 @@ char *SL_pop(struct SL **string_list){
         return_string=(*sl)->string_content;
         (*sl)->string_content=NULL;
         free(*sl);
+        SL_initSL(sl);
         return return_string;
     }
     for (i=1; i<length; i++) {

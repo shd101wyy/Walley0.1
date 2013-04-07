@@ -67,7 +67,6 @@ enum OPCODE{
     LOADTOG,     // 28
     BEGINLOCAL,   // 29
     FREELOCAL,     //30
-    GET,       //30
     SET       //31
 };
 char *OPCODE_getFromOpcode(enum OPCODE opcode){

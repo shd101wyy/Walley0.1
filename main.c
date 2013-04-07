@@ -15,11 +15,11 @@ void Test(char *input_str){
     TREE output_tree=parser(tl);
     
     if (NOW_FUNCTION) {
-        Code_Generation(output_tree, &(FUNCTION_LIST->current_ol),&(FUNCTION_LIST->next_in_function) ,&LOCAL_OFFSET);
+        Code_Generation(output_tree, &(FUNCTION_LIST->current_ol),&(FUNCTION_LIST->next_in_function));
     }
    
     else{
-        Code_Generation(output_tree, &OPERATION_LIST,&FUNCTION_LIST,&GLOBAL_OFFSET);
+        Code_Generation(output_tree, &OPERATION_LIST,&FUNCTION_LIST);
     }
     
     OPERATION op;
@@ -44,7 +44,10 @@ int main(int argc, char **argv)
     //Test("y=4");
     //Test("end");
     Test("x=1");
-    Test("while x<5 then");
+    Test("if x<5 then");
+    Test("local x=x+12");
+    Test("else");
+    //Test("local x=15");
     Test("end");
     
     
