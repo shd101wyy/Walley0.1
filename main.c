@@ -12,7 +12,7 @@ int main(int argc, char **argv)
 {
     
     // test sentence_seperation
-    char *input_str="if x>0 then x=1 else x=2 end";
+    char *input_str="x=[1,2] y=2";
     Token_List *tl=Walley_Lexical_Analyzie(input_str);
     printf("===================\n");
     TL_print(tl);
