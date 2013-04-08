@@ -76,6 +76,8 @@
  
      local -> 'local'
  
+     return -> 'return'
+ 
      @   -> '@'
 
  
@@ -475,6 +477,12 @@ char* Walley_Analyze_Token_Class(char *input_str, int i, int *end){
         return "end";
     }
     
+    // return
+    if (match(input_str, i, "return")) {
+        *end=i+6;
+        return "return";
+    }
+    
     // @
     if (match(input_str, i, "@")) {
         *end=i+1;
@@ -663,6 +671,111 @@ struct TL * Walley_Lexical_Analyzie(char *input_str){
 
 
 
+void sentences_seperation(Token_List *tl){
+    int length_of_tl=TL_length(tl);
+    int i=0;
+    int begin=0;
+    Token_List *temp_tl=tl;
+    for (; i<length_of_tl; i++) {
+        
+        
+        // x=1 y=2 ->
+        // x=1
+        // y=2
+        if (i<length_of_tl-1&&(term(tl->current_token.TOKEN_CLASS, "num")||term(tl->current_token.TOKEN_CLASS, "id"))
+            && (term(tl->next->current_token.TOKEN_CLASS, "id") ||term(tl->next->current_token.TOKEN_CLASS, "num"))) {
+            int end=i+1;
+            
+            Token_List *ahead_tl=TL_subtl(temp_tl, begin, end);
+            printf("===============\n");
+            TL_print(ahead_tl);
+            printf("===============\n");
+            
+            
+            begin=end;
+        }
+        
+        // def add() then return x+y end ->
+        // 1:def add() then
+        // 2:return x+y
+        // 3:end
+        // find then behind def
+        if (term(tl->current_token.TOKEN_STRING, "def")
+            ||term(tl->current_token.TOKEN_STRING, "if")
+            ||term(tl->current_token.TOKEN_STRING, "elif")
+            ||term(tl->current_token.TOKEN_STRING, "for")
+            ||term(tl->current_token.TOKEN_STRING, "while")) {
+            printf("Find Define %d\n",i);
+            
+            int end=i;
+            if (begin<end) {
+                Token_List *ahead_tl=TL_subtl(temp_tl, begin, end);
+                printf("===============\n");
+                TL_print(ahead_tl);
+                printf("===============\n");
+            }
+            
+            
+            begin=i;
+            // find then behind def
+            int index_of_then=-1;
+            for (; i<length_of_tl; i++) {
+                if (term(tl->current_token.TOKEN_STRING, "then")) {
+                    index_of_then=i;
+                    break;
+                }
+                tl=tl->next;
+            }
+            if (index_of_then==-1) {
+                printf("Cannot find index of then\n");
+                exit(0);
+            }
+            
+            end=index_of_then+1;
+            Token_List *ahead_tl=TL_subtl(temp_tl, begin, end);
+            printf("===============\n");
+            TL_print(ahead_tl);
+            printf("===============\n");
+            
+            begin=end;
+            
+        }
+        
+        // end->
+        // end
+        if (term(tl->current_token.TOKEN_STRING, "end")
+            ||term(tl->current_token.TOKEN_STRING, "else")) {
+            printf("Find End\n");
+            int end=i;
+            Token_List *ahead_tl=TL_subtl(temp_tl, begin, end);
+            printf("===============\n");
+            TL_print(ahead_tl);
+            printf("===============\n");
+            
+            begin=end;
+            end=i+1;
+            ahead_tl=TL_subtl(temp_tl, begin, end);
+            printf("===============\n");
+            TL_print(ahead_tl);
+            printf("===============\n");
+
+            begin=end;
+            
+        }
+        
+        
+        tl=tl->next;
+    }
+    if (begin<length_of_tl) {
+        Token_List *ahead_tl=TL_subtl(temp_tl, begin, length_of_tl);
+        printf("===============\n");
+        TL_print(ahead_tl);
+        printf("===============\n");
+    }
+    
+    
+    
+}
 
 
 

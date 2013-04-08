@@ -11,8 +11,17 @@
 int main(int argc, char **argv)
 {
     
-    // test Code_Generation Function
+    // test sentence_seperation
+    char *input_str="if x>0 then x=1 else x=2 end";
+    Token_List *tl=Walley_Lexical_Analyzie(input_str);
+    printf("===================\n");
+    TL_print(tl);
+    printf("===================\n");
+    sentences_seperation(tl);
+    exit(0);
     
+    // test Code_Generation Function
+    /*
     Walley_Init();
     Test("x=[1,2]");
     
@@ -25,7 +34,7 @@ int main(int argc, char **argv)
     
     OL_print(OPERATION_LIST);
     exit(0);
-     
+     */
     
      /*
      VM_init();
