@@ -121,7 +121,7 @@ struct TOKEN TL_tokenAtIndex(struct TL *tl, int index){
 
 struct TL *TL_subtl(struct TL *tl,int begin, int end){
     if (end<=begin) {
-        printf("TL end <= begin\n");
+        printf("TL end %d <= begin %d\n",end,begin);
         exit(0);
     }
     

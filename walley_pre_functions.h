@@ -87,6 +87,10 @@ bool list_s(TREE *tree, Token_List *tl);
 bool var_name(TREE *tree, Token_List *tl);
 bool var_value(TREE *tree, Token_List *tl);
 
+//walley_assignment_function
+bool func_assign(TREE *tree, Token_List *tl);
+bool return_stm(TREE *tree, Token_List *tl);
+
 //walley_function
 bool params(TREE *tree, Token_List *tl);
 bool func(TREE *tree, Token_List *tl);
@@ -107,6 +111,7 @@ bool for_stms(TREE *tree, Token_List *tl);
 bool func_stms(TREE *tree, Token_List *tl);
 bool end_stm(TREE *tree, Token_List *tl);
 bool statements(TREE *tree, Token_List *tl);
+bool walley_statements(TREE *tree, Token_List *tl);
 
 
 //walley_var

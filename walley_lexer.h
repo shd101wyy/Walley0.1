@@ -670,12 +670,23 @@ struct TL * Walley_Lexical_Analyzie(char *input_str){
 }
 
 
-
-void sentences_seperation(Token_List *tl){
+// return false if begin>=length_of_tl
+bool sentences_seperation(Token_List *tl, Token_List **output_tl,int *begin){
     int length_of_tl=TL_length(tl);
-    int i=0;
-    int begin=0;
+    
+    if (*begin>=length_of_tl) {
+        return FALSE;
+    }
+    
     Token_List *temp_tl=tl;
+
+    int i=0;
+    for (; i<*begin; i++) {
+        tl=tl->next;
+    }
+    
+    i=*begin;
+
     for (; i<length_of_tl; i++) {
         
         
@@ -686,13 +697,14 @@ void sentences_seperation(Token_List *tl){
             && (term(tl->next->current_token.TOKEN_CLASS, "id") ||term(tl->next->current_token.TOKEN_CLASS, "num"))) {
             int end=i+1;
             
-            Token_List *ahead_tl=TL_subtl(temp_tl, begin, end);
-            printf("===============\n");
-            TL_print(ahead_tl);
-            printf("===============\n");
+            Token_List *ahead_tl=TL_subtl(temp_tl, *begin, end);
+            
+            *output_tl=ahead_tl;
             
             
-            begin=end;
+            *begin=end;
+            
+            return TRUE;
         }
         
         // def add() then return x+y end ->
@@ -708,15 +720,18 @@ void sentences_seperation(Token_List *tl){
             printf("Find Define %d\n",i);
             
             int end=i;
-            if (begin<end) {
-                Token_List *ahead_tl=TL_subtl(temp_tl, begin, end);
-                printf("===============\n");
-                TL_print(ahead_tl);
-                printf("===============\n");
+            if (*begin<end) {
+                Token_List *ahead_tl=TL_subtl(temp_tl, *begin, end);
+                
+                *begin=i;
+                *output_tl=ahead_tl;
+                return TRUE;
+            }
+            else{
+                *begin=i;
             }
             
             
-            begin=i;
             // find then behind def
             int index_of_then=-1;
             for (; i<length_of_tl; i++) {
@@ -732,12 +747,12 @@ void sentences_seperation(Token_List *tl){
             }
             
             end=index_of_then+1;
-            Token_List *ahead_tl=TL_subtl(temp_tl, begin, end);
-            printf("===============\n");
-            TL_print(ahead_tl);
-            printf("===============\n");
+            Token_List *ahead_tl=TL_subtl(temp_tl, *begin, end);
+                       
+            *output_tl=ahead_tl;
+            *begin=end;
             
-            begin=end;
+            return TRUE;
             
         }
         
@@ -747,32 +762,39 @@ void sentences_seperation(Token_List *tl){
             ||term(tl->current_token.TOKEN_STRING, "else")) {
             printf("Find End\n");
             int end=i;
-            Token_List *ahead_tl=TL_subtl(temp_tl, begin, end);
-            printf("===============\n");
-            TL_print(ahead_tl);
-            printf("===============\n");
+            if (*begin<i) {
+                Token_List *ahead_tl=TL_subtl(temp_tl, *begin, end);
+                
+                *begin=end;
+                *output_tl=ahead_tl;
+                return TRUE;
+            }
+            else{
+                *begin=end;
+            }
             
-            begin=end;
+            
             end=i+1;
-            ahead_tl=TL_subtl(temp_tl, begin, end);
-            printf("===============\n");
-            TL_print(ahead_tl);
-            printf("===============\n");
-
-            begin=end;
+            Token_List *ahead_tl=TL_subtl(temp_tl, *begin, end);
+           
+            *begin=end;
+            *output_tl=ahead_tl;
+            return TRUE;
             
         }
         
         
         tl=tl->next;
     }
-    if (begin<length_of_tl) {
-        Token_List *ahead_tl=TL_subtl(temp_tl, begin, length_of_tl);
-        printf("===============\n");
-        TL_print(ahead_tl);
-        printf("===============\n");
+    if (*begin<length_of_tl) {
+        Token_List *ahead_tl=TL_subtl(temp_tl, *begin, length_of_tl);
+       
+        *begin=length_of_tl;
+        *output_tl=ahead_tl;
+        return TRUE;
     }
     
+    return FALSE;
     
     
 }

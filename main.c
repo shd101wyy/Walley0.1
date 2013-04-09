@@ -12,12 +12,13 @@ int main(int argc, char **argv)
 {
     
     // test sentence_seperation
-    char *input_str="x=[1,2] y=2";
+    char *input_str="x=1 y=2";
     Token_List *tl=Walley_Lexical_Analyzie(input_str);
     printf("===================\n");
     TL_print(tl);
     printf("===================\n");
-    sentences_seperation(tl);
+    parser(tl);
+    //sentences_seperation(tl);
     exit(0);
     
     // test Code_Generation Function

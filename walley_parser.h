@@ -163,13 +163,28 @@ TREE parser(Token_List *tl){
     //relation(&output_tree, tl);
     //TREE_print(output_tree);
     
+    // test func_assign
+    //TREE_initWithName(&output_tree,"func_assign");
+    //if(!func_assign(&output_tree, tl)){
+    //    printf("Fail to parse statements\n");
+    //}
+    //TREE_print(output_tree);
+    
     
     // test statements
-    TREE_initWithName(&output_tree,"statements");
-    if(!statements(&output_tree, tl)){
+    //TREE_initWithName(&output_tree,"statements");
+    //if(!statements(&output_tree, tl)){
+    //    printf("Fail to parse statements\n");
+    //}
+    //TREE_print(output_tree);
+    
+    // test walley_statements
+    TREE_initWithName(&output_tree,"walley_statements");
+    if(!walley_statements(&output_tree, tl)){
         printf("Fail to parse statements\n");
     }
     TREE_print(output_tree);
+    
     
     // test table_expr
     //int x=0;

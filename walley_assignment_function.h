@@ -20,12 +20,81 @@
  ==========================
  the second way:
  x = def (params) then  # func_name :x params : params
+     ------------------
+     func_assign
+ 
  statements       # run statements
  end			  # end of defining a function
 
+  
+ func_assign -> def '(' param ')' then
  
- func_name = def (params) then
- 
- func_assignment -> id '=' 'def' '(' params ')' 'then'
+ return_stm -> 'return' value;
 
 */
+// func_assign -> def '(' param ')' then
+bool func_assign(TREE *tree, Token_List *tl){
+    int length_of_tl=TL_length(tl);
+    if (length_of_tl>=5 && term(tl->current_token.TOKEN_STRING, "def")&&term(tl->next->current_token.TOKEN_STRING, "(")) {
+        int index_of_right=-1;
+        Token_List *temp_tl=tl;
+        int count=0;
+        while (tl->next!=NULL) {
+            if (term(tl->current_token.TOKEN_STRING, "(")) {
+                count++;
+                tl=tl->next;
+                index_of_right++;
+                continue;
+            }
+            if (term(tl->current_token.TOKEN_STRING, ")")) {
+                count--;
+                index_of_right++;
+
+                if (count==0) {
+                    break;
+                }
+                tl=tl->next;
+                continue;
+            }
+            index_of_right++;
+            tl=tl->next;
+        }
+        
+        tl=temp_tl;
+        if (index_of_right==-1) {
+            INCOMPLETE_STATEMENT=TRUE;
+            printf("INCOMPLETE_STATEMENT func_assign\n");
+            exit(0);
+        }
+        else{
+            TREE_addNode(tree, "def", "");
+            int index=TREE_INDEX;
+            TREE_addNode(tree, "params", "");
+            
+            Token_List *params_tl=TL_subtl(tl, 2, index_of_right);
+            
+            return params(TREE_getTreeAccordingToIndex(tree, index), params_tl);
+                         
+        }
+        
+        
+        
+    }
+    
+    return FALSE;
+    
+}
+
+
+// return_stm -> 'return' value;
+bool return_stm(TREE *tree, Token_List *tl){
+    int length_of_tl=TL_length(tl);
+    if (length_of_tl>=2 && term(tl->current_token.TOKEN_STRING, "return")) {
+        TREE_addNode(tree, "return", "");
+        int index=TREE_INDEX;
+        TREE_addNode(tree, "value", "");
+        
+        return value(TREE_getTreeAccordingToIndex(tree, index),TL_subtl(tl, 1, length_of_tl));
+    }
+    return FALSE;
+}

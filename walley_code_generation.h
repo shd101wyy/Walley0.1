@@ -123,6 +123,16 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
     }
     printf("NOW_LOCAL %d\n",NOW_LOCAL);
 
+    if (term(tree.name, "walley_statements")){
+        Node_List *nl=tree.node_list;
+        while (nl->next!=NULL) {
+            Code_Generation(nl->node, ol,fl);
+            nl=nl->next;
+        }
+        Code_Generation(nl->node, ol,fl);
+        return ;
+
+    }
     // statements..
     if (term(tree.name, "statements")) {
         Node_List *nl=tree.node_list;

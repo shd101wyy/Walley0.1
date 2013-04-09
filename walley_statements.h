@@ -58,6 +58,7 @@ now
 ============
  
  statements ->
+ |  return_stm
  |  if_stms
  |  elif_stms
  |  else_stms
@@ -68,7 +69,9 @@ now
  |  assignment
  |  expr
  
-
+============
+ walley_statements ->
+                    | statements, statements        // use sentences_seperation
 */
 
 
@@ -322,6 +325,7 @@ bool end_stm(TREE *tree, Token_List *tl){
 /*
  
  statements -> 
+ |  return_stm
  |  if_stms
  |  elif_stms
  |  else_stms
@@ -338,7 +342,8 @@ bool end_stm(TREE *tree, Token_List *tl){
 
 bool statements(TREE *tree, Token_List *tl){
     
-    return if_stms(tree, tl)
+    return return_stm(tree, tl)
+        ||if_stms(tree, tl)
         ||elif_stms(tree, tl)
         ||else_stms(tree, tl)
         ||while_stms(tree, tl)
@@ -350,7 +355,27 @@ bool statements(TREE *tree, Token_List *tl){
     
 }
 
-
+//walley_statements ->
+//| statements, statements        // use sentences_seperation
+bool walley_statements(TREE *tree, Token_List *tl){
+    Token_List *temp_tl;
+    TL_init(&temp_tl);
+    int begin=0;
+    
+    while (sentences_seperation(tl, &temp_tl, &begin)) {
+        printf("============\n");
+        TL_print(temp_tl);
+        printf("============\n");
+        int index=TREE_INDEX;
+        TREE_addNode(tree, "statements", "");
+        if (!statements(TREE_getTreeAccordingToIndex(tree, index), temp_tl)) {
+            printf("Walley Statements Parse Error\n");
+            return FALSE;
+        }
+    }
+    
+    return FALSE;
+}
 
 
 
