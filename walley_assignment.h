@@ -19,6 +19,7 @@
  
  var_name->var_name ',' var_name
           | id
+          | id '.' var_name
           | id list_s
  
  list_s->list_table list_s
@@ -172,6 +173,13 @@ bool list_s(TREE *tree, Token_List *tl){
         && list_s(TREE_getTreeAccordingToIndex(tree, index2), tl->next);
     }
 }
+/*
+ var_name->var_name ',' var_name
+ | id
+ | id '.' var_name
+ | id list_s
+ 
+ */
 bool var_name(TREE *tree, Token_List *tl){
     int index_of_comma=TL_indexOfTokenThatHasTokenString(tl, ",");
     //var_name ',' var_name
@@ -205,17 +213,30 @@ bool var_name(TREE *tree, Token_List *tl){
             else
                 return FALSE;
         }
-        // id list_s
-        if (length_of_tl) {
-            if (strcmp("id", tl->current_token.TOKEN_CLASS)==0) {
-                TREE_addNode(tree, tl->current_token.TOKEN_STRING, tl->current_token.TOKEN_CLASS);
+        else{
+            // | id '.' var_name
+            if (term(tl->next->current_token.TOKEN_STRING, ".")) {
                 int index=TREE_INDEX;
-                TREE_addNode(tree, "list_s", "");
-                return list_s(TREE_getTreeAccordingToIndex(tree, index), tl->next);
+                TREE_addNode(tree, "var_name","");
+                
+                TREE_addNode(TREE_getTreeAccordingToIndex(tree, index), tl->current_token.TOKEN_STRING, "id");
+                return var_name(TREE_getTreeAccordingToIndex(tree, index), TL_subtl(tl, 2, length_of_tl));
             }
-            else
-                return FALSE;
         
+            // id list_s
+            else  {
+                if (strcmp("id", tl->current_token.TOKEN_CLASS)==0) {
+                    int index1=TREE_INDEX;
+                    TREE_addNode(tree, "var_name","");
+                    TREE_addNode(TREE_getTreeAccordingToIndex(tree, index1), tl->current_token.TOKEN_STRING, tl->current_token.TOKEN_CLASS);
+                    int index2=TREE_INDEX;
+                    TREE_addNode(TREE_getTreeAccordingToIndex(tree, index1), "list_s", "");
+                    return list_s(TREE_getTreeAccordingToIndex(tree, index2), tl->next);
+                }
+                else
+                    return FALSE;
+            
+            }
         }
     }
     //wtf wrong here

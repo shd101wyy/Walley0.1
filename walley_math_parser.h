@@ -72,53 +72,6 @@
  where "*" "/" "+" "-" are sign not in () from behind
  */
 
-// get index of '*' ... not in parenthesis
-/*
- int TL_indexOfSignNotInParenthesis(struct TL *tl){
- int length=TL_length(tl);
- int i=0;
- int count_of_parenthesis=0;
- for (; i<length; i++) {
- if (strcmp(tl->current_token.TOKEN_STRING, "(")==0) {
- count_of_parenthesis++;
- tl=tl->next;
- continue;
- }
- if (strcmp(tl->current_token.TOKEN_STRING, ")")==0) {
- count_of_parenthesis--;
- tl=tl->next;
- continue;
- }
- if (count_of_parenthesis==0 && strcmp("m_operator", tl->current_token.TOKEN_CLASS)==0) {
- return i;
- }
- tl=tl->next;
- }
- return -1;
- }
- int TL_indexOfRequiredSignNotInParenthesis(struct TL *tl,char *required_sign){
- int length=TL_length(tl);
- int i=0;
- int count_of_parenthesis=0;
- for (; i<length; i++) {
- if (strcmp(tl->current_token.TOKEN_STRING, "(")==0) {
- count_of_parenthesis++;
- tl=tl->next;
- continue;
- }
- if (strcmp(tl->current_token.TOKEN_STRING, ")")==0) {
- count_of_parenthesis--;
- tl=tl->next;
- continue;
- }
- if (count_of_parenthesis==0 && strcmp(required_sign, tl->current_token.TOKEN_STRING)==0) {
- return i;
- }
- tl=tl->next;
- }
- return -1;
- }
- */
 
 
 
