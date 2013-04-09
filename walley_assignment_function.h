@@ -30,6 +30,8 @@
  func_assign -> def '(' param ')' then
  
  return_stm -> 'return' value;
+ 
+ func_value -> func_assign walley_statements 'end'
 
 */
 // func_assign -> def '(' param ')' then
@@ -98,3 +100,29 @@ bool return_stm(TREE *tree, Token_List *tl){
     }
     return FALSE;
 }
+
+
+// func_value -> func_assign walley_statements 'end'
+bool func_value(TREE *tree, Token_List *tl){
+    int length_of_tl=TL_length(tl);
+    if (term(tl->current_token.TOKEN_STRING, "def")&&term(TL_tokenAtIndex(tl, length_of_tl-1).TOKEN_STRING, "end")) {
+        //int index1=TREE_INDEX;
+        //TREE_addNode(tree, "func_assign", "");
+        tree->name="func_assign";
+        tree->token_class="";
+        
+        int index_of_then=TL_indexOfTokenThatHasTokenString(tl, "then");
+        if (index_of_then==-1) {
+            INCOMPLETE_STATEMENT=TRUE;
+            return FALSE;
+        }
+       // return func_assign(TREE_getTreeAccordingToIndex(tree, index1), TL_subtl(tl, 0, index_of_then+1))
+       // && walley_statements(tree, TL_subtl(tl, index_of_then+1, length_of_tl));
+        return func_assign(tree, TL_subtl(tl, 0, index_of_then+1))
+        && walley_statements(tree, TL_subtl(tl, index_of_then+1, length_of_tl));
+
+    }
+    
+    return FALSE;
+}
+

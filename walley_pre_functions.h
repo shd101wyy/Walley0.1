@@ -90,6 +90,7 @@ bool var_value(TREE *tree, Token_List *tl);
 //walley_assignment_function
 bool func_assign(TREE *tree, Token_List *tl);
 bool return_stm(TREE *tree, Token_List *tl);
+bool func_value(TREE *tree, Token_List *tl);
 
 //walley_function
 bool params(TREE *tree, Token_List *tl);

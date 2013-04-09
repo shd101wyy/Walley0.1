@@ -707,12 +707,43 @@ bool sentences_seperation(Token_List *tl, Token_List **output_tl,int *begin){
             return TRUE;
         }
         
+        // find end corresponding to that def
+        // def (num1,num2) return num1+num2 end
+        // then set i to that end
+        if ((term(tl->current_token.TOKEN_STRING, "def")&&term(tl->next->current_token.TOKEN_STRING, "("))){
+            printf("FUNC_VALUE!!!!!!!\n");
+            int count=0;
+            for (; i<length_of_tl; i++) {
+                if (term(tl->current_token.TOKEN_STRING, "def")
+                    ||term(tl->current_token.TOKEN_STRING, "for")
+                    ||term(tl->current_token.TOKEN_STRING, "if")
+                    ||term(tl->current_token.TOKEN_STRING, "while")) {
+                    count++;
+                }
+                if (term(tl->current_token.TOKEN_STRING, "end")) {
+                    count--;
+                }
+                if (count==0) {
+                    break;
+                }
+                tl=tl->next;
+            }
+            
+            if (count!=0) {
+                INCOMPLETE_STATEMENT=TRUE;
+                return FALSE;
+            }
+            
+            tl=tl->next;
+            continue;
+            
+        }
         // def add() then return x+y end ->
         // 1:def add() then
         // 2:return x+y
         // 3:end
         // find then behind def
-        if (term(tl->current_token.TOKEN_STRING, "def")
+        if ((term(tl->current_token.TOKEN_STRING, "def")&&term(tl->next->current_token.TOKEN_STRING, "(")==FALSE)
             ||term(tl->current_token.TOKEN_STRING, "if")
             ||term(tl->current_token.TOKEN_STRING, "elif")
             ||term(tl->current_token.TOKEN_STRING, "for")

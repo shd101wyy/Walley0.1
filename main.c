@@ -12,7 +12,7 @@ int main(int argc, char **argv)
 {
     
     // test sentence_seperation
-    char *input_str="x,y=[1,2],14";
+    char *input_str="x,y=def (a,b) then return a+b end,12";
     Token_List *tl=Walley_Lexical_Analyzie(input_str);
     printf("===================\n");
     TL_print(tl);

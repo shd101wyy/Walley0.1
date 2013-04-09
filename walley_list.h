@@ -60,6 +60,7 @@ int TL_indexOfFinalBracket(Token_List *tl, int index_of_first_bracket){
  | string
  | list
  | table
+ | func_value
  | func
  | class_property
  | expr
@@ -183,12 +184,12 @@ bool value(TREE *tree, Token_List *tl){
             return FALSE;
         }
     }
-    
+    // func_value
     // func
     // class_property
     // expr
     else{
-        return func(tree, tl)|| class_property(tree, tl) ||expr(tree, tl);
+        return func_value(tree, tl)||func(tree, tl)|| class_property(tree, tl) ||expr(tree, tl);
     }
 }
 

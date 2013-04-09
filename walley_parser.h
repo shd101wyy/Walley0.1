@@ -111,6 +111,11 @@ TREE parser(Token_List *tl){
     //expr(&output_tree, tl);
     //TREE_print(output_tree);
     
+    // test var_value
+    //TREE_initWithName(&output_tree,"var_value");
+    //var_value(&output_tree, tl);
+    //TREE_print(output_tree);
+    
     // test value
     //TREE_initWithName(&output_tree,"value");
     //int is_value=value(&output_tree, tl);
@@ -177,6 +182,14 @@ TREE parser(Token_List *tl){
     //    printf("Fail to parse statements\n");
     //}
     //TREE_print(output_tree);
+    
+    // test func_value
+    //TREE_initWithName(&output_tree,"func_value");
+    //if(!func_value(&output_tree, tl)){
+    //    printf("Fail to parse statements\n");
+    //}
+    //TREE_print(output_tree);
+
     
     // test walley_statements
     TREE_initWithName(&output_tree,"walley_statements");

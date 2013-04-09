@@ -25,8 +25,9 @@
  list_s->list_table list_s
        ->list_table
  
- var_value->expr,var_value
-          ->expr
+    
+ var_value->value,var_value
+          ->value       # where ',' is the , not inside def if elif else for while
  
 */
 
@@ -243,27 +244,63 @@ bool var_name(TREE *tree, Token_List *tl){
     return FALSE;
 }
 
+//# where ',' is the , not inside def if elif else for while
 bool var_value(TREE *tree, Token_List *tl){
-    int index_of_comma=TL_indexOfTokenThatHasTokenString(tl, ",");
-    //expr,var_value
+    int length_of_tl=TL_length(tl);
+    int index_of_comma=-1;
+    Token_List *temp_tl=tl;
+    int i=0;
+    int count=0;
+    for (; i<length_of_tl; i++) {
+        if (term(tl->current_token.TOKEN_STRING, "def")
+            ||term(tl->current_token.TOKEN_STRING, "for")
+            ||term(tl->current_token.TOKEN_STRING, "if")
+            ||term(tl->current_token.TOKEN_STRING, "while")) {
+            count++;
+        }
+        if (term(tl->current_token.TOKEN_STRING, "end")) {
+            count--;
+        }
+        if (count==0 && term(tl->current_token.TOKEN_STRING, ",")) {
+            index_of_comma=i;
+            break;
+        }
+        tl=tl->next;
+    }
+    
+    if (count!=0) {
+        INCOMPLETE_STATEMENT=TRUE;
+        return FALSE;
+    }
+    
+    printf("INDEX_OF_COMMA ----> %d\n",index_of_comma);
+    
+    
+    tl=temp_tl;
+    
+    
+    //int index_of_comma=TL_indexOfTokenThatHasTokenString(tl, ",");
+    
+    
+    
+    //value,var_value
     if (index_of_comma!=-1) {
-        int length_of_tl=TL_length(tl);
         Token_List *tl1=TL_subtl(tl, 0, index_of_comma);
         Token_List *tl2=TL_subtl(tl, index_of_comma+1, length_of_tl);
         
         int index_of_tl1=TREE_INDEX;
-        TREE_addNode(tree, "expr", "");
+        TREE_addNode(tree, "value", "");
         
         
-        return expr(TREE_getTreeAccordingToIndex(tree, index_of_tl1), tl1)
+        return value(TREE_getTreeAccordingToIndex(tree, index_of_tl1), tl1)
         &&var_value(tree,tl2);
         
     }
-    //expr
+    //value
     else{
         int index_of_tl=TREE_INDEX;
-        TREE_addNode(tree,"expr","");
+        TREE_addNode(tree,"value","");
 
-        return expr(TREE_getTreeAccordingToIndex(tree, index_of_tl), tl);
+        return value(TREE_getTreeAccordingToIndex(tree, index_of_tl), tl);
     }
 }

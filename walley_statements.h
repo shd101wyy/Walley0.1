@@ -363,9 +363,9 @@ bool walley_statements(TREE *tree, Token_List *tl){
     int begin=0;
     
     while (sentences_seperation(tl, &temp_tl, &begin)) {
-        printf("============\n");
+        printf("@============\n");
         TL_print(temp_tl);
-        printf("============\n");
+        printf("@@============\n");
         int index=TREE_INDEX;
         TREE_addNode(tree, "statements", "");
         if (!statements(TREE_getTreeAccordingToIndex(tree, index), temp_tl)) {
@@ -374,7 +374,7 @@ bool walley_statements(TREE *tree, Token_List *tl){
         }
     }
     
-    return FALSE;
+    return TRUE;
 }
 
 
