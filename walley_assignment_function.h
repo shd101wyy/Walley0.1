@@ -133,7 +133,7 @@ bool func_value(TREE *tree, Token_List *tl){
     if (term(tl->current_token.TOKEN_STRING, "def")&&term(TL_tokenAtIndex(tl, length_of_tl-1).TOKEN_STRING, "end")) {
         //int index1=TREE_INDEX;
         //TREE_addNode(tree, "func_assign", "");
-        tree->name="func_assign";
+        tree->name="func_value";
         tree->token_class="";
         
         int index_of_then=TL_indexOfTokenThatHasTokenString(tl, "then");

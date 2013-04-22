@@ -306,6 +306,34 @@ bool for_stms(TREE *tree, Token_List *tl){
 
 //========================
 // func_stms -> 'def' func 'then'
+/*
+    x = def (a,b) then return a+b end
+ 
+ ( walley_statements
+    ( statements
+        ( =(id x)
+            ( func_value
+                ( def)( params(id a)(id b))
+                ( statements( return)( +(id a)(id b)))
+                ( statements( end))
+            )
+        )
+    )
+ )
+ 
+    def x (a,b) then return a+b end
+ 
+ 
+    def x (a,b) then return a+b end
+ 
+ ( walley_statements
+    ( statements( def)( func(call x)( params(id a)(id b))))
+    ( statements( return)( +(id a)(id b)))
+    ( statements( end))
+ )
+ 
+ 
+ */
 bool func_stms(TREE *tree, Token_List *tl){
     if (INCOMPLETE_STATEMENT) {
         return FALSE;

@@ -23,6 +23,7 @@
           | id '.' var_name
           | id list_s
  
+ now use
  version 2.0
  var_name->var_name ',' var_name
           | id
