@@ -460,7 +460,22 @@ char *intToCString(double num1){
     
 }
 
-
+// hello -> "hello"
+// "hello" -> "hello"
+char *toString(char *input_str){
+    if (input_str[0]=='"') {
+        return input_str;
+    }
+    else{
+        int malloc_length=(int)strlen(input_str)+2;
+        char *output=(char*)malloc(sizeof(char)*(malloc_length+1));
+        strcpy(output, "\"");
+        strcat(output, input_str);
+        strcat(output, "\"");
+        output[malloc_length]=0;
+        return output;
+    }
+}
 
 
 

@@ -154,6 +154,8 @@ bool table_expr(TREE *tree, Token_List *tl,int *key_index){
         }
         new_key[i]=0;
         
+        // THIS PLACE HAS PROBLEM WHILE PARSING KEY
+        
         TREE_addNode(tree, new_key, "key");
         int index=TREE_INDEX;
         TREE_addNode(tree, "value", "");
@@ -162,10 +164,23 @@ bool table_expr(TREE *tree, Token_List *tl,int *key_index){
     
     // id '=' value
     else if (term(tl->current_token.TOKEN_CLASS, "id") && term(tl->next->current_token.TOKEN_STRING, "=")) {
-        TREE_addNode(tree, tl->current_token.TOKEN_STRING, "key");
-        int index=TREE_INDEX;
+        int index1=TREE_INDEX;
+        TREE_addNode(tree, "key", "");
+        
+        
+        
+        Token_List *key_tl=Walley_Lexical_Analyzie(toString(tl->current_token.TOKEN_STRING));
+        TREE key_tree;
+        TREE_initWithName(&key_tree, "key");
+        value(&key_tree, key_tl);
+        
+        TREE_addTree(TREE_getTreeAccordingToIndex(tree, index1),key_tree);
+
+        
+        
+        int index2=TREE_INDEX;
         TREE_addNode(tree, "value", "");
-        return value(TREE_getTreeAccordingToIndex(tree, index), TL_subtl(tl, 2, length_of_tl));
+        return value(TREE_getTreeAccordingToIndex(tree, index2), TL_subtl(tl, 2, length_of_tl));
     }
     //              0           1       2
     //    |'[' (string|int) ']' '=' (value)
@@ -202,15 +217,27 @@ bool table_expr(TREE *tree, Token_List *tl,int *key_index){
     }
     //value
     else{
-        TREE_addNode(tree, intToCString((*key_index)), "key");
+        int index1=TREE_INDEX;
+        TREE_addNode(tree, "key", "");
+        
+        Token_List *key_tl=Walley_Lexical_Analyzie(intToCString((*key_index)));
+        TREE key_tree;
+        TREE_initWithName(&key_tree, "key");
+        value(&key_tree, key_tl);
+        
+        TREE_addTree(TREE_getTreeAccordingToIndex(tree, index1),key_tree);
+        
+        
         int index=TREE_INDEX;
         TREE_addNode(tree, "value", "");
-        int index2=TREE_INDEX;
-        TREE_addNode(TREE_getTreeAccordingToIndex(tree, index), "value", "");
+        //int index2=TREE_INDEX;
+        //TREE_addNode(TREE_getTreeAccordingToIndex(tree, index), "value", "");
         
         (*key_index)=(*key_index)+1;
         
-        return value(TREE_getTreeAccordingToIndex(tree, index2),tl);
+        //return value(TREE_getTreeAccordingToIndex(tree, index2),tl);
+        return value(TREE_getTreeAccordingToIndex(tree, index),tl);
+
     }
     return FALSE;
 }
@@ -247,3 +274,110 @@ bool table(TREE *tree, Token_List *tl,int *key_index){
 }
 
 //====================================================
+/*
+
+table_value_key->
+ | [(string|num)value]
+ | '.' id
+ | [(string|num)value] table_value_key                 // behind is [] or '.'
+ | '.' id table_value_key                              // behind is [] or '.'
+ 
+table_value ->
+            id table_value_key
+ 
+
+*/
+
+//table_value ->
+//      id table_value_key      // behind is [] or '.'
+bool table_value(TREE *tree, Token_List *tl){
+    printf("TABLE_VALUE=======\n");
+    TL_print(tl);
+    int length_of_tl=TL_length(tl);
+    if (length_of_tl>=2 && term(tl->current_token.TOKEN_CLASS, "id")&&
+        (term(tl->next->current_token.TOKEN_STRING, ".")||term(tl->next->current_token.TOKEN_CLASS, "list_table"))
+        ) {
+        int index=TREE_INDEX;
+        TREE_addNode(tree, "table_value", "");
+        
+        
+        TREE_addNode(TREE_getTreeAccordingToIndex(tree, index), tl->current_token.TOKEN_STRING, "id");
+        return table_value_key(TREE_getTreeAccordingToIndex(tree, index), TL_subtl(tl, 1, length_of_tl));
+    }
+    else{
+        return FALSE;
+    }
+}
+
+
+
+
+/*
+ table_value_key->
+ | [(string|num)value]
+ | '.' id
+ | [(string|num)value] table_value_key                 // behind is [] or '.'
+ | '.' id table_value_key                              // behind is [] or '.'
+ 
+ 
+ */
+
+bool table_value_key(TREE *tree, Token_List *tl){
+    int length_of_tl=TL_length(tl);
+    
+    // [(string|num)value]
+    if (length_of_tl==1 && term(tl->current_token.TOKEN_CLASS, "list_table")) {
+        // get string inside []
+        int length=(int)strlen(tl->current_token.TOKEN_STRING);
+        char *string_inside=(char*)malloc(sizeof(char)*(length-2+1));
+        int i=0;
+        for (; i<length-2; i++) {
+            string_inside[i]=tl->current_token.TOKEN_STRING[i+1];
+        }
+        string_inside[i]=0;
+        //====================
+        
+        int index1=TREE_INDEX;
+        TREE_addNode(tree, "key", "");
+        
+        
+        Token_List *key_tl=Walley_Lexical_Analyzie(string_inside);
+        TREE key_tree;
+        TREE_initWithName(&key_tree, "key");
+        value(&key_tree, key_tl);
+        
+        TREE_addTree(TREE_getTreeAccordingToIndex(tree, index1),key_tree);
+
+        return TRUE;
+    }
+    //| '.' id
+    else if (length_of_tl==2 && term(tl->current_token.TOKEN_STRING,".")&&term(tl->next->current_token.TOKEN_CLASS, "id")){
+        int index1=TREE_INDEX;
+        TREE_addNode(tree, "key", "");
+        
+        Token_List *key_tl=Walley_Lexical_Analyzie(toString(tl->next->current_token.TOKEN_STRING));
+        TREE key_tree;
+        TREE_initWithName(&key_tree, "key");
+        value(&key_tree, key_tl);
+        
+        TREE_addTree(TREE_getTreeAccordingToIndex(tree, index1),key_tree);
+        
+        return TRUE;
+    }
+    //| [(string|num)value] table_value_key
+    else if (length_of_tl>=2 && term(tl->current_token.TOKEN_CLASS, "list_table") &&
+             (term(tl->next->current_token.TOKEN_STRING, ".")||term(tl->next->current_token.TOKEN_CLASS, "list_table"))
+             ){
+        return table_value_key(tree, TL_subtl(tl, 0, 1)) && table_value_key(tree, TL_subtl(tl, 1, length_of_tl));
+    }
+    //| '.' id table_value_key                              // behind is [] or '.'
+    else if (length_of_tl>=3 && term(tl->current_token.TOKEN_STRING, ".")&&term(tl->next->current_token.TOKEN_CLASS, "id")
+             &&(term(tl->next->next->current_token.TOKEN_STRING, ".")||term(tl->next->next->current_token.TOKEN_CLASS, "list_table"))
+             ){
+        return table_value_key(tree, TL_subtl(tl, 0, 2))&&table_value_key(tree, TL_subtl(tl, 2, length_of_tl));
+    }
+    else{
+        return FALSE;
+    }
+    
+}

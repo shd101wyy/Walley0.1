@@ -83,6 +83,8 @@ bool p_term(TREE *tree, Token_List *tl);
 bool table(TREE *tree, Token_List *tl,int *key_index);
 bool table_elements(TREE *tree, Token_List *tl,int *key_index);
 bool table_expr(TREE *tree, Token_List *tl,int *key_index);
+bool table_value(TREE *tree, Token_List *tl);
+bool table_value_key(TREE *tree, Token_List *tl);
 //bool pairs(TREE *tree, Token_List *tl);
 
 //walley_assignment

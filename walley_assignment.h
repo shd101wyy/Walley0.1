@@ -17,10 +17,16 @@
  assignment-> var_name '=' var_value
             | 'local' var_name '=' var_value
  
+ version 1.0
  var_name->var_name ',' var_name
           | id
           | id '.' var_name
           | id list_s
+ 
+ version 2.0
+ var_name->var_name ',' var_name
+          | id
+          | table_value
  
  list_s->list_table list_s
        ->list_table
@@ -185,8 +191,8 @@ bool list_s(TREE *tree, Token_List *tl){
 /*
  var_name->var_name ',' var_name
  | id
- | id '.' var_name
- | id list_s
+ | table_value
+
  
  */
 bool var_name(TREE *tree, Token_List *tl){
@@ -225,30 +231,9 @@ bool var_name(TREE *tree, Token_List *tl){
             else
                 return FALSE;
         }
+        // table_value
         else{
-            // | id '.' var_name
-            if (term(tl->next->current_token.TOKEN_STRING, ".")) {
-                int index=TREE_INDEX;
-                TREE_addNode(tree, "var_name","");
-                
-                TREE_addNode(TREE_getTreeAccordingToIndex(tree, index), tl->current_token.TOKEN_STRING, "id");
-                return var_name(TREE_getTreeAccordingToIndex(tree, index), TL_subtl(tl, 2, length_of_tl));
-            }
-        
-            // id list_s
-            else  {
-                if (strcmp("id", tl->current_token.TOKEN_CLASS)==0) {
-                    int index1=TREE_INDEX;
-                    TREE_addNode(tree, "var_name","");
-                    TREE_addNode(TREE_getTreeAccordingToIndex(tree, index1), tl->current_token.TOKEN_STRING, tl->current_token.TOKEN_CLASS);
-                    int index2=TREE_INDEX;
-                    TREE_addNode(TREE_getTreeAccordingToIndex(tree, index1), "list_s", "");
-                    return list_s(TREE_getTreeAccordingToIndex(tree, index2), tl->next);
-                }
-                else
-                    return FALSE;
-            
-            }
+            return table_value(tree, tl);
         }
     }
     //wtf wrong here

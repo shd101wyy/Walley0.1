@@ -85,6 +85,7 @@ bool params(TREE *tree, Token_List *tl){
 }
 
 bool func(TREE *tree, Token_List *tl){
+    printf("FUNC===\n");
     if (INCOMPLETE_STATEMENT) {
         return FALSE;
     }
