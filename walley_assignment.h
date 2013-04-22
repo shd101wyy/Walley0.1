@@ -32,6 +32,9 @@
 */
 
 bool assignment(TREE *tree, Token_List *tl){
+    if (INCOMPLETE_STATEMENT) {
+        return FALSE;
+    }
     printf("CHECK ASSIGNMENT\n");
     TL_print(tl);
     printf("END PRINT TL\n");
@@ -150,6 +153,9 @@ bool assignment(TREE *tree, Token_List *tl){
 }
 
 bool list_s(TREE *tree, Token_List *tl){
+    if (INCOMPLETE_STATEMENT) {
+        return FALSE;
+    }
     int length_of_tl=TL_length(tl);
     
     //list_table
@@ -184,6 +190,9 @@ bool list_s(TREE *tree, Token_List *tl){
  
  */
 bool var_name(TREE *tree, Token_List *tl){
+    if (INCOMPLETE_STATEMENT) {
+        return FALSE;
+    }
     int index_of_comma=TL_indexOfTokenThatHasTokenString(tl, ",");
     //var_name ',' var_name
     if (index_of_comma!=-1) {
@@ -248,6 +257,9 @@ bool var_name(TREE *tree, Token_List *tl){
 
 //# where ',' is the , not inside def if elif else for while
 bool var_value(TREE *tree, Token_List *tl){
+    if (INCOMPLETE_STATEMENT) {
+        return FALSE;
+    }
     int length_of_tl=TL_length(tl);
     int index_of_comma=-1;
     Token_List *temp_tl=tl;

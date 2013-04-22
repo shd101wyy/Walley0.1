@@ -36,6 +36,9 @@
 */
 // func_assign -> def '(' param ')' then
 bool func_assign(TREE *tree, Token_List *tl){
+    if (INCOMPLETE_STATEMENT) {
+        return FALSE;
+    }
     int length_of_tl=TL_length(tl);
     if (length_of_tl>=4 && term(tl->current_token.TOKEN_STRING, "def")&&term(tl->next->current_token.TOKEN_STRING, "(")) {
         int index_of_right=-1;
@@ -105,6 +108,9 @@ bool func_assign(TREE *tree, Token_List *tl){
 
 // return_stm -> 'return' value;
 bool return_stm(TREE *tree, Token_List *tl){
+    if (INCOMPLETE_STATEMENT) {
+        return FALSE;
+    }
     int length_of_tl=TL_length(tl);
     if (length_of_tl>=2 && term(tl->current_token.TOKEN_STRING, "return")) {
         TREE_addNode(tree, "return", "");
@@ -119,6 +125,9 @@ bool return_stm(TREE *tree, Token_List *tl){
 
 // func_value -> func_assign walley_statements 'end'
 bool func_value(TREE *tree, Token_List *tl){
+    if (INCOMPLETE_STATEMENT) {
+        return FALSE;
+    }
     TL_print(tl);
     int length_of_tl=TL_length(tl);
     if (term(tl->current_token.TOKEN_STRING, "def")&&term(TL_tokenAtIndex(tl, length_of_tl-1).TOKEN_STRING, "end")) {

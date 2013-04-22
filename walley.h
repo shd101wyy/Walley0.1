@@ -37,23 +37,9 @@ void Walley_Run(){
         
         Token_List *tl=Walley_Lexical_Analyzie(input_str);
         
-        // incomplete statements
-        if (COUNT_THEN_END!=0) {
-            printf("COUNT_THEN_END-->%d incomplete \n",COUNT_THEN_END);
-            begin=TRUE;
-            
-            // append space after input_str
-            int malloc_length=(int)strlen(input_str);
-            char *input_str2=(char*)malloc(sizeof(char)*(2+malloc_length));
-            strcpy(input_str2, input_str);
-            strcat(input_str2," ");
-            input_str2[1+malloc_length]=0;
-            
-            SL_addString(&saved_str_list, input_str2);
-            continue;
-        }
         
-        if (begin==TRUE) {
+        // now complete
+        if (begin==TRUE && COUNT_THEN_END==0) {
             
             SL_print(saved_str_list);
             begin=FALSE;
@@ -73,6 +59,25 @@ void Walley_Run(){
             
             // regenerate tl
             tl=Walley_Lexical_Analyzie(input_str2);
+            
+            // reset INCOMPLETE_STATEMENT
+            INCOMPLETE_STATEMENT=FALSE;
+        }
+        
+        // incomplete statements
+        if (COUNT_THEN_END!=0 || INCOMPLETE_STATEMENT) {
+            printf("COUNT_THEN_END-->%d incomplete \n",COUNT_THEN_END);
+            begin=TRUE;
+            
+            // append space after input_str
+            int malloc_length=(int)strlen(input_str);
+            char *input_str2=(char*)malloc(sizeof(char)*(2+malloc_length));
+            strcpy(input_str2, input_str);
+            strcat(input_str2," ");
+            input_str2[1+malloc_length]=0;
+            
+            SL_addString(&saved_str_list, input_str2);
+            continue;
         }
         
         printf("Token_List===============\n");
@@ -80,6 +85,22 @@ void Walley_Run(){
         
         TREE syntax_tree=parser(tl);
         
+        // incomplete statements
+        if (COUNT_THEN_END!=0 || INCOMPLETE_STATEMENT) {
+            printf("COUNT_THEN_END-->%d incomplete \n",COUNT_THEN_END);
+            begin=TRUE;
+            
+            // append space after input_str
+            int malloc_length=(int)strlen(input_str);
+            char *input_str2=(char*)malloc(sizeof(char)*(2+malloc_length));
+            strcpy(input_str2, input_str);
+            strcat(input_str2," ");
+            input_str2[1+malloc_length]=0;
+            
+            SL_addString(&saved_str_list, input_str2);
+            continue;
+        }
+
     
     }
 }

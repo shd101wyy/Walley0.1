@@ -29,6 +29,9 @@
 */
 
 bool class_property(TREE *tree, Token_List *tl){
+    if (INCOMPLETE_STATEMENT) {
+        return FALSE;
+    }
     int length_of_tl=TL_length(tl);
     Token_List *temp_tl=tl;
     while (tl->next!=NULL) {

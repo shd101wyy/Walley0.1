@@ -781,8 +781,9 @@ bool sentences_seperation(Token_List *tl, Token_List **output_tl,int *begin){
                 tl=tl->next;
             }
             if (index_of_then==-1) {
-                printf("Cannot find index of then\n");
-                exit(0);
+                INCOMPLETE_STATEMENT=TRUE;
+                //printf("Cannot find index of then\n");
+                return FALSE;
             }
             
             end=index_of_then+1;

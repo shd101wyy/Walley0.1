@@ -27,6 +27,9 @@
  */
 
 bool params(TREE *tree, Token_List *tl){
+    if (INCOMPLETE_STATEMENT) {
+        return FALSE;
+    }
     // has no params
     if (tl==NULL) {
         printf("NO PARAMS\n");
@@ -82,6 +85,9 @@ bool params(TREE *tree, Token_List *tl){
 }
 
 bool func(TREE *tree, Token_List *tl){
+    if (INCOMPLETE_STATEMENT) {
+        return FALSE;
+    }
     int length_of_tl=TL_length(tl);
     // id '(' params ')'
     int index_of_left=TL_indexOfTokenThatHasTokenString(tl, "(");

@@ -104,6 +104,9 @@ table_expr ->| '@' id '=' value        # instance method
 
 //===============NEW CODE FOR TABLE on April 1=======
 bool table_elements(TREE *tree, Token_List *tl,int *key_index){
+    if (INCOMPLETE_STATEMENT) {
+        return FALSE;
+    }
     int length_of_tl=TL_length(tl);
     Token_List *temp_tl=tl;
     int i=0;
@@ -135,6 +138,9 @@ bool table_elements(TREE *tree, Token_List *tl,int *key_index){
     }
 }
 bool table_expr(TREE *tree, Token_List *tl,int *key_index){
+    if (INCOMPLETE_STATEMENT) {
+        return FALSE;
+    }
     int length_of_tl=TL_length(tl);
     // | '@' id '=' value
     if (length_of_tl>3&&term(tl->current_token.TOKEN_CLASS, "@") && term(tl->next->current_token.TOKEN_CLASS, "id") && term(tl->next->next->current_token.TOKEN_STRING, "=")) {
@@ -211,6 +217,9 @@ bool table_expr(TREE *tree, Token_List *tl,int *key_index){
 
 //table    -> '[' table_elements ']'
 bool table(TREE *tree, Token_List *tl,int *key_index){
+    if (INCOMPLETE_STATEMENT) {
+        return FALSE;
+    }
     int length_of_tl=TL_length(tl);
     
     if (length_of_tl==1) {

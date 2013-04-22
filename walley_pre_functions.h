@@ -47,7 +47,9 @@ typedef struct SL Str_List;
 struct TOKEN;
 struct TL;
 
+
 // new Global Var on April 1st
+// both of them are used for check incomplete
 bool INCOMPLETE_STATEMENT=FALSE;
 bool COUNT_THEN_END=0;
 

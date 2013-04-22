@@ -79,6 +79,9 @@ elements -> value ',' elements
 
 
 bool list(TREE *tree, Token_List *tl){
+    if (INCOMPLETE_STATEMENT) {
+        return FALSE;
+    }
     int length_of_tl=TL_length(tl);
     // check = existed
     bool existed_equal=FALSE;
@@ -134,6 +137,9 @@ bool list(TREE *tree, Token_List *tl){
 
 
 bool elements(TREE *tree, Token_List *tl){
+    if (INCOMPLETE_STATEMENT) {
+        return FALSE;
+    }
     int length_of_tl=TL_length(tl);
     int index_of_comma=TL_indexOfTokenThatHasTokenString(tl, ",");
     // value
@@ -160,6 +166,9 @@ bool elements(TREE *tree, Token_List *tl){
 
 
 bool value(TREE *tree, Token_List *tl){
+    if (INCOMPLETE_STATEMENT) {
+        return FALSE;
+    }
     
     int length_of_tl=TL_length(tl);
 

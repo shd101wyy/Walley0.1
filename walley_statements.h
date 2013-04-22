@@ -79,6 +79,9 @@ now
 //  if_stms  -> 'if' relation 'then'
 
 bool if_stms(TREE *tree, Token_List *tl){
+    if (INCOMPLETE_STATEMENT) {
+        return FALSE;
+    }
     int length_of_tl=TL_length(tl);
     
     //'if' relation ''
@@ -104,6 +107,9 @@ bool if_stms(TREE *tree, Token_List *tl){
 
 // elif_stms-> 'elif' relation 'then'
 bool elif_stms(TREE *tree, Token_List *tl){
+    if (INCOMPLETE_STATEMENT) {
+        return FALSE;
+    }
     int length_of_tl=TL_length(tl);
     //'elif' relation 'then'
     if (term(tl->current_token.TOKEN_STRING, "elif")) {
@@ -127,6 +133,9 @@ bool elif_stms(TREE *tree, Token_List *tl){
 
 // else_stms-> 'else'
 bool else_stms(TREE *tree, Token_List *tl){
+    if (INCOMPLETE_STATEMENT) {
+        return FALSE;
+    }
     int length_of_tl=TL_length(tl);
     
     // 'else'
@@ -141,6 +150,9 @@ bool else_stms(TREE *tree, Token_List *tl){
 //==================================================
 // while_stms -> 'while' relation 'then'
 bool while_stms(TREE *tree, Token_List *tl){
+    if (INCOMPLETE_STATEMENT) {
+        return FALSE;
+    }
     int length_of_tl=TL_length(tl);
     //'while' relation 'then'
     if (term(tl->current_token.TOKEN_STRING, "while")) {
@@ -177,6 +189,9 @@ bool while_stms(TREE *tree, Token_List *tl){
 // i didn't change semi_colon to comma
 // cuz i used to use semi_colon
 bool for_stms(TREE *tree, Token_List *tl){
+    if (INCOMPLETE_STATEMENT) {
+        return FALSE;
+    }
     
     int length_of_tl=TL_length(tl);
     
@@ -292,6 +307,9 @@ bool for_stms(TREE *tree, Token_List *tl){
 //========================
 // func_stms -> 'def' func 'then'
 bool func_stms(TREE *tree, Token_List *tl){
+    if (INCOMPLETE_STATEMENT) {
+        return FALSE;
+    }
     int length_of_tl=TL_length(tl);
     //'def' func 'then'
     if (term(tl->current_token.TOKEN_STRING, "def")) {
@@ -315,6 +333,9 @@ bool func_stms(TREE *tree, Token_List *tl){
 
 }
 bool end_stm(TREE *tree, Token_List *tl){
+    if (INCOMPLETE_STATEMENT) {
+        return FALSE;
+    }
     if (TL_length(tl)==1 && term(tl->current_token.TOKEN_CLASS, "end")) {
         TREE_addNode(tree, "end","");
         return TRUE;
@@ -341,6 +362,9 @@ bool end_stm(TREE *tree, Token_List *tl){
  */
 
 bool statements(TREE *tree, Token_List *tl){
+    if (INCOMPLETE_STATEMENT) {
+        return FALSE;
+    }
     
     return return_stm(tree, tl)
         ||if_stms(tree, tl)
@@ -358,11 +382,17 @@ bool statements(TREE *tree, Token_List *tl){
 //walley_statements ->
 //| statements, statements        // use sentences_seperation
 bool walley_statements(TREE *tree, Token_List *tl){
+    if (INCOMPLETE_STATEMENT) {
+        return FALSE;
+    }
     Token_List *temp_tl;
     TL_init(&temp_tl);
     int begin=0;
     
     while (sentences_seperation(tl, &temp_tl, &begin)) {
+        if (INCOMPLETE_STATEMENT) {
+            return FALSE;
+        }
         printf("@============\n");
         TL_print(temp_tl);
         printf("@@============\n");
@@ -373,7 +403,9 @@ bool walley_statements(TREE *tree, Token_List *tl){
             return FALSE;
         }
     }
-    
+    if (INCOMPLETE_STATEMENT) {
+        return FALSE;
+    }
     return TRUE;
 }
 

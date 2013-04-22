@@ -78,7 +78,9 @@
 
 
 bool expr(TREE *tree, Token_List *tl){
- 
+    if (INCOMPLETE_STATEMENT) {
+        return FALSE;
+    }
     
     // expr-> expr '+' expr
     // | expr '-' expr
@@ -144,7 +146,9 @@ bool expr(TREE *tree, Token_List *tl){
 }
 
 bool s_term(TREE *tree, Token_List *tl){
-   
+    if (INCOMPLETE_STATEMENT) {
+        return FALSE;
+    }
     //s_term -> s_term "*" p_term
     //|  s_term "/" p_term
     //|  p_term
@@ -211,7 +215,9 @@ bool s_term(TREE *tree, Token_List *tl){
 }
 
 bool p_term(TREE *tree, Token_List *tl){
-   
+    if (INCOMPLETE_STATEMENT) {
+        return FALSE;
+    }
     
     //p_term -> p_term "^" factor
     //|  factor
@@ -281,6 +287,9 @@ bool p_term(TREE *tree, Token_List *tl){
 //factor -> value
 //| (expr)
 bool factor(TREE *tree, Token_List *tl){
+    if (INCOMPLETE_STATEMENT) {
+        return FALSE;
+    }
     int length_of_tl=TL_length(tl);
     //| (expr)
     if (term(TL_tokenAtIndex(tl, 0).TOKEN_STRING,"(")&&term(TL_tokenAtIndex(tl, length_of_tl-1).TOKEN_STRING, ")")) {

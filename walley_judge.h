@@ -78,6 +78,9 @@ if x==1 and x==2:
                y  z  x  z
 */
 bool relation(TREE *tree, Token_List *tl){
+    if (INCOMPLETE_STATEMENT) {
+        return FALSE;
+    }
     int length_of_tl=TL_length(tl);
     
     Token_List *temp_tl=tl;
@@ -140,6 +143,9 @@ bool relation(TREE *tree, Token_List *tl){
 
 
 bool simple_relation(TREE *tree, Token_List *tl){
+    if (INCOMPLETE_STATEMENT) {
+        return FALSE;
+    }
     int length_of_tl=TL_length(tl);
     
     //'(' relation ')'
