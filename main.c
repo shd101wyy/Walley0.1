@@ -11,8 +11,15 @@
 int main(int argc, char **argv)
 {
     
+    
+    //Walley_Init();
+    //Walley_Run();
+    
+    
     // test sentence_seperation
-    char *input_str="x,y=def (a,b) then return a+b end,12";
+    //"x,y=def (a,b) then return a+b end,12 z=12"
+    //"x,y = def () then return 3+4 end,13 z=13"
+    char *input_str="x= def () then return 3+4 end";
     Token_List *tl=Walley_Lexical_Analyzie(input_str);
     printf("===================\n");
     TL_print(tl);
@@ -20,6 +27,7 @@ int main(int argc, char **argv)
     parser(tl);
     //sentences_seperation(tl);
     exit(0);
+    
     
     // test Code_Generation Function
     /*

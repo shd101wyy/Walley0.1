@@ -78,6 +78,8 @@
 
 
 bool expr(TREE *tree, Token_List *tl){
+ 
+    
     // expr-> expr '+' expr
     // | expr '-' expr
     // | s_term
@@ -142,6 +144,7 @@ bool expr(TREE *tree, Token_List *tl){
 }
 
 bool s_term(TREE *tree, Token_List *tl){
+   
     //s_term -> s_term "*" p_term
     //|  s_term "/" p_term
     //|  p_term
@@ -208,6 +211,7 @@ bool s_term(TREE *tree, Token_List *tl){
 }
 
 bool p_term(TREE *tree, Token_List *tl){
+   
     
     //p_term -> p_term "^" factor
     //|  factor

@@ -19,6 +19,71 @@ void Walley_Init(){
     GLOBAL_OFFSET=0;
 }
 
+// run script in cmd
+void Walley_Run(){
+    
+    // save incomplete statements
+    Str_List *saved_str_list;
+    SL_initSL(&saved_str_list);
+    
+    bool begin=FALSE;
+    while (1) {
+        
+        printf("\n>>> ");
+        char *input_str=(char*)malloc(sizeof(char)*1000);
+        gets(input_str);
+        if (strcmp(input_str, "exit()") == 0)
+            break;
+        
+        Token_List *tl=Walley_Lexical_Analyzie(input_str);
+        
+        // incomplete statements
+        if (COUNT_THEN_END!=0) {
+            printf("COUNT_THEN_END-->%d incomplete \n",COUNT_THEN_END);
+            begin=TRUE;
+            
+            // append space after input_str
+            int malloc_length=(int)strlen(input_str);
+            char *input_str2=(char*)malloc(sizeof(char)*(2+malloc_length));
+            strcpy(input_str2, input_str);
+            strcat(input_str2," ");
+            input_str2[1+malloc_length]=0;
+            
+            SL_addString(&saved_str_list, input_str2);
+            continue;
+        }
+        
+        if (begin==TRUE) {
+            
+            SL_print(saved_str_list);
+            begin=FALSE;
+            
+            char *saved_string=SL_toString(saved_str_list);
+            printf("SAVED_STRING---> %s\n",saved_string);
+            
+            // reinitialize saved_str_list
+            SL_initSL(&saved_str_list);
+            
+            // append saved_string + input_str
+            int malloc_length=(int)strlen(saved_string)+(int)strlen(input_str);
+            char *input_str2=(char*)malloc(sizeof(char)*(1+malloc_length));
+            strcpy(input_str2, saved_string);
+            strcat(input_str2, input_str);
+            input_str2[malloc_length]=0;
+            
+            // regenerate tl
+            tl=Walley_Lexical_Analyzie(input_str2);
+        }
+        
+        printf("Token_List===============\n");
+        TL_print(tl);
+        
+        TREE syntax_tree=parser(tl);
+        
+    
+    }
+}
+
 
 void Test(char *input_str){
     char *to_analyze_str=input_str;

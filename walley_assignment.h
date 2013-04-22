@@ -34,6 +34,7 @@
 bool assignment(TREE *tree, Token_List *tl){
     printf("CHECK ASSIGNMENT\n");
     TL_print(tl);
+    printf("END PRINT TL\n");
     // | 'local' var_name '=' var_value
     bool is_local=FALSE;
     if (term(tl->current_token.TOKEN_STRING, "local")) {
@@ -112,9 +113,10 @@ bool assignment(TREE *tree, Token_List *tl){
             TREE_addNode(tree, "=", "");
             
             
-            //char *var_name_str=var_name_nl->node.name;
+            
+            char *var_name_str=var_name_nl->node.name;
             //char *var_value_str=var_value_nl->node.name;
-            //printf("now_var_name---> %s\n",var_name_str);
+            printf("now_var_name---> %s\n",var_name_str);
             //printf("now_var_value---> %s\n",var_value_str);
             
             // local variable
@@ -298,6 +300,8 @@ bool var_value(TREE *tree, Token_List *tl){
     }
     //value
     else{
+        printf("ENTER HERE VALUE\n");
+        TL_print(tl);
         int index_of_tl=TREE_INDEX;
         TREE_addNode(tree,"value","");
 

@@ -55,7 +55,9 @@ int TL_indexOfFinalBracket(Token_List *tl, int index_of_first_bracket){
 
 /*
 //------ VALUE ------ 
- value    ->num
+ value    ->
+ |(null)   kong de
+ |num
  | id
  | string
  | list
@@ -158,8 +160,15 @@ bool elements(TREE *tree, Token_List *tl){
 
 
 bool value(TREE *tree, Token_List *tl){
+    
     int length_of_tl=TL_length(tl);
-    if (length_of_tl==1) {
+
+    // (null)
+    if(length_of_tl==0){
+        tree->name="none";
+        tree->token_class="id";
+    }
+    else if (length_of_tl==1) {
         //   num
         // | id
         // | string

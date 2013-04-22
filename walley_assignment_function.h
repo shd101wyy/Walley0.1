@@ -37,7 +37,7 @@
 // func_assign -> def '(' param ')' then
 bool func_assign(TREE *tree, Token_List *tl){
     int length_of_tl=TL_length(tl);
-    if (length_of_tl>=5 && term(tl->current_token.TOKEN_STRING, "def")&&term(tl->next->current_token.TOKEN_STRING, "(")) {
+    if (length_of_tl>=4 && term(tl->current_token.TOKEN_STRING, "def")&&term(tl->next->current_token.TOKEN_STRING, "(")) {
         int index_of_right=-1;
         Token_List *temp_tl=tl;
         int count=0;
@@ -69,11 +69,26 @@ bool func_assign(TREE *tree, Token_List *tl){
             exit(0);
         }
         else{
+            printf("ENTER HERE %d\n",index_of_right);
             TREE_addNode(tree, "def", "");
             int index=TREE_INDEX;
             TREE_addNode(tree, "params", "");
             
-            Token_List *params_tl=TL_subtl(tl, 2, index_of_right);
+            Token_List *params_tl;
+            // has params
+            if (index_of_right!=2) {
+                params_tl=TL_subtl(tl, 2, index_of_right);
+            }
+            // does not have params
+            else{
+                TL_init(&params_tl);
+                Token add_token;
+                add_token.TOKEN_CLASS="id";
+                add_token.TOKEN_STRING="none";
+                TL_addToken(&params_tl, add_token);
+            }
+            
+                
             
             return params(TREE_getTreeAccordingToIndex(tree, index), params_tl);
                          
@@ -104,6 +119,7 @@ bool return_stm(TREE *tree, Token_List *tl){
 
 // func_value -> func_assign walley_statements 'end'
 bool func_value(TREE *tree, Token_List *tl){
+    TL_print(tl);
     int length_of_tl=TL_length(tl);
     if (term(tl->current_token.TOKEN_STRING, "def")&&term(TL_tokenAtIndex(tl, length_of_tl-1).TOKEN_STRING, "end")) {
         //int index1=TREE_INDEX;
@@ -113,11 +129,13 @@ bool func_value(TREE *tree, Token_List *tl){
         
         int index_of_then=TL_indexOfTokenThatHasTokenString(tl, "then");
         if (index_of_then==-1) {
+            printf("FUNC VALUE  did not find then\n");
             INCOMPLETE_STATEMENT=TRUE;
             return FALSE;
         }
-       // return func_assign(TREE_getTreeAccordingToIndex(tree, index1), TL_subtl(tl, 0, index_of_then+1))
-       // && walley_statements(tree, TL_subtl(tl, index_of_then+1, length_of_tl));
+        
+       
+       
         return func_assign(tree, TL_subtl(tl, 0, index_of_then+1))
         && walley_statements(tree, TL_subtl(tl, index_of_then+1, length_of_tl));
 

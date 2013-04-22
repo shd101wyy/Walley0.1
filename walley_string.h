@@ -230,6 +230,42 @@ void SL_removeStringAtIndex(struct SL **string_list, int index){
     }
 }
 
+// convert String List to single string
+char *SL_toString(Str_List *sl){
+    int malloc_length=0;
+    Str_List *temp_sl=sl;
+    while (sl->next!=NULL) {
+        malloc_length+=(int)strlen(sl->string_content);
+        sl=sl->next;
+    }
+    malloc_length+=(int)strlen(sl->string_content);
+    sl=temp_sl;
+    
+    char *output_str=(char*)malloc(sizeof(char)*(malloc_length+1));
+    
+    
+    int count=0;
+    while (sl->next!=NULL) {
+        int i=0;
+        int length=(int)strlen(sl->string_content);
+        for (; i<length; i++) {
+            output_str[count]=(sl->string_content)[i];
+            count++;
+        }
+        sl=sl->next;
+    }
+    int i=0;
+    int length=(int)strlen(sl->string_content);
+    for (; i<length; i++) {
+        output_str[count]=(sl->string_content)[i];
+        count++;
+    }
+    
+    output_str[count]=0;
+    return output_str;
+
+}
+
 
 //================================================
 struct Char_List{

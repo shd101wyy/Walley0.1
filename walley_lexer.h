@@ -468,12 +468,20 @@ char* Walley_Analyze_Token_Class(char *input_str, int i, int *end){
     // then
     if (match(input_str, i, "then")) {
         *end=i+4;
+        
+        //COUNT_THEN_END
+        COUNT_THEN_END+=1;
+        
         return "then";
     }
     
     // end
     if (match(input_str, i, "end")) {
         *end=i+3;
+        
+        //COUNT_THEN_END
+        COUNT_THEN_END-=1;
+        
         return "end";
     }
     
