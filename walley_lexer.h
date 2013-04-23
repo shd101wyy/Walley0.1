@@ -441,12 +441,18 @@ char* Walley_Analyze_Token_Class(char *input_str, int i, int *end){
     // 7 keyword
     // 1) if
     if (i<=length-2&&(input_str[i]=='i'&&input_str[i+1]=='f')) {
+        //COUNT_THEN_END
+        COUNT_THEN_END+=1;
+        
         *end=i+2;
         return "keyword";
     }
     // 2)for def
     if (match(input_str, i, "for")
         ||match(input_str, i,"def")) {
+        //COUNT_THEN_END
+        COUNT_THEN_END+=1;
+        
         *end=i+3;
         return "keyword";
     }
@@ -461,6 +467,9 @@ char* Walley_Analyze_Token_Class(char *input_str, int i, int *end){
     // 4) while class
     if (match(input_str, i, "while")
         ||match(input_str, i, "class")) {
+        //COUNT_THEN_END
+        COUNT_THEN_END+=1;
+        
         *end=i+5;
         return "keyword";
     }
@@ -469,8 +478,6 @@ char* Walley_Analyze_Token_Class(char *input_str, int i, int *end){
     if (match(input_str, i, "then")) {
         *end=i+4;
         
-        //COUNT_THEN_END
-        COUNT_THEN_END+=1;
         
         return "then";
     }
@@ -718,8 +725,10 @@ bool sentences_seperation(Token_List *tl, Token_List **output_tl,int *begin){
         // find end corresponding to that def
         // def (num1,num2) return num1+num2 end
         // then set i to that end
-        if ((term(tl->current_token.TOKEN_STRING, "def"))){//&&term(tl->next->current_token.TOKEN_STRING, "("))){
-            printf("FUNC_VALUE!!!!!!!\n");
+        if (term(tl->current_token.TOKEN_STRING, "def")||
+            term(tl->current_token.TOKEN_STRING, "for")||
+            term(tl->current_token.TOKEN_STRING, "while")){//&&term(tl->next->current_token.TOKEN_STRING, "("))){
+            printf("def for while!!!!\n");
             int count=0;
             for (; i<length_of_tl; i++) {
                 if (term(tl->current_token.TOKEN_STRING, "def")
@@ -745,8 +754,8 @@ bool sentences_seperation(Token_List *tl, Token_List **output_tl,int *begin){
                 *begin=end;
                 return TRUE;
             }
-            
-            if (count!=0) {
+            else{
+                //if (count!=0) {
                 INCOMPLETE_STATEMENT=TRUE;
                 return FALSE;
             }
@@ -755,6 +764,173 @@ bool sentences_seperation(Token_List *tl, Token_List **output_tl,int *begin){
             continue;
             
         }
+        
+        
+        // find 'end' or 'elif' or 'else'
+        // if no 'end' found--- incomplete
+        // if find 'elif' or 'else', add 'end' manually
+        if (term(tl->current_token.TOKEN_STRING, "if")) {
+            int count_of_if=0;
+            int count_of_end=0;
+            for (; i<length_of_tl; i++) {
+                if (term(tl->current_token.TOKEN_STRING, "if")) {
+                    count_of_if+=1;
+                    count_of_end+=1;
+                }
+                
+                if (term(tl->current_token.TOKEN_STRING, "end")) {
+                    count_of_if-=1;
+                    count_of_end-=1;
+                }
+                
+                if (count_of_end==0) {
+                    break;
+                }
+                
+                if (count_of_if==1 &&
+                    (term(tl->current_token.TOKEN_STRING, "elif")
+                     || term(tl->current_token.TOKEN_STRING, "else"))
+                    ) {
+                    
+                    int end=i;
+                    Token_List *ahead_tl=TL_subtl(temp_tl, *begin, end);
+                    Token end_token;
+                    end_token.TOKEN_STRING="end";
+                    end_token.TOKEN_CLASS="end";
+                    TL_addToken(&ahead_tl, end_token);
+                    
+                    *begin=end;
+                    *output_tl=ahead_tl;
+                    
+                    return TRUE;
+                }
+                
+                tl=tl->next;
+            }
+            
+            // incomplete
+            if (count_of_if!=count_of_end || count_of_if!=0) {
+                INCOMPLETE_STATEMENT=TRUE;
+                return FALSE;
+            }
+            // complete
+            /*
+             eg: 
+             if x>0 then
+                if x>3 then
+                    x=12
+                end
+             end
+             
+             
+             */
+            else{
+                int end=i+1;
+                Token_List *ahead_tl=TL_subtl(temp_tl, *begin, end);
+                
+                *begin=end;
+                *output_tl=ahead_tl;
+                return TRUE;
+            }
+        }
+        
+        // elif
+        if (term(tl->current_token.TOKEN_STRING, "elif")) {
+            int count_of_if=0;
+            int count_of_end=0;
+            int temp_i=i;
+            for (; i<length_of_tl; i++) {
+                if (term(tl->current_token.TOKEN_STRING, "if")) {
+                    count_of_if+=1;
+                    count_of_end+=1;
+                }
+                
+                if (term(tl->current_token.TOKEN_STRING, "end")) {
+                    count_of_end-=1;
+                    count_of_if-=1;
+                }
+                
+                
+                // find elif or else
+                if (count_of_if==0 && i!=temp_i &&
+                    ( term(tl->current_token.TOKEN_STRING, "elif")||
+                     term(tl->current_token.TOKEN_STRING, "else")
+                     )
+                    ) {
+                    int end=i;
+                    Token_List *ahead_tl=TL_subtl(temp_tl, *begin, end);
+                    Token end_token;
+                    end_token.TOKEN_STRING="end";
+                    end_token.TOKEN_CLASS="end";
+                    TL_addToken(&ahead_tl, end_token);
+                    
+                    *begin=end;
+                    *output_tl=ahead_tl;
+                    
+                    return TRUE;
+                }
+                // elif then ... end
+                if (count_of_end==-1 && count_of_if==-1) {
+                    int end=i+1;
+                    Token_List *ahead_tl=TL_subtl(temp_tl, *begin, end);
+                    
+                    *begin=end;
+                    *output_tl=ahead_tl;
+                    return TRUE;
+
+                }
+                
+                tl=tl->next;
+            }
+            
+            
+            // incomplete
+            INCOMPLETE_STATEMENT=TRUE;
+            return FALSE;
+    
+            
+        }
+        
+        // else
+        if(term(tl->current_token.TOKEN_STRING, "else")){
+            int count_of_if=0;
+            int count_of_end=0;
+            int temp_i=i;
+            for(;i<length_of_tl;i++){
+                if(term(tl->current_token.TOKEN_STRING, "if")){
+                    count_of_if+=1;
+                    count_of_end+=1;
+                }
+                if(term(tl->current_token.TOKEN_STRING, "end")){
+                    count_of_if-=1;
+                    count_of_end-=1;
+                    
+                }
+                
+                //error
+                if (count_of_if==0 && i!=temp_i && (term(tl->current_token.TOKEN_STRING, "elif")|| term(tl->current_token.TOKEN_STRING, "else"))) {
+                    Walley_Print_Error(TL_toString(temp_tl), "elif or else statements error", tl->current_token.TOKEN_START);
+                }
+                
+                // finish else
+                if (count_of_end==-1) {
+                    int end=i+1;
+                    Token_List *ahead_tl=TL_subtl(temp_tl, *begin, end);
+                    
+                    *begin=end;
+                    *output_tl=ahead_tl;
+                    return TRUE;
+
+                }
+                tl=tl->next;
+            }
+            
+            INCOMPLETE_STATEMENT=TRUE;
+            return FALSE;
+        }
+    
+        
+        /*
         // def add() then return x+y end ->
         // 1:def add() then
         // 2:return x+y
@@ -832,6 +1008,7 @@ bool sentences_seperation(Token_List *tl, Token_List **output_tl,int *begin){
             
         }
         
+        */
         
         tl=tl->next;
     }
@@ -851,29 +1028,3 @@ bool sentences_seperation(Token_List *tl, Token_List **output_tl,int *begin){
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- 
