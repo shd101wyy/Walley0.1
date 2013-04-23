@@ -23,6 +23,18 @@
  elif_stms -> 'elif' relation 'then' walley_statements 'end'   // there is no real 'end', add here while lexer analysis
  else_stms -> 'else' walley_statements 'end'
  
+ ( walley_statements
+    ( statements
+        ( if)
+        ( simple_relation( <(num 3)(id x)))
+        ( statements
+            ( if)
+            ( simple_relation( <(num 4)(id x)))
+            ( statements( =(id y)(num 12)))
+        )
+    )
+)
+ 
  if x>0 then
      if x>3 then
          x=12
@@ -132,7 +144,7 @@ bool if_stms(TREE *tree, Token_List *tl){
             TREE_addNode(tree, "if", "");
             int index=TREE_INDEX;
             TREE_addNode(tree, "relation", "");
-            return relation(TREE_getTreeAccordingToIndex(tree, index), relation_tl) && walley_statements(TREE_getTreeAccordingToIndex(tree, index), TL_subtl(tl, index_of_then+1, length_of_tl-1));
+            return relation(TREE_getTreeAccordingToIndex(tree, index), relation_tl) && walley_statements(tree, TL_subtl(tl, index_of_then+1, length_of_tl-1));
         }
         // incomplete
         else{
@@ -170,7 +182,7 @@ bool elif_stms(TREE *tree, Token_List *tl){
             int index=TREE_INDEX;
             TREE_addNode(tree, "relation", "");
             return relation(TREE_getTreeAccordingToIndex(tree, index), relation_tl)
-            && walley_statements(TREE_getTreeAccordingToIndex(tree, index), TL_subtl(tl, index_of_then+1, length_of_tl-1));
+            && walley_statements(tree, TL_subtl(tl, index_of_then+1, length_of_tl-1));
 
         }
         // incomplete
@@ -609,7 +621,22 @@ bool def_stms(TREE *tree, Token_List *tl){
  |  assignment
  |  value
  
+ ( walley_statements
+    ( statements
+        ( if)
+        ( simple_relation( <(num 0)(id x))
+            ( statements
+                ( if)
+                ( simple_relation( <(num 3)(id y))
+                    ( statements( =(id x)(num 12)))
+                )
+            )
+        )
+    )
  
+ )
+ 
+
  
  */
 
