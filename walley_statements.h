@@ -69,6 +69,11 @@ now
  |  assignment
  |  expr
  
+ ============
+ func_name_stm -> id
+                | table_value
+ def_stms -> 'def' func_name_stm '(' params ')' 'then' walley_statements 'end'
+ 
 ============
  walley_statements ->
                     | statements, statements        // use sentences_seperation
@@ -360,6 +365,9 @@ bool func_stms(TREE *tree, Token_List *tl){
     return FALSE;
 
 }
+
+
+
 bool end_stm(TREE *tree, Token_List *tl){
     if (INCOMPLETE_STATEMENT) {
         return FALSE;
@@ -370,6 +378,101 @@ bool end_stm(TREE *tree, Token_List *tl){
     }
     return FALSE;
 }
+
+
+/*
+ 
+ func_name_stm -> id
+ | table_value
+ def_stms -> 'def' func_name_stm '(' params ')' 'then' walley_statements 'end'
+
+ ( walley_statements
+    ( statements
+        ( =(id x)
+            ( func_value
+                ( def)( params(id a)(id b))
+                ( statements( return)( +(id a)(id b)))
+                ( statements( end))
+            )
+        )
+    )
+ )
+
+ >>> def add() then return 3+4 end
+
+ ( walley_statements
+    ( statements
+        ( =(id add)
+            ( func_value
+                ( def)( params(id none))
+                ( statements( return)( +(num 3)(num 4)))
+                ( statements( end))
+            )
+        )
+    )
+ )
+ 
+ */
+
+
+
+
+// def_stms -> 'def' func_name_stm '(' params ')' 'then' walley_statements 'end'
+bool def_stms(TREE *tree, Token_List *tl){
+    printf("DEF_STMS\n");
+    if (INCOMPLETE_STATEMENT) {
+        return FALSE;
+    }
+    int length_of_token=TL_length(tl);
+    if (term(tl->current_token.TOKEN_STRING, "def") && term(tl->next->current_token.TOKEN_STRING, "(")==FALSE) {
+        int index_of_then=TL_indexOfTokenThatHasTokenString(tl, "then");
+        int index_of_left_bracket=TL_indexOfTokenThatHasTokenString(tl, "(");
+        if(index_of_then==-1){
+            INCOMPLETE_STATEMENT=TRUE;
+            return FALSE;
+        }
+        
+        if (term(TL_tokenAtIndex(tl, length_of_token-1).TOKEN_STRING, "end")==FALSE) {
+            INCOMPLETE_STATEMENT=TRUE;
+            return FALSE;
+        }
+        
+        Token_List *new_tl;
+        TL_init(&new_tl);
+        
+        int begin=1;
+        int end=index_of_left_bracket;
+        
+        Token_List *temp_tl=tl;
+        int i=0;
+        for (i=0; i<end; i++) {
+            if (i>=begin) {
+                TL_addToken(&new_tl, temp_tl->current_token);
+            }
+            temp_tl=temp_tl->next;
+        }
+        Token add_token;
+        add_token.TOKEN_STRING="=";
+        add_token.TOKEN_CLASS="assignment_operator";
+        TL_addToken(&new_tl, add_token);
+        
+        i=0;
+        for (i=0; i<length_of_token; i++) {
+            if (i>=begin && i<end) {
+                tl=tl->next;
+                continue;
+            }
+            TL_addToken(&new_tl, tl->current_token);
+            tl=tl->next;
+        }
+        
+        return assignment(tree, new_tl);
+    }
+    else{
+        return FALSE;
+    }
+}
+
 //========================
 /*
  
@@ -380,7 +483,8 @@ bool end_stm(TREE *tree, Token_List *tl){
  |  else_stms
  |  while_stms
  |  for_stms
- |  func_stms
+ (|  func_stms    removed)
+ |  def_stms
  |  end_stm
  |  assignment
  |  expr
@@ -400,12 +504,14 @@ bool statements(TREE *tree, Token_List *tl){
         ||else_stms(tree, tl)
         ||while_stms(tree, tl)
         ||for_stms(tree, tl)
-        ||func_stms(tree, tl)
+        // ||func_stms(tree, tl)        removed
+        ||def_stms(tree, tl)
         ||end_stm(tree, tl)
         ||assignment(tree, tl)
         ||expr(tree, tl);
     
 }
+
 
 //walley_statements ->
 //| statements, statements        // use sentences_seperation

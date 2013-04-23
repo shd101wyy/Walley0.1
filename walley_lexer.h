@@ -718,7 +718,7 @@ bool sentences_seperation(Token_List *tl, Token_List **output_tl,int *begin){
         // find end corresponding to that def
         // def (num1,num2) return num1+num2 end
         // then set i to that end
-        if ((term(tl->current_token.TOKEN_STRING, "def")&&term(tl->next->current_token.TOKEN_STRING, "("))){
+        if ((term(tl->current_token.TOKEN_STRING, "def"))){//&&term(tl->next->current_token.TOKEN_STRING, "("))){
             printf("FUNC_VALUE!!!!!!!\n");
             int count=0;
             for (; i<length_of_tl; i++) {
@@ -735,6 +735,15 @@ bool sentences_seperation(Token_List *tl, Token_List **output_tl,int *begin){
                     break;
                 }
                 tl=tl->next;
+            }
+            
+            if (count==0) {
+                int end=i+1;
+                Token_List *ahead_tl=TL_subtl(temp_tl, *begin, end);
+                
+                *output_tl=ahead_tl;
+                *begin=end;
+                return TRUE;
             }
             
             if (count!=0) {

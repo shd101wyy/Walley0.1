@@ -118,7 +118,7 @@ bool func_stms(TREE *tree, Token_List *tl);
 bool end_stm(TREE *tree, Token_List *tl);
 bool statements(TREE *tree, Token_List *tl);
 bool walley_statements(TREE *tree, Token_List *tl);
-
+bool def_stms(TREE *tree, Token_List *tl);
 
 //walley_var
 struct Var;

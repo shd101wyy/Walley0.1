@@ -291,6 +291,9 @@ table_value ->
 //table_value ->
 //      id table_value_key      // behind is [] or '.'
 bool table_value(TREE *tree, Token_List *tl){
+    if (INCOMPLETE_STATEMENT) {
+        return FALSE;
+    }
     printf("TABLE_VALUE=======\n");
     TL_print(tl);
     int length_of_tl=TL_length(tl);
@@ -323,6 +326,9 @@ bool table_value(TREE *tree, Token_List *tl){
  */
 
 bool table_value_key(TREE *tree, Token_List *tl){
+    if (INCOMPLETE_STATEMENT) {
+        return FALSE;
+    }
     int length_of_tl=TL_length(tl);
     
     // [(string|num)value]
