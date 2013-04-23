@@ -51,7 +51,7 @@ if x==1 and x==2:
  
  simple relation -> value judge_sign value
                  -> '(' relation ')'
-                 -> value       (only num, if 0 then false, else true)
+                 -> expr       (only num, if 0 then false, else true)
                  
  
  
@@ -158,18 +158,18 @@ bool simple_relation(TREE *tree, Token_List *tl){
         return relation(tree, TL_subtl(tl, 1, length_of_tl-1));
     }
     // value judge_sign value
-    // value
+    // expr
     else{
         
         tree->name="simple_relation";
         
         int index_of_judge_sign=TL_indexOfTokenThatHasTokenClass(tl, "judge_sign");
         
-        // value
+        // expr
         if (index_of_judge_sign==-1) {
             int index=TREE_INDEX;
             TREE_addNode(tree, "value", "");
-            return value(TREE_getTreeAccordingToIndex(tree, index), tl);
+            return expr(TREE_getTreeAccordingToIndex(tree, index), tl);
         }
         
         

@@ -65,6 +65,7 @@ int TL_indexOfFinalBracket(Token_List *tl, int index_of_first_bracket){
  | func_value
  | func
  (| class_property    remove temp)
+ | relation
  | table_value
  | expr
 
@@ -208,11 +209,12 @@ bool value(TREE *tree, Token_List *tl){
     // func_value
     // func
     // class_property
+    // relation
     // table_value
     // expr
     else{
         printf("ENTER ELSE\n");
-        return func_value(tree, tl)||func(tree, tl)|| /*class_property(tree, tl) ||*/ table_value(tree, tl)||expr(tree, tl);
+        return func_value(tree, tl)||func(tree, tl)|| /*class_property(tree, tl) ||*/ relation(tree,tl) ||table_value(tree, tl)||expr(tree, tl);
     }
 }
 

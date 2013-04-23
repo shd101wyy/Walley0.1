@@ -67,6 +67,7 @@ bool params(TREE *tree, Token_List *tl){
     
     // -> value
     if (index_of_comma==-1) {
+              
         int index=TREE_INDEX;
         TREE_addNode(tree, "value", "");
         return value(TREE_getTreeAccordingToIndex(tree, index), tl);

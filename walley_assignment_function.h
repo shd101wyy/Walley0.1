@@ -91,7 +91,7 @@ bool func_assign(TREE *tree, Token_List *tl){
                 TL_addToken(&params_tl, add_token);
             }
             
-                
+           
             
             return params(TREE_getTreeAccordingToIndex(tree, index), params_tl);
                          
@@ -125,6 +125,8 @@ bool return_stm(TREE *tree, Token_List *tl){
 
 // func_value -> func_assign walley_statements 'end'
 bool func_value(TREE *tree, Token_List *tl){
+   
+    
     if (INCOMPLETE_STATEMENT) {
         return FALSE;
     }
@@ -143,10 +145,10 @@ bool func_value(TREE *tree, Token_List *tl){
             return FALSE;
         }
         
-       
+        
        
         return func_assign(tree, TL_subtl(tl, 0, index_of_then+1))
-        && walley_statements(tree, TL_subtl(tl, index_of_then+1, length_of_tl));
+        && walley_statements(tree, TL_subtl(tl, index_of_then+1, length_of_tl-1));
 
     }
     
