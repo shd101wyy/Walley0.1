@@ -79,7 +79,7 @@ elements -> value ',' elements
  
 */
 
-
+/*
 bool list(TREE *tree, Token_List *tl){
     if (INCOMPLETE_STATEMENT) {
         return FALSE;
@@ -136,7 +136,7 @@ bool list(TREE *tree, Token_List *tl){
     else
         return FALSE;
 }
-
+*/
 
 bool elements(TREE *tree, Token_List *tl){
     if (INCOMPLETE_STATEMENT) {
@@ -213,7 +213,6 @@ bool value(TREE *tree, Token_List *tl){
     // table_value
     // expr
     else{
-        printf("ENTER ELSE\n");
         return func_value(tree, tl)||func(tree, tl)|| /*class_property(tree, tl) ||*/ relation(tree,tl) ||table_value(tree, tl)||expr(tree, tl);
     }
 }

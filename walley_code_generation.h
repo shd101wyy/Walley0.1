@@ -115,13 +115,13 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
 
     
     int CURRENT_VAR_SET_INDEX=VLS_length(LOCAL_VAR_SET);
-    printf("current_var_set_index %d\n",CURRENT_VAR_SET_INDEX);
+    //printf("current_var_set_index %d\n",CURRENT_VAR_SET_INDEX);
     
     bool NOW_LOCAL=FALSE;
     if (SL_length(STATEMENTS_LIST)!=0) {
         NOW_LOCAL=TRUE;
     }
-    printf("NOW_LOCAL %d\n",NOW_LOCAL);
+    //printf("NOW_LOCAL %d\n",NOW_LOCAL);
 
     if (term(tree.name, "walley_statements")){
         Node_List *nl=tree.node_list;
@@ -142,7 +142,6 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
             SL_addString(&STATEMENTS_LIST, "while");
 
             int current_while_index=OL_length(*ol);
-            printf("@@@@ %d\n",current_while_index);
             SL_addString(&WHILE_LIST_OL_INDEX, intToCString(current_while_index));
             
             // begin new local registers
@@ -789,7 +788,7 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
                 int var_set_index;
                 getValue(nl->node, &var_set_index, &var_name_address);
                 
-                printf("var_set_index %d    var_name_adderss %s\n",var_set_index,var_name_address);
+                //printf("var_set_index %d    var_name_adderss %s\n",var_set_index,var_name_address);
                 
                 int current__offset;
                 int value__offset;

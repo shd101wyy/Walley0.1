@@ -657,7 +657,7 @@ char* Walley_Analyze_Token_Class(char *input_str, int i, int *end){
 
 
 struct TL * Walley_Lexical_Analyzie(char *input_str){
-    printf("Begin to Analyze %s\n",input_str);
+    //printf("Begin to Analyze %s\n",input_str);
     
     int i=0;
     int length=(int)strlen(input_str);
@@ -743,7 +743,6 @@ bool sentences_seperation(Token_List *tl, Token_List **output_tl,int *begin){
         if (term(tl->current_token.TOKEN_STRING, "def")||
             term(tl->current_token.TOKEN_STRING, "for")||
             term(tl->current_token.TOKEN_STRING, "while")){//&&term(tl->next->current_token.TOKEN_STRING, "("))){
-            printf("def for while!!!!\n");
             int count=0;
             for (; i<length_of_tl; i++) {
                 if (term(tl->current_token.TOKEN_STRING, "def")

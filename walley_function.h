@@ -39,7 +39,6 @@ bool params(TREE *tree, Token_List *tl){
     }
     // has no params
     if (tl==NULL) {
-        printf("NO PARAMS\n");
         return TRUE;
     }
     int length_of_tl=TL_length(tl);
@@ -110,7 +109,6 @@ bool params(TREE *tree, Token_List *tl){
 }
 
 bool func(TREE *tree, Token_List *tl){
-    printf("FUNC===\n");
     if (INCOMPLETE_STATEMENT) {
         return FALSE;
     }

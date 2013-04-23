@@ -186,7 +186,7 @@ bool table_expr(TREE *tree, Token_List *tl,int *key_index){
     //    |'[' (string|int) ']' '=' (value)
     else if (term(tl->current_token.TOKEN_CLASS, "list_table") && term(tl->next->current_token.TOKEN_STRING, "=")){
         // THIS PLACE HAS SOME PROBLEM
-        printf("'[' (string|int) ']' '=' (value)  HAS NOT BEEN IMPLEMENTED\n");
+        //printf("'[' (string|int) ']' '=' (value)  HAS NOT BEEN IMPLEMENTED\n");
         
         int length=(int)strlen(tl->current_token.TOKEN_STRING);
         char *string_inside=(char*)malloc(sizeof(char)*(length-2+1));
@@ -310,8 +310,7 @@ bool table_value(TREE *tree, Token_List *tl){
     if (INCOMPLETE_STATEMENT) {
         return FALSE;
     }
-    printf("TABLE_VALUE=======\n");
-    TL_print(tl);
+   
     int length_of_tl=TL_length(tl);
     /*
      id table_value_key

@@ -72,7 +72,6 @@ bool func_assign(TREE *tree, Token_List *tl){
             exit(0);
         }
         else{
-            printf("ENTER HERE %d\n",index_of_right);
             TREE_addNode(tree, "def", "");
             int index=TREE_INDEX;
             TREE_addNode(tree, "params", "");
@@ -130,7 +129,6 @@ bool func_value(TREE *tree, Token_List *tl){
     if (INCOMPLETE_STATEMENT) {
         return FALSE;
     }
-    TL_print(tl);
     int length_of_tl=TL_length(tl);
     if (term(tl->current_token.TOKEN_STRING, "def")&&term(TL_tokenAtIndex(tl, length_of_tl-1).TOKEN_STRING, "end")) {
         //int index1=TREE_INDEX;
@@ -140,7 +138,6 @@ bool func_value(TREE *tree, Token_List *tl){
         
         int index_of_then=TL_indexOfTokenThatHasTokenString(tl, "then");
         if (index_of_then==-1) {
-            printf("FUNC VALUE  did not find then\n");
             INCOMPLETE_STATEMENT=TRUE;
             return FALSE;
         }

@@ -31,6 +31,7 @@
                 | table_value
 */
 
+/*
 bool class_property(TREE *tree, Token_List *tl){
     if (INCOMPLETE_STATEMENT) {
         return FALSE;
@@ -116,3 +117,4 @@ bool class_property(TREE *tree, Token_List *tl){
         }
     }
 }
+*/

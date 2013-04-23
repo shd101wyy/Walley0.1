@@ -42,9 +42,7 @@ bool assignment(TREE *tree, Token_List *tl){
     if (INCOMPLETE_STATEMENT) {
         return FALSE;
     }
-    printf("CHECK ASSIGNMENT\n");
-    TL_print(tl);
-    printf("END PRINT TL\n");
+    
     // | 'local' var_name '=' var_value
     bool is_local=FALSE;
     if (term(tl->current_token.TOKEN_STRING, "local")) {
@@ -80,7 +78,6 @@ bool assignment(TREE *tree, Token_List *tl){
     }
     
     else{
-        printf("ENTER HERE\n");
         
         int length_of_tl=TL_length(tl);
 
@@ -130,9 +127,9 @@ bool assignment(TREE *tree, Token_List *tl){
             
             
             
-            char *var_name_str=var_name_nl->node.name;
+            //char *var_name_str=var_name_nl->node.name;
             //char *var_value_str=var_value_nl->node.name;
-            printf("now_var_name---> %s\n",var_name_str);
+            //printf("now_var_name---> %s\n",var_name_str);
             //printf("now_var_value---> %s\n",var_value_str);
             
             // local variable
@@ -164,7 +161,7 @@ bool assignment(TREE *tree, Token_List *tl){
         return TRUE;
     }
 }
-
+/*
 bool list_s(TREE *tree, Token_List *tl){
     if (INCOMPLETE_STATEMENT) {
         return FALSE;
@@ -195,6 +192,7 @@ bool list_s(TREE *tree, Token_List *tl){
         && list_s(TREE_getTreeAccordingToIndex(tree, index2), tl->next);
     }
 }
+ */
 /*
  var_name->var_name ',' var_name
  | id
@@ -279,8 +277,6 @@ bool var_value(TREE *tree, Token_List *tl){
         return FALSE;
     }
     
-    printf("INDEX_OF_COMMA ----> %d\n",index_of_comma);
-    
     
     tl=temp_tl;
     
@@ -304,8 +300,6 @@ bool var_value(TREE *tree, Token_List *tl){
     }
     //value
     else{
-        printf("ENTER HERE VALUE\n");
-        TL_print(tl);
         int index_of_tl=TREE_INDEX;
         TREE_addNode(tree,"value","");
 

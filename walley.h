@@ -45,7 +45,7 @@ void Walley_Run(){
             begin=FALSE;
             
             char *saved_string=SL_toString(saved_str_list);
-            printf("SAVED_STRING---> %s\n",saved_string);
+            //printf("SAVED_STRING---> %s\n",saved_string);
             
             // reinitialize saved_str_list
             SL_initSL(&saved_str_list);
@@ -66,7 +66,7 @@ void Walley_Run(){
         
         // incomplete statements
         if (COUNT_THEN_END!=0 || INCOMPLETE_STATEMENT) {
-            printf("COUNT_THEN_END-->%d incomplete \n",COUNT_THEN_END);
+            //printf("COUNT_THEN_END-->%d incomplete \n",COUNT_THEN_END);
             begin=TRUE;
             
             // append space after input_str
@@ -80,14 +80,14 @@ void Walley_Run(){
             continue;
         }
         
-        printf("Token_List===============\n");
-        TL_print(tl);
+        //printf("Token_List===============\n");
+        //TL_print(tl);
         
         TREE syntax_tree=parser(tl);
         
         // incomplete statements
         if (COUNT_THEN_END!=0 || INCOMPLETE_STATEMENT) {
-            printf("COUNT_THEN_END-->%d incomplete \n",COUNT_THEN_END);
+            //printf("COUNT_THEN_END-->%d incomplete \n",COUNT_THEN_END);
             begin=TRUE;
             
             // append space after input_str
@@ -101,14 +101,30 @@ void Walley_Run(){
             continue;
         }
 
+        
+        printf("==========\n");
+        if (NOW_FUNCTION) {
+            Code_Generation(syntax_tree, &(FUNCTION_LIST->current_ol),&(FUNCTION_LIST->next_in_function));
+        }
+        
+        else{
+            Code_Generation(syntax_tree, &OPERATION_LIST,&FUNCTION_LIST);
+        }
+        
     
+        
+        printf("\n\nFUNCTION_LIST===========\n");
+        FL_print(FUNCTION_LIST);
+        printf("OPERATION_LIST============\n");
+        
+        OL_print(OPERATION_LIST);
     }
 }
 
 
 void Test(char *input_str){
     char *to_analyze_str=input_str;
-    printf("input_str--------> %s\n",input_str);
+    //printf("input_str--------> %s\n",input_str);
     struct TL *tl=Walley_Lexical_Analyzie(to_analyze_str);
     TL_print(tl);
     TREE output_tree=parser(tl);

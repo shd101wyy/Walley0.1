@@ -551,7 +551,6 @@ bool end_stm(TREE *tree, Token_List *tl){
 
 // def_stms -> 'def' func_name_stm '(' params ')' 'then' walley_statements 'end'
 bool def_stms(TREE *tree, Token_List *tl){
-    printf("DEF_STMS\n");
     if (INCOMPLETE_STATEMENT) {
         return FALSE;
     }
@@ -674,9 +673,7 @@ bool walley_statements(TREE *tree, Token_List *tl){
         if (INCOMPLETE_STATEMENT) {
             return FALSE;
         }
-        printf("@============\n");
-        TL_print(temp_tl);
-        printf("@@============\n");
+        
         int index=TREE_INDEX;
         TREE_addNode(tree, "statements", "");
         if (!statements(TREE_getTreeAccordingToIndex(tree, index), temp_tl)) {
