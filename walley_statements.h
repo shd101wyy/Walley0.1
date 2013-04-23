@@ -92,7 +92,7 @@ now
  |  func_stms
  |  end_stm
  |  assignment
- |  expr
+ |  value
  
  ============
  func_name_stm -> id
@@ -607,7 +607,7 @@ bool def_stms(TREE *tree, Token_List *tl){
  |  def_stms
  |  end_stm
  |  assignment
- |  expr
+ |  value
  
  
  
@@ -628,7 +628,7 @@ bool statements(TREE *tree, Token_List *tl){
         ||def_stms(tree, tl)
         ||end_stm(tree, tl)
         ||assignment(tree, tl)
-        ||expr(tree, tl);
+        ||value(tree, tl);
     
 }
 

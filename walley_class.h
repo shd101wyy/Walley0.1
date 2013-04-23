@@ -9,6 +9,8 @@
 
 /*
  
+ // I GIVE UP THIS PART
+ 
  a.value
  a.length()
  a.value.length()
@@ -26,6 +28,7 @@
                 | string
                 | list
                 | table
+                | table_value
 */
 
 bool class_property(TREE *tree, Token_List *tl){

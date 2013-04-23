@@ -20,8 +20,8 @@
  | '<='
  | '!='
  
- true_flase -> 'True'
- | 'False'
+ true_flase -> 'true'
+ | 'false'
  
  relation ->  'and'
  |'or'
@@ -51,6 +51,8 @@ if x==1 and x==2:
  
  simple relation -> value judge_sign value
                  -> '(' relation ')'
+                 -> value       (only num, if 0 then false, else true)
+                 
  
  
  
@@ -156,15 +158,22 @@ bool simple_relation(TREE *tree, Token_List *tl){
         return relation(tree, TL_subtl(tl, 1, length_of_tl-1));
     }
     // value judge_sign value
+    // value
     else{
         
         tree->name="simple_relation";
         
         int index_of_judge_sign=TL_indexOfTokenThatHasTokenClass(tl, "judge_sign");
+        
+        // value
         if (index_of_judge_sign==-1) {
-            return FALSE;
+            int index=TREE_INDEX;
+            TREE_addNode(tree, "value", "");
+            return value(TREE_getTreeAccordingToIndex(tree, index), tl);
         }
         
+        
+        // value judge_sign value
         Token_List *tl1=TL_subtl(tl, 0, index_of_judge_sign);
         Token_List *tl2=TL_subtl(tl, index_of_judge_sign+1, length_of_tl);
         

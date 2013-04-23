@@ -95,7 +95,7 @@ bool func(TREE *tree, Token_List *tl){
     int index_of_right=length_of_tl-1;
     
     // false
-    if (strcmp(TL_tokenAtIndex(tl, length_of_tl-1).TOKEN_STRING,")")!=0||index_of_left==-1) {
+    if (strcmp(TL_tokenAtIndex(tl, length_of_tl-1).TOKEN_STRING,")")!=0||index_of_left==-1||index_of_left==0) {
         return FALSE;
     }
     else{

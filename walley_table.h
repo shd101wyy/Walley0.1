@@ -276,20 +276,36 @@ bool table(TREE *tree, Token_List *tl,int *key_index){
 //====================================================
 /*
 
-table_value_key->
+ table_value_key->
  | [(string|num)value]
  | '.' id
+ | '.' func
+ | '.' func table_value_key                            // behind is [] or '.'
  | [(string|num)value] table_value_key                 // behind is [] or '.'
  | '.' id table_value_key                              // behind is [] or '.'
  
 table_value ->
             id table_value_key
  
+        // new support 
+            string table_value_key              // "hello".length()
+            list_table table_value_key          // [1,2,3].length()
+            num table_value_key                 //  13.toString()
+            expr table_value_key                //  ("He"+"llo").length() where expr can only be  inside '()' 
 
 */
 
-//table_value ->
-//      id table_value_key      // behind is [] or '.'
+/*
+ table_value ->
+        id table_value_key
+ 
+        // new support
+        string table_value_key              // "hello".length()
+        list_table table_value_key          // [1,2,3].length()
+        num table_value_key                 //  13.toString()
+        expr table_value_key                //  ("He"+"llo").length()   where expr can only be  inside '()' 
+
+ */
 bool table_value(TREE *tree, Token_List *tl){
     if (INCOMPLETE_STATEMENT) {
         return FALSE;
@@ -297,17 +313,73 @@ bool table_value(TREE *tree, Token_List *tl){
     printf("TABLE_VALUE=======\n");
     TL_print(tl);
     int length_of_tl=TL_length(tl);
-    if (length_of_tl>=2 && term(tl->current_token.TOKEN_CLASS, "id")&&
+    /*
+     id table_value_key
+     
+     // new support
+     string table_value_key              // "hello".length()
+     list_table table_value_key          // [1,2,3].length()
+     num table_value_key                 //  13.toString()
+     */
+    if (length_of_tl>=2 &&
+        (term(tl->current_token.TOKEN_CLASS, "id")
+         ||term(tl->current_token.TOKEN_CLASS, "string")
+         ||term(tl->current_token.TOKEN_CLASS, "list_table")
+         ||term(tl->current_token.TOKEN_CLASS, "num")
+        )
+        &&
         (term(tl->next->current_token.TOKEN_STRING, ".")||term(tl->next->current_token.TOKEN_CLASS, "list_table"))
         ) {
         int index=TREE_INDEX;
         TREE_addNode(tree, "table_value", "");
         
         
-        TREE_addNode(TREE_getTreeAccordingToIndex(tree, index), tl->current_token.TOKEN_STRING, "id");
+        TREE_addNode(TREE_getTreeAccordingToIndex(tree, index), tl->current_token.TOKEN_STRING, tl->current_token.TOKEN_CLASS);
         return table_value_key(TREE_getTreeAccordingToIndex(tree, index), TL_subtl(tl, 1, length_of_tl));
     }
     else{
+        if (term(tl->current_token.TOKEN_STRING, "(")) {
+            
+           
+           
+            int index_of_right=-1;
+            Token_List *temp_tl=tl;
+            int i=0;
+            int count=0;
+            for (; i<length_of_tl; i++) {
+                if (term(temp_tl->current_token.TOKEN_STRING, "(")) {
+                    count++;
+                }
+                else if (term(temp_tl->current_token.TOKEN_STRING, ")")) {
+                    count--;
+                }
+                if (count==0) {
+                    index_of_right=i;
+                    break;
+                }
+                temp_tl=temp_tl->next;
+            }
+            
+            
+          
+            
+            if (index_of_right==-1) {
+                return FALSE;
+            }
+            else{
+                int index=TREE_INDEX;
+                TREE_addNode(tree, "table_value", "");
+               
+                int index2=TREE_INDEX;
+                TREE_addNode(TREE_getTreeAccordingToIndex(tree, index), "expr", "");
+               
+                return expr(TREE_getTreeAccordingToIndex(tree, index2), TL_subtl(tl, 0, index_of_right+1))&&
+                table_value_key(TREE_getTreeAccordingToIndex(tree, index), TL_subtl(tl, index_of_right+1, length_of_tl));
+            }
+        }
+        
+        
+        
         return FALSE;
     }
 }
@@ -319,9 +391,10 @@ bool table_value(TREE *tree, Token_List *tl){
  table_value_key->
  | [(string|num)value]
  | '.' id
+ | '.' func
+ | '.' func table_value_key                            // behind is [] or '.'
  | [(string|num)value] table_value_key                 // behind is [] or '.'
  | '.' id table_value_key                              // behind is [] or '.'
- 
  
  */
 
@@ -369,6 +442,45 @@ bool table_value_key(TREE *tree, Token_List *tl){
         TREE_addTree(TREE_getTreeAccordingToIndex(tree, index1),key_tree);
         
         return TRUE;
+    }
+    //| '.' func
+    //| '.' func table_value_key                            // behind is [] or '.'
+    else if (length_of_tl>=4 && term(tl->current_token.TOKEN_STRING,".")&&term(tl->next->current_token.TOKEN_CLASS, "id") && term(tl->next->next->current_token.TOKEN_STRING, "(")){
+        
+        //| '.' func
+        if (term(TL_tokenAtIndex(tl, length_of_tl-1).TOKEN_STRING, ")")) {
+            int index1=TREE_INDEX;
+            TREE_addNode(tree, "key", "");
+            
+            return func(TREE_getTreeAccordingToIndex(tree, index1), TL_subtl(tl, 1, length_of_tl));
+        }
+        
+        //| '.' func table_value_key                            // behind is [] or '.'
+        else{
+            Token_List *temp_tl=tl;
+            int count=0;
+            int i=2;
+            int index_of_right=-1;
+            for (; i<length_of_tl; i++) {
+                if (term(tl->current_token.TOKEN_STRING, "(")) {
+                    count++;
+                }
+                else if (term(tl->current_token.TOKEN_STRING, ")")){
+                    count--;
+                }
+                if (count==0) {
+                    index_of_right=i;
+                }
+                temp_tl=temp_tl->next;
+            }
+            if (index_of_right==-1) {
+                INCOMPLETE_STATEMENT=TRUE;
+                return FALSE;
+            }
+            return table_value(tree, TL_subtl(tl, 0, index_of_right+1))&&table_value(tree, TL_subtl(tl, index_of_right+1, length_of_tl));
+        }
+       
+        
     }
     //| [(string|num)value] table_value_key
     else if (length_of_tl>=2 && term(tl->current_token.TOKEN_CLASS, "list_table") &&

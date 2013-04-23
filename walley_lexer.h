@@ -568,21 +568,36 @@ char* Walley_Analyze_Token_Class(char *input_str, int i, int *end){
     if (isdigit(input_str[i])) {
         int a=i+1;
         int find_dot=FALSE;
+        int index_of_first_dot=-1;
         for (; a<length; a++) {
             if (input_str[a]=='.' && find_dot==FALSE) {
                 find_dot=TRUE;
+                index_of_first_dot=a;
                 continue;
             }
             if (input_str[a]=='.' && find_dot==TRUE) {
-                Walley_Print_Error(input_str, "invalide number", a);
+                // 1.2.3
+                if (isdigit(input_str[a+1])) {
+                    Walley_Print_Error(input_str, "invalide number", a);
+                }
+                // 1.2.toString
+                // problem:
+                // 1.2.3ToString()   func_name 3ToString
+                else{
+                    *end=a;
+                    return "num";
+                }
             }
             if (!isdigit(input_str[a])) {
                 break;
             }
         }
-        
+        if (find_dot==TRUE && !isdigit(input_str[index_of_first_dot+1])) {
+            *end=index_of_first_dot;
+            return "num";
+        }
         if (a!=length&&isalpha(input_str[a])) {
-            Walley_Print_Error(input_str, "Invalid Syntave", a);
+            Walley_Print_Error(input_str, "Invalid Syntax", a);
         }
         
         *end=a;
