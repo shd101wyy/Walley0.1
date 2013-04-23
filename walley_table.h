@@ -447,8 +447,33 @@ bool table_value_key(TREE *tree, Token_List *tl){
     //| '.' func table_value_key                            // behind is [] or '.'
     else if (length_of_tl>=4 && term(tl->current_token.TOKEN_STRING,".")&&term(tl->next->current_token.TOKEN_CLASS, "id") && term(tl->next->next->current_token.TOKEN_STRING, "(")){
         
+        // find index_of_right
+        Token_List *temp_tl=tl;
+        int count=0;
+        int i=2;
+        temp_tl=temp_tl->next->next;
+        int index_of_right=-1;
+        for (; i<length_of_tl; i++) {
+            if (term(temp_tl->current_token.TOKEN_STRING, "(")) {
+                count++;
+            }
+            else if (term(temp_tl->current_token.TOKEN_STRING, ")")){
+                count--;
+            }
+            if (count==0) {
+                index_of_right=i;
+                break;
+            }
+            temp_tl=temp_tl->next;
+        }
+        if (index_of_right==-1) {
+            INCOMPLETE_STATEMENT=TRUE;
+            return FALSE;
+        }
+
+        
         //| '.' func
-        if (term(TL_tokenAtIndex(tl, length_of_tl-1).TOKEN_STRING, ")")) {
+        if (index_of_right==length_of_tl-1) {
             int index1=TREE_INDEX;
             TREE_addNode(tree, "key", "");
             
@@ -457,27 +482,9 @@ bool table_value_key(TREE *tree, Token_List *tl){
         
         //| '.' func table_value_key                            // behind is [] or '.'
         else{
-            Token_List *temp_tl=tl;
-            int count=0;
-            int i=2;
-            int index_of_right=-1;
-            for (; i<length_of_tl; i++) {
-                if (term(tl->current_token.TOKEN_STRING, "(")) {
-                    count++;
-                }
-                else if (term(tl->current_token.TOKEN_STRING, ")")){
-                    count--;
-                }
-                if (count==0) {
-                    index_of_right=i;
-                }
-                temp_tl=temp_tl->next;
-            }
-            if (index_of_right==-1) {
-                INCOMPLETE_STATEMENT=TRUE;
-                return FALSE;
-            }
-            return table_value(tree, TL_subtl(tl, 0, index_of_right+1))&&table_value(tree, TL_subtl(tl, index_of_right+1, length_of_tl));
+            
+            
+            return table_value_key(tree, TL_subtl(tl, 0, index_of_right+1))&&table_value_key(tree, TL_subtl(tl, index_of_right+1, length_of_tl));
         }
        
         
