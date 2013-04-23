@@ -21,8 +21,15 @@
 
 /*
  
+ version 1.0
  params-> value ',' params
        -> value
+ 
+ version 2.0
+ params-> assignment ',' params
+        | value ',' params
+        | assignment
+        | value
  
  */
 
@@ -65,23 +72,40 @@ bool params(TREE *tree, Token_List *tl){
     }
     tl=temp_tl;
     
+    // -> assignment
     // -> value
     if (index_of_comma==-1) {
-              
-        int index=TREE_INDEX;
-        TREE_addNode(tree, "value", "");
-        return value(TREE_getTreeAccordingToIndex(tree, index), tl);
+        
+        if (assignment(tree, tl)) {
+            return TRUE;
+        }
+        else{
+            
+            int index=TREE_INDEX;
+            TREE_addNode(tree, "value", "");
+            
+            
+            return  //assignment(TREE_getTreeAccordingToIndex(tree, index), tl)
+            value(TREE_getTreeAccordingToIndex(tree, index), tl);
+        }
+      
     }
-    // -> params ',' params
+    // -> assignment ',' params
+    // -> value ',' params
     else{
         Token_List *tl1=TL_subtl(tl, 0, index_of_comma);
         Token_List *tl2=TL_subtl(tl, index_of_comma+1, length_of_tl);
-        int index_of_tl1=TREE_INDEX;
-        TREE_addNode(tree, "value","");
-        //int index_of_tl2=TREE_INDEX;
-        //TREE_addNode(tree, "params", "");
-        return value(TREE_getTreeAccordingToIndex(tree, index_of_tl1), tl1)
-        && params(tree,tl2);
+        
+        if (assignment(tree, tl1)) {
+            return params(tree, tl2);
+        }
+        else{
+        
+            int index_of_tl1=TREE_INDEX;
+            TREE_addNode(tree, "value","");
+            return value(TREE_getTreeAccordingToIndex(tree, index_of_tl1), tl1)
+            && params(tree,tl2);
+        }
     }
 }
 

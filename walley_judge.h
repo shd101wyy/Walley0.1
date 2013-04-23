@@ -167,9 +167,9 @@ bool simple_relation(TREE *tree, Token_List *tl){
         
         // expr
         if (index_of_judge_sign==-1) {
-            int index=TREE_INDEX;
-            TREE_addNode(tree, "value", "");
-            return expr(TREE_getTreeAccordingToIndex(tree, index), tl);
+            //int index=TREE_INDEX;
+            //TREE_addNode(tree, "value", "");
+            return expr(tree, tl);
         }
         
         

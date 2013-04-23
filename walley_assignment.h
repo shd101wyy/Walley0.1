@@ -54,12 +54,18 @@ bool assignment(TREE *tree, Token_List *tl){
     Token_List *temp_tl=tl;
 
     
-    
+    int count_of_bracket=0;
     int count_of_equal=0;
     int index_of_equal;
     int i=0;
     while (tl->next!=NULL) {
-        if (strcmp(tl->current_token.TOKEN_STRING, "=")==0) {
+        if (term(tl->current_token.TOKEN_STRING, "(")) {
+            count_of_bracket+=1;
+        }
+        else if (term(tl->current_token.TOKEN_STRING, ")")){
+            count_of_bracket-=1;
+        }
+        if (count_of_bracket==0&&strcmp(tl->current_token.TOKEN_STRING, "=")==0) {
             count_of_equal++;
             index_of_equal=i;
         }
