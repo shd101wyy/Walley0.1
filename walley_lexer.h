@@ -743,6 +743,19 @@ bool sentences_seperation(Token_List *tl, Token_List **output_tl,int *begin){
         if (term(tl->current_token.TOKEN_STRING, "def")||
             term(tl->current_token.TOKEN_STRING, "for")||
             term(tl->current_token.TOKEN_STRING, "while")){//&&term(tl->next->current_token.TOKEN_STRING, "("))){
+            
+            // return ahead Token_List
+            if (*begin!=i) {
+                
+                int end=i;
+                Token_List *ahead_tl=TL_subtl(temp_tl, *begin, end);
+                
+                *begin=end;
+                *output_tl=ahead_tl;
+                return TRUE;
+            }
+
+            
             int count=0;
             for (; i<length_of_tl; i++) {
                 if (term(tl->current_token.TOKEN_STRING, "def")
@@ -784,6 +797,19 @@ bool sentences_seperation(Token_List *tl, Token_List **output_tl,int *begin){
         // if no 'end' found--- incomplete
         // if find 'elif' or 'else', add 'end' manually
         if (term(tl->current_token.TOKEN_STRING, "if")) {
+            
+            // return ahead Token_List
+            if (*begin!=i) {
+                
+                int end=i;
+                Token_List *ahead_tl=TL_subtl(temp_tl, *begin, end);
+                
+                *begin=end;
+                *output_tl=ahead_tl;
+                return TRUE;
+            }
+            
+            
             int count_of_if=0;
             int count_of_end=0;
             for (; i<length_of_tl; i++) {
