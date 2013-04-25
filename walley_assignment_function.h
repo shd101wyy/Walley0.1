@@ -112,11 +112,12 @@ bool return_stm(TREE *tree, Token_List *tl){
     }
     int length_of_tl=TL_length(tl);
     if (length_of_tl>=2 && term(tl->current_token.TOKEN_STRING, "return")) {
+        int index1=TREE_INDEX;
         TREE_addNode(tree, "return", "");
-        int index=TREE_INDEX;
-        TREE_addNode(tree, "value", "");
+        int index2=TREE_INDEX;
+        TREE_addNode(TREE_getTreeAccordingToIndex(tree, index1), "value", "");
         
-        return value(TREE_getTreeAccordingToIndex(tree, index),TL_subtl(tl, 1, length_of_tl));
+        return value(TREE_getTreeAccordingToIndex(tree, index2),TL_subtl(tl, 1, length_of_tl));
     }
     return FALSE;
 }

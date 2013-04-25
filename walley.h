@@ -104,7 +104,7 @@ void Walley_Run(){
 
         
         
-        printf("==========\n");
+        printf("\n==========\n");
         if (NOW_FUNCTION) {
             Code_Generation(syntax_tree, &(FUNCTION_LIST->current_ol),&(FUNCTION_LIST->next_in_function));
         }

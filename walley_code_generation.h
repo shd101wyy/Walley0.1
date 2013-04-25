@@ -140,6 +140,24 @@ void getValue(TREE tree, int *var_set_index, char **var_value){
 )
  
  
+ add = def (a,b) then return a+b end
+
+( walley_statements
+    ( statements
+        ( =
+            (id add)
+            ( func_value
+                ( def)
+                ( params(id a)(id b))
+                ( statements
+                    ( return
+                        ( +(id a)(id b))
+                    )
+                )
+            )
+        )
+    )
+ )
  
  */
 void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
@@ -211,6 +229,7 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
         // if statements
         else if (term(nl->node.name, "if")) {
             SL_addString(&STATEMENTS_LIST, "if");
+            printf("ADD If\n");
 
             
             // begin new local registers
@@ -308,6 +327,31 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
             
             return;
         }
+        
+        /*
+         
+         x=12 if x>1 then x=11 else x=15 end
+         ( walley_statements
+            ( statements
+                ( =(id x)(num 12))
+            )
+            ( statements
+                ( if)
+                ( simple_relation( <(num 1)(id x)))
+                ( statements
+                    ( =(id x)(num 11))
+                )
+                ( end)
+            )
+            ( statements
+                ( else)
+                ( statements( =(id x)(num 15)))
+                ( end)
+            )
+        )
+         
+         
+         */
         else if (term(nl->node.name, "else")){
             
             
@@ -379,9 +423,6 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
             SL_addString(&LOCAL_OFFSET_LIST, intToCString(LOCAL_OFFSET));
             LOCAL_OFFSET=0;
             
-
-            // backup local offset
-            SL_addString(&LOCAL_OFFSET_LIST, intToCString(LOCAL_OFFSET));
 
 
             
@@ -772,6 +813,28 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
         return;
     }
     
+    /*
+     
+     x=[1,2]
+     ( walley_statements
+        ( statements
+            ( =
+                (id x)
+                (table [1,2]
+                    ( table_expr
+                        ( key(num 0))
+                        (num 1)
+                    )
+                    ( table_expr
+                        ( key(num 1))
+                        (num 2)
+                    )
+                )
+            )
+        )
+     )
+     
+     */
     //table_expr
     if (term(tree.name, "table_expr")) {
         TREE value_tree=tree.node_list->next->node;
@@ -779,7 +842,7 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
         // value
         
         // table
-        if (term(value_tree.node_list->node.token_class,"table")) {
+        if (value_tree.node_list!=NULL && term(value_tree.node_list->node.token_class,"table")) {
             Code_Generation(value_tree, ol,fl);
         }
         // not table
@@ -829,7 +892,7 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
         else{
             IS_LOCAL_VAR=FALSE;
         }
-        NL_print(nl);
+        //NL_print(nl);
         // x=12+3
         if (length_of_nl==2||(length_of_nl==3&&IS_LOCAL_VAR)) {
             // global

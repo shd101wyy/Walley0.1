@@ -78,7 +78,7 @@
 
 
 bool expr(TREE *tree, Token_List *tl){
-    printf("EXPR=====\n");
+
     if (INCOMPLETE_STATEMENT) {
         return FALSE;
     }

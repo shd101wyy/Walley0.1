@@ -184,7 +184,7 @@ bool table_expr(TREE *tree, Token_List *tl,int *key_index){
     }
     //              0           1       2
     //    |'[' (string|int) ']' '=' (value)
-    else if (term(tl->current_token.TOKEN_CLASS, "list_table") && term(tl->next->current_token.TOKEN_STRING, "=")){
+    else if (term(tl->current_token.TOKEN_CLASS, "list_table") && tl->next!=NULL && term(tl->next->current_token.TOKEN_STRING, "=")){
         // THIS PLACE HAS SOME PROBLEM
         //printf("'[' (string|int) ']' '=' (value)  HAS NOT BEEN IMPLEMENTED\n");
         

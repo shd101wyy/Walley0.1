@@ -746,13 +746,17 @@ bool sentences_seperation(Token_List *tl, Token_List **output_tl,int *begin){
             
             // return ahead Token_List
             if (*begin!=i) {
+                if (term(tl->current_token.TOKEN_STRING, "def")&&term(tl->next->current_token.TOKEN_STRING, "(")) {
+                    
+                }
+                else{
+                    int end=i;
+                    Token_List *ahead_tl=TL_subtl(temp_tl, *begin, end);
                 
-                int end=i;
-                Token_List *ahead_tl=TL_subtl(temp_tl, *begin, end);
-                
-                *begin=end;
-                *output_tl=ahead_tl;
-                return TRUE;
+                    *begin=end;
+                    *output_tl=ahead_tl;
+                    return TRUE;
+                }
             }
 
             
