@@ -144,7 +144,7 @@ bool if_stms(TREE *tree, Token_List *tl){
             TREE_addNode(tree, "if", "");
             int index=TREE_INDEX;
             TREE_addNode(tree, "relation", "");
-            return relation(TREE_getTreeAccordingToIndex(tree, index), relation_tl) && walley_statements(tree, TL_subtl(tl, index_of_then+1, length_of_tl-1)) && end_stm(tree, TL_subtl(tl, length_of_tl-1, length_of_tl));
+            return relation(TREE_getTreeAccordingToIndex(tree, index), relation_tl) && walley_statements(tree, TL_subtl(tl, index_of_then+1, length_of_tl-1));
         }
         // incomplete
         else{
@@ -182,8 +182,7 @@ bool elif_stms(TREE *tree, Token_List *tl){
             int index=TREE_INDEX;
             TREE_addNode(tree, "relation", "");
             return relation(TREE_getTreeAccordingToIndex(tree, index), relation_tl)
-            && walley_statements(tree, TL_subtl(tl, index_of_then+1, length_of_tl-1))
-            && end_stm(tree, TL_subtl(tl, length_of_tl-1, length_of_tl));
+            && walley_statements(tree, TL_subtl(tl, index_of_then+1, length_of_tl-1));
 
         }
         // incomplete
@@ -211,8 +210,7 @@ bool else_stms(TREE *tree, Token_List *tl){
     if (term(tl->current_token.TOKEN_STRING, "else")) {
         if (term(TL_tokenAtIndex(tl, length_of_tl-1).TOKEN_STRING, "end")) {
             TREE_addNode(tree, "else", "");
-            return walley_statements(tree, TL_subtl(tl, 1, length_of_tl-1))
-            && end_stm(tree, TL_subtl(tl, length_of_tl-1, length_of_tl));
+            return walley_statements(tree, TL_subtl(tl, 1, length_of_tl-1));
         }
         else{
             INCOMPLETE_STATEMENT=TRUE;
@@ -507,6 +505,7 @@ bool func_stms(TREE *tree, Token_List *tl){
 
 
 bool end_stm(TREE *tree, Token_List *tl){
+    
     if (INCOMPLETE_STATEMENT) {
         return FALSE;
     }
@@ -594,17 +593,19 @@ bool def_stms(TREE *tree, Token_List *tl){
         add_token.TOKEN_CLASS="assignment_operator";
         TL_addToken(&new_tl, add_token);
         
+        temp_tl=tl;
         i=0;
         for (i=0; i<length_of_tl; i++) {
             if (i>=begin && i<end) {
-                tl=tl->next;
+                temp_tl=temp_tl->next;
                 continue;
             }
-            TL_addToken(&new_tl, tl->current_token);
-            tl=tl->next;
+            TL_addToken(&new_tl, temp_tl->current_token);
+            temp_tl=temp_tl->next;
         }
         
-        return assignment(tree, new_tl)&& end_stm(tree, TL_subtl(tl, length_of_tl-1, length_of_tl));
+               
+        return assignment(tree, new_tl);
     }
     else{
         return FALSE;

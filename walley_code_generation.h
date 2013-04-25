@@ -108,7 +108,7 @@ void getValue(TREE tree, int *var_set_index, char **var_value){
 
 /*
  x=12 if x>3 then x=15 end
- ( walley_statements
+( walley_statements
     ( statements
         ( =(id x)(num 12))
     )
@@ -118,31 +118,58 @@ void getValue(TREE tree, int *var_set_index, char **var_value){
         ( statements
             ( =(id x)(num 15))
         )
-        ( end)
     )
+    ( statements( end))
  )
  
+ 
  x=12 if x>=1 and x<20 then x=15 end
- ( walley_statements
+( walley_statements
     ( statements
         ( =(id x)(num 12))
     )
     ( statements
         ( if)
         ( relation
-            ( and
+            (and
                 ( simple_relation( <=(num 1)(id x)))
-                ( simple_relation( <(id x)(num 20))))
+                ( simple_relation( <(id x)(num 20)))
             )
-        ( statements( =(id x)(num 15)))
-        ( end)
+        )
+        ( statements
+            ( =(id x)(num 15))
+        )
     )
-)
+    ( statements( end))
+ )
+ 
  
  
  add = def (a,b) then return a+b end
-
+ 
+ 
 ( walley_statements
+    ( statements
+        ( =
+            (id add)
+            ( func_value
+                ( def)
+                ( params
+                    (id a)
+                    (id b)
+                )
+                ( statements
+                    ( return( +(id a)(id b)))
+                )
+                ( end)
+            )
+        )
+    )
+ )
+ 
+ 
+ def add(a,b) then return a+b end
+ ( walley_statements
     ( statements
         ( =
             (id add)
@@ -154,9 +181,37 @@ void getValue(TREE tree, int *var_set_index, char **var_value){
                         ( +(id a)(id b))
                     )
                 )
+                ( end)
             )
         )
     )
+)
+ 
+ x=12 if x>3 then if x>4 then x=14 else x=15 end else x=1 end
+ 
+ ( walley_statements
+    ( statements
+        ( =(id x)(num 12))
+    )
+    ( statements
+        ( if)
+        ( simple_relation( <(num 3)(id x)))
+        ( statements
+            ( if)
+            ( simple_relation( <(num 4)(id x)))
+            ( statements( =(id x)(num 14)))
+        )
+        ( statements
+            ( else)
+            ( statements( =(id x)(num 15)))
+        )
+        ( statements( end))
+    )
+    ( statements
+        ( else)
+        ( statements( =(id x)(num 1)))
+    )
+    ( statements( end))
  )
  
  */
@@ -224,6 +279,13 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
             
             LOCAL_OFFSET++;
             
+            // run next statements
+            nl=nl->next;
+            while (nl!=NULL) {
+                Code_Generation(nl->node, ol,fl);
+                nl=nl->next;
+            }
+            
             return;
         }
         // if statements
@@ -261,7 +323,6 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
             // run next statements
             nl=nl->next;
             while (nl!=NULL) {
-                printf("@@@@ |%s|\n",nl->node.name);
                 Code_Generation(nl->node, ol,fl);
                 nl=nl->next;
             }
@@ -269,6 +330,29 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
             return;
             
         }
+        /*
+         x=1 if x>0 then x=2 elif x<10 then x=5 end
+         ( walley_statements
+            ( statements
+                ( =(id x)(num 1))
+            )
+            ( statements
+                ( if)
+                ( simple_relation( <(num 0)(id x)))
+                ( statements
+                    ( =(id x)(num 2))
+                )
+            )
+            ( statements
+                ( elif)
+                ( simple_relation( <(id x)(num 10)))
+                ( statements( =(id x)(num 5)))
+            )
+            ( statements( end))
+        )
+
+         
+         */
         // elif statements
         else if (term(nl->node.name, "elif")){
             
@@ -314,6 +398,7 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
             nl=nl->next;
             Code_Generation(nl->node, ol,fl);
             
+                    
             //finish dealing with relation and simple relation
             
             // meet TEST
@@ -324,32 +409,36 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
             
             LOCAL_OFFSET++;
             
-            
+            // run next statements
+            nl=nl->next;
+            while (nl!=NULL) {
+                Code_Generation(nl->node, ol,fl);
+                nl=nl->next;
+            }
+
             return;
         }
         
         /*
          
          x=12 if x>1 then x=11 else x=15 end
-         ( walley_statements
+        ( walley_statements
             ( statements
                 ( =(id x)(num 12))
             )
             ( statements
                 ( if)
                 ( simple_relation( <(num 1)(id x)))
-                ( statements
-                    ( =(id x)(num 11))
-                )
-                ( end)
+                ( statements( =(id x)(num 11)))
             )
             ( statements
                 ( else)
                 ( statements( =(id x)(num 15)))
+            )
+            ( statements
                 ( end)
             )
-        )
-         
+         )
          
          */
         else if (term(nl->node.name, "else")){
@@ -402,9 +491,14 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
             OL_append(ol, op);
             
             //finish dealing with relation and simple relation
-            
-                       
             //GLOBAL_OFFSET++;
+            
+            // run next statements
+            nl=nl->next;
+            while (nl!=NULL) {
+                Code_Generation(nl->node, ol, fl);
+                nl=nl->next;
+            }
             
         
             return;
@@ -585,7 +679,7 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
             
             
             // jmp back
-            int jump_final=OL_length(*ol);
+            int jump_final=OL_length(*ol)-1;
             Operation_List **temp_ol=&(*ol);
             
             while ((*temp_ol)->next!=NULL) {

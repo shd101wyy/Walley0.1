@@ -146,7 +146,7 @@ bool func_value(TREE *tree, Token_List *tl){
         
        
         return func_assign(tree, TL_subtl(tl, 0, index_of_then+1))
-        && walley_statements(tree, TL_subtl(tl, index_of_then+1, length_of_tl-1));
+        && walley_statements(tree, TL_subtl(tl, index_of_then+1, length_of_tl-1)) && end_stm(tree, TL_subtl(tl, length_of_tl-1, length_of_tl));
 
     }
     
