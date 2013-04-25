@@ -106,6 +106,42 @@ void getValue(TREE tree, int *var_set_index, char **var_value){
     *var_value="none";
 }
 
+/*
+ x=12 if x>3 then x=15 end
+ ( walley_statements
+    ( statements
+        ( =(id x)(num 12))
+    )
+    ( statements
+        ( if)
+        ( simple_relation( <(num 3)(id x)))
+        ( statements
+            ( =(id x)(num 15))
+        )
+        ( end)
+    )
+ )
+ 
+ x=12 if x>=1 and x<20 then x=15 end
+ ( walley_statements
+    ( statements
+        ( =(id x)(num 12))
+    )
+    ( statements
+        ( if)
+        ( relation
+            ( and
+                ( simple_relation( <=(num 1)(id x)))
+                ( simple_relation( <(id x)(num 20))))
+            )
+        ( statements( =(id x)(num 15)))
+        ( end)
+    )
+)
+ 
+ 
+ 
+ */
 void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
     OPERATION op;
     op.arg0=NULL;
@@ -188,6 +224,7 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
             SL_addString(&LOCAL_OFFSET_LIST, intToCString(LOCAL_OFFSET));
             LOCAL_OFFSET=0;
             
+            // run next relation statements or simple_relation statements
             nl=nl->next;
             Code_Generation(nl->node, ol,fl);
             
@@ -200,6 +237,15 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
             OL_append(ol, op);
             
             LOCAL_OFFSET++;
+            
+            
+            // run next statements
+            nl=nl->next;
+            while (nl!=NULL) {
+                printf("@@@@ |%s|\n",nl->node.name);
+                Code_Generation(nl->node, ol,fl);
+                nl=nl->next;
+            }
             
             return;
             
@@ -408,99 +454,7 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
             // init fl inside function
             FL_init(&((*fl)->next_in_function));
         }
-        else if (term(nl->node.name, "end")){
-           // restore LOCAL_OFFSET
-            LOCAL_OFFSET=atoi(SL_pop(&LOCAL_OFFSET_LIST));
-            
-            
-            // only support if elif else while now
-            // need to check poped statement...
-            SL_print(STATEMENTS_LIST);
-            // pop ahead
-            char *stm=SL_pop(&STATEMENTS_LIST);
-            if (term(stm, "while")) {
-                // end local registers
-                op.opcode=FREELOCAL;
-                OL_append(ol, op);
-                
-                char *jmp_num_str=SL_pop(&WHILE_LIST_OL_INDEX);
-                op.opcode=JMP;
-                op.arg0=intToCString(-1*((OL_length(*ol)-atoi(jmp_num_str))));
-                OL_append(ol, op);
-                
-                // jmp back
-                int jump_final=OL_length(*ol);
-                Operation_List **temp_ol=&(*ol);
-                
-                while ((*temp_ol)->next!=NULL) {
-                    temp_ol=&((*temp_ol)->next);
-                }
-                
-                while ((*temp_ol)->ahead!=NULL) {
-                    if ((*temp_ol)->operation.opcode==TEST && (*temp_ol)->operation.arg1==NULL) {
-                        (*temp_ol)->operation.arg1=intToCString(jump_final-(*temp_ol)->current_index);
-                        break;
-                    }
-                    temp_ol=&((*temp_ol)->ahead);
-                }
 
-            }
-            else if(term(stm, "def")){
-                printf("Finish defining function\n");
-                
-                // free local registers
-                op.opcode=FREELOCAL;
-                OL_append(ol, op);
-                
-                if (STATEMENTS_LIST->string_content!=NULL) {
-                    
-                    // check whether finish all function define..
-                    Str_List *temp_sl=STATEMENTS_LIST;
-                    int length_of_temp_sl=SL_length(temp_sl);
-                    int i=0;
-                    NOW_FUNCTION=FALSE;
-                    for (; i<length_of_temp_sl; i++) {
-                        if (term(temp_sl->string_content, "def")) {
-                            NOW_FUNCTION=TRUE;
-                            break;
-                        }
-                        temp_sl=temp_sl->next;
-                    }
-
-                }
-                else{
-                    NOW_FUNCTION=FALSE;
-                }
-                
-                
-            }
-            else{
-                // if elif else sentences
-                
-                // end local registers
-                op.opcode=FREELOCAL;
-                OL_append(ol, op);
-                
-                
-                // jmp back
-                int jump_final=OL_length(*ol);
-                Operation_List **temp_ol=&(*ol);
-
-                while ((*temp_ol)->next!=NULL) {
-                    temp_ol=&((*temp_ol)->next);
-                }
-
-                while ((*temp_ol)->ahead!=NULL) {
-                    if ((*temp_ol)->operation.opcode==TEST && (*temp_ol)->operation.arg1==NULL) {
-                        (*temp_ol)->operation.arg1=intToCString(jump_final-(*temp_ol)->current_index);
-                        break;
-                    }
-                    temp_ol=&((*temp_ol)->ahead);
-                }
-            }
-            return;
-                
-        }
         
         else{
             while (nl->next!=NULL) {
@@ -510,6 +464,103 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
             Code_Generation(nl->node, ol,fl);
             return ;
         }
+    }
+    
+    // end
+    if (term(tree.name, "end")){
+
+        
+        // restore LOCAL_OFFSET
+        LOCAL_OFFSET=atoi(SL_pop(&LOCAL_OFFSET_LIST));
+        
+        
+        // only support if elif else while now
+        // need to check poped statement...
+        SL_print(STATEMENTS_LIST);
+        // pop ahead
+        char *stm=SL_pop(&STATEMENTS_LIST);
+        if (term(stm, "while")) {
+            // end local registers
+            op.opcode=FREELOCAL;
+            OL_append(ol, op);
+            
+            char *jmp_num_str=SL_pop(&WHILE_LIST_OL_INDEX);
+            op.opcode=JMP;
+            op.arg0=intToCString(-1*((OL_length(*ol)-atoi(jmp_num_str))));
+            OL_append(ol, op);
+            
+            // jmp back
+            int jump_final=OL_length(*ol);
+            Operation_List **temp_ol=&(*ol);
+            
+            while ((*temp_ol)->next!=NULL) {
+                temp_ol=&((*temp_ol)->next);
+            }
+            
+            while ((*temp_ol)->ahead!=NULL) {
+                if ((*temp_ol)->operation.opcode==TEST && (*temp_ol)->operation.arg1==NULL) {
+                    (*temp_ol)->operation.arg1=intToCString(jump_final-(*temp_ol)->current_index);
+                    break;
+                }
+                temp_ol=&((*temp_ol)->ahead);
+            }
+            
+        }
+        else if(term(stm, "def")){
+            printf("Finish defining function\n");
+            
+            // free local registers
+            op.opcode=FREELOCAL;
+            OL_append(ol, op);
+            
+            if (STATEMENTS_LIST->string_content!=NULL) {
+                
+                // check whether finish all function define..
+                Str_List *temp_sl=STATEMENTS_LIST;
+                int length_of_temp_sl=SL_length(temp_sl);
+                int i=0;
+                NOW_FUNCTION=FALSE;
+                for (; i<length_of_temp_sl; i++) {
+                    if (term(temp_sl->string_content, "def")) {
+                        NOW_FUNCTION=TRUE;
+                        break;
+                    }
+                    temp_sl=temp_sl->next;
+                }
+                
+            }
+            else{
+                NOW_FUNCTION=FALSE;
+            }
+            
+            
+        }
+        else{
+            // if elif else sentences
+            
+            // end local registers
+            op.opcode=FREELOCAL;
+            OL_append(ol, op);
+            
+            
+            // jmp back
+            int jump_final=OL_length(*ol);
+            Operation_List **temp_ol=&(*ol);
+            
+            while ((*temp_ol)->next!=NULL) {
+                temp_ol=&((*temp_ol)->next);
+            }
+            
+            while ((*temp_ol)->ahead!=NULL) {
+                if ((*temp_ol)->operation.opcode==TEST && (*temp_ol)->operation.arg1==NULL) {
+                    (*temp_ol)->operation.arg1=intToCString(jump_final-(*temp_ol)->current_index);
+                    break;
+                }
+                temp_ol=&((*temp_ol)->ahead);
+            }
+        }
+        return;
+        
     }
     
     //simple_relation

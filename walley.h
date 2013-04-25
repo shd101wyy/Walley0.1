@@ -85,6 +85,7 @@ void Walley_Run(){
         
         TREE syntax_tree=parser(tl);
         
+        
         // incomplete statements
         if (COUNT_THEN_END!=0 || INCOMPLETE_STATEMENT) {
             //printf("COUNT_THEN_END-->%d incomplete \n",COUNT_THEN_END);
@@ -102,7 +103,7 @@ void Walley_Run(){
         }
 
         
-        /*
+        
         printf("==========\n");
         if (NOW_FUNCTION) {
             Code_Generation(syntax_tree, &(FUNCTION_LIST->current_ol),&(FUNCTION_LIST->next_in_function));
@@ -119,7 +120,7 @@ void Walley_Run(){
         printf("OPERATION_LIST============\n");
         
         OL_print(OPERATION_LIST);
-         */
+         
     }
 }
 
