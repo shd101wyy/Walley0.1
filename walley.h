@@ -120,8 +120,12 @@ void Walley_Run(){
         printf("OPERATION_LIST============\n");
         
         OL_print(OPERATION_LIST);
-         
-         
+        
+        int length_of_STATEMENTS_LIST=SL_length(STATEMENTS_LIST);
+        if (length_of_STATEMENTS_LIST==0) {
+            OL_init(&OPERATION_LIST);
+        }
+        
     }
 }
 

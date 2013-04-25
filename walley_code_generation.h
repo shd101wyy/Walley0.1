@@ -383,6 +383,9 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
             op.opcode=FREELOCAL;
             OL_append(ol, op);
             
+            // pop var set
+            VLS_pop(&LOCAL_VAR_SET);
+            
             // begin new local registers
             op.opcode=BEGINLOCAL;
             OL_append(ol, op);
@@ -619,6 +622,9 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
             op.opcode=FREELOCAL;
             OL_append(ol, op);
             
+            // pop var set
+            VLS_pop(&LOCAL_VAR_SET);
+            
             char *jmp_num_str=SL_pop(&WHILE_LIST_OL_INDEX);
             op.opcode=JMP;
             op.arg0=intToCString(-1*((OL_length(*ol)-atoi(jmp_num_str))));
@@ -647,6 +653,9 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
             // free local registers
             op.opcode=FREELOCAL;
             OL_append(ol, op);
+            
+            // pop var set
+            VLS_pop(&LOCAL_VAR_SET);
             
             if (STATEMENTS_LIST->string_content!=NULL) {
                 
@@ -677,6 +686,8 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
             op.opcode=FREELOCAL;
             OL_append(ol, op);
             
+            // pop var set
+            VLS_pop(&LOCAL_VAR_SET);
             
             // jmp back
             int jump_final=OL_length(*ol)-1;
