@@ -694,6 +694,7 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
         FL_addFuncName(fl, "");
                 
         /*
+         ====== NODE IN SIDE =====
          add = def(a,b) then return a+b end m= def (a,b) then return a-b end
          
          ( walley_statements
@@ -724,6 +725,35 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
                 )
             )
          )
+         ====== INSIDE ======
+         add = def (a,b) then m = def(a,b) then return a-b end return a+b end
+         ( walley_statements
+            ( statements
+                ( =
+                    (id add)
+                    ( func_value
+                        ( def)
+                        ( params(id a)(id b))
+                        ( statements
+                            ( =
+                                (id m)
+                                ( func_value
+                                    ( def)
+                                    ( params(id a)(id b))
+                                    ( statements( return( -(id a)(id b))))
+                                    ( end)
+                                )
+                            )
+                        )
+                        ( statements
+                            ( return( +(id a)(id b)))
+                        )
+                        ( end)
+                    )
+                )
+            )
+         )
+         add = def (a,b) then m = def(a,b) then return a-b end time = def (a,b) then return a*b end return a+b end
          */
         
         printf("FL_LENGTH---_> %d\n",FL_length(*fl));
@@ -734,6 +764,24 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
         while ((*current_fl)->next!=NULL) {
             current_fl=&((*current_fl)->next);
         }
+        
+        printf("CURRENT_ADDRESS===== %p\n",&(*current_fl));
+        
+        char *current_fl_address_string=(char*)malloc(sizeof(char)*100);
+        sprintf(current_fl_address_string, "%p",&(*current_fl));
+        printf("CURRENT_ADDRESS STRING===== %s\n",current_fl_address_string);
+
+        /*
+         
+         Function_List **current_fl;
+         sscanf(current_fl_address_string,"%p",&current_fl)
+         to get back
+         
+         */
+        
+        
+        // init function inside function_list
+        FL_init(&((*current_fl)->next_in_function));
         
         
         OL_init(&((*current_fl)->current_ol));
@@ -816,6 +864,8 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
         
         
         // FINISH INITIALIZE PARAMS
+        op.opcode=ENDPARAMS;
+        OL_append(&((*current_fl)->current_ol), op);
         
         // run next statements
         Node_List *temp_nl=tree.node_list->next->next;
@@ -825,11 +875,7 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
         }
         
         printf("FL_LENGTH == %d\n",FL_length(*fl));
-        char* func_index=intToCString(FL_length(*fl)-1);                                //  0
-        char* func_index_str=(char*)malloc(sizeof(char)*(2+(int)strlen(func_index)));   // f0
-        strcpy(func_index_str, "f");
-        strcat(func_index_str, func_index);
-        func_index_str[1+(int)strlen(func_index)]=0;
+        
         
         
         // set func_index
@@ -840,7 +886,7 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
             
             op.arg0=intToCString(LOCAL_OFFSET);
             
-            op.arg1=func_index_str;
+            op.arg1=current_fl_address_string;
             
             op.arg2=NULL;
             
@@ -852,7 +898,7 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
             op.opcode=SETG;
             op.arg0=intToCString(GLOBAL_OFFSET);
             
-            op.arg1=func_index_str;
+            op.arg1=current_fl_address_string;
             
             op.arg2=NULL;
             
@@ -943,8 +989,10 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
             op.opcode=FREELOCAL;
             OL_append(ol, op);
             
+
             // pop var set
             VLS_pop(&LOCAL_VAR_SET);
+            
             
             if (STATEMENTS_LIST->string_content!=NULL) {
                 

@@ -16,12 +16,14 @@ struct Function_List{
 };
 
 void FL_init(Function_List **fl){
+    
     (*fl)=(Function_List *)malloc(sizeof(Function_List)*1);
     (*fl)->function_name=NULL;
     (*fl)->current_ol=NULL;
     OL_init(&((*fl)->current_ol));
     (*fl)->next=NULL;
     (*fl)->next_in_function=NULL;
+    
     }
 
 void FL_addFuncName(Function_List **fl, char *add_func_name){
@@ -83,11 +85,17 @@ void FL_print(Function_List *fl){
     if (fl->function_name==NULL) {
         return;
     }
-    while (fl->next!=NULL) {
+    while (fl!=NULL) {
         printf("\n\nfunc_name : %s\n===============\n",fl->function_name);
         OL_print(fl->current_ol);
+        
+        Function_List *next_in_function=fl->next_in_function;
+        if (next_in_function->function_name!=NULL) {
+            printf("(\n");
+            FL_print(next_in_function);
+            printf(")\n");
+        }
+        
         fl=fl->next;
     }
-    printf("func_name : %s\n",fl->function_name);
-    OL_print(fl->current_ol);
 }

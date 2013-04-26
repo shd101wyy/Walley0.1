@@ -68,7 +68,8 @@ enum OPCODE{
     BEGINLOCAL,   // 29
     FREELOCAL,     //30
     SET,       //31
-    RETURN      // 32
+    RETURN,      // 32
+    ENDPARAMS    // 33
 };
 char *OPCODE_getFromOpcode(enum OPCODE opcode){
     switch (opcode) {
@@ -166,6 +167,9 @@ char *OPCODE_getFromOpcode(enum OPCODE opcode){
         case RETURN:
             return "RETURN";
             break;
+        case ENDPARAMS:
+            return "ENDPARAMS";
+            break;
         default:
             printf("Error..Unavailable opcode\n");
             exit(0);
@@ -262,6 +266,8 @@ enum OPCODE OPCODE_getFromString(char *input_str){
         return SET;
     else if (term(input_str, "RETURN"))
         return RETURN;
+    else if (term(input_str, "ENDPARAMS"))
+        return ENDPARAMS;
     else{
         printf("Error.. wrong opcode %s\n",input_str);
         exit(0);

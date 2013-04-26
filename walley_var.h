@@ -104,7 +104,7 @@ void VLS_push(Var_List_Set **vls){
     }
     
     // first
-    if ((*temp_vls)->index==1) {
+    if ((*temp_vls)->index==1 && (*temp_vls)->current_var_list->current_var.var_name==NULL) {
         (*temp_vls)->current_var_list->current_var.var_name="#";
         return;
     }

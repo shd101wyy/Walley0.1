@@ -39,6 +39,7 @@
 */
 
 bool assignment(TREE *tree, Token_List *tl){
+   
     if (INCOMPLETE_STATEMENT) {
         return FALSE;
     }
@@ -52,18 +53,23 @@ bool assignment(TREE *tree, Token_List *tl){
     Token_List *temp_tl=tl;
 
     
-    int count_of_bracket=0;
+    int count=0;
     int count_of_equal=0;
     int index_of_equal;
     int i=0;
     while (tl->next!=NULL) {
-        if (term(tl->current_token.TOKEN_STRING, "(")) {
-            count_of_bracket+=1;
+        if (term(tl->current_token.TOKEN_STRING, "(")
+            ||term(tl->current_token.TOKEN_STRING, "if")
+            ||term(tl->current_token.TOKEN_STRING, "def")
+            ||term(tl->current_token.TOKEN_STRING, "for")
+            ||term(tl->current_token.TOKEN_STRING, "while")) {
+            count+=1;
         }
-        else if (term(tl->current_token.TOKEN_STRING, ")")){
-            count_of_bracket-=1;
+        else if (term(tl->current_token.TOKEN_STRING, ")")
+                 ||term(tl->current_token.TOKEN_STRING, "end")){
+            count-=1;
         }
-        if (count_of_bracket==0&&strcmp(tl->current_token.TOKEN_STRING, "=")==0) {
+        if (count==0&&strcmp(tl->current_token.TOKEN_STRING, "=")==0) {
             count_of_equal++;
             index_of_equal=i;
         }
@@ -247,6 +253,8 @@ bool var_name(TREE *tree, Token_List *tl){
 
 //# where ',' is the , not inside def if elif else for while
 bool var_value(TREE *tree, Token_List *tl){
+   
+    
     if (INCOMPLETE_STATEMENT) {
         return FALSE;
     }
