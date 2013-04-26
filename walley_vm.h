@@ -465,6 +465,39 @@ void OL_print(struct OL *ol){
        
 }
 
+OPERATION OL_pop(Operation_List **ol){
+    int length=OL_length(*ol);
+    int i=0;
+    Operation_List **temp_ol=&(*ol);
+    Operation_List **current_sl;
+    OPERATION return_operation;
+    if (length==1) {
+        (*ol)->next=NULL;
+        return_operation=(*temp_ol)->operation;
+        free(*temp_ol);
+        OL_init(temp_ol);
+        return return_operation;
+    }
+    for (i=1; i<length; i++) {
+        current_sl=&(*temp_ol);
+        temp_ol=&((*temp_ol)->next);
+    }
+    (*temp_ol)->next=NULL;
+    return_operation=(*temp_ol)->operation;
+    (*temp_ol)=NULL;
+    (*current_sl)->next=NULL;
+    free(*temp_ol);
+    return return_operation;
+}
+
+OPERATION OL_lastOperation(Operation_List *ol){
+    while (ol->next!=NULL) {
+        ol=ol->next;
+    }
+    return ol->operation;
+}
+
+
 void OL_append(struct OL **ol, OPERATION operation){
     
     struct OL *temp_ol;

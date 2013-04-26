@@ -454,11 +454,18 @@ return CL_toString(cl);
 
 char *intToCString(double num1){
     int num1_int=(int)num1;
-    char *temp=(char*)malloc(sizeof(char)*100);
+    char *temp=(char*)malloc(sizeof(char)*1000);
     sprintf(temp, "%d",num1_int);
     return temp;
     
 }
+
+char *numToCString(double num){
+    char *temp=(char*)malloc(sizeof(char)*1000);
+    sprintf(temp, "%f",num);
+    return temp;
+}
+
 
 // hello -> "hello"
 // "hello" -> "hello"
@@ -477,6 +484,19 @@ char *toString(char *input_str){
     }
 }
 
+
+char* substr(char* input_str, int from_index, int to_index) {
+        int length = to_index - from_index;
+        int i;
+        char *output =(char*)malloc((length+1) * sizeof (char));
+        strcpy(output, "");
+        for (i = 0; i < length; i++) {
+            output[i] = input_str[from_index + i];
+        }
+        output[i]=0;
+        return output;
+        
+}
 
 
 

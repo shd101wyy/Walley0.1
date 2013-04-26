@@ -5,7 +5,7 @@
 //  Created by shd101wyy on 13-4-6.
 //  Copyright (c) 2013年 shd101wyy. All rights reserved.
 //
-#include "walley_code_generation.h"
+#include "walley_embed_functions.h"
 
 void Walley_Init(){
     VLS_init(&LOCAL_VAR_SET);

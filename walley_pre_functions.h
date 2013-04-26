@@ -152,6 +152,8 @@ void OL_init(struct OL **ol);
 void OL_print(struct OL *ol);
 void OL_append(struct OL **ol, OPERATION operation);
 int OL_length(struct OL *ol);
+OPERATION OL_pop(Operation_List **ol);
+OPERATION OL_lastOperation(Operation_List *ol);
 void VM_RUN_ONE_COMMAND(OPERATION operation);
 bool pass(char *value1, char *value2, enum OPCODE opcode);
 void VM_Run_Command(struct OL *ol);
@@ -169,6 +171,10 @@ void FL_addOperation(Function_List **fl, OPERATION op);
 int FL_length(Function_List *fl);
 void FL_print(Function_List *fl);
 
+//walley_calculation
+char *Walley_Calculation(char *value1, char *value2, char *sign);
+double Walley_Operator(double num1,double num2,char sign);
+char *cleanDotZeroAfterNumAndKeepOneZero(char *num);
 
 //walley_code_generation
 int TABLE_LIST_INDEX=0;

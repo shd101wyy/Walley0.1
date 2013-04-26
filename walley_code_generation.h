@@ -6,7 +6,7 @@
 //  Copyright (c) 2013年 shd101wyy. All rights reserved.
 //
 
-#include "walley_function_data_type.h"
+#include "walley_calculation.h"
 
 
 
@@ -38,7 +38,7 @@ void getValue(TREE tree, int *var_set_index, char **var_value){
         *var_value="none";
         return;
     }
-    if (term(tree.token_class, "num")) {
+    if (term(tree.token_class, "num")||term(tree.token_class, "string")) {
         char *return_value=(char*)malloc(sizeof(char)*(2+(int)strlen(tree.name)));
         return_value[0]='#';
         int i=0;
@@ -1180,8 +1180,8 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
         return;
     }
     
-    // num
-    if (term(tree.token_class, "num")) {
+    // num or string
+    if (term(tree.token_class, "num")||term(tree.token_class, "string")) {
         // local
         if (NOW_LOCAL) {
             
@@ -1616,6 +1616,10 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
             Code_Generation(nl->node, ol,fl);
         }
         
+        // check whether string or num
+        OPERATION op1=OL_lastOperation(*ol);
+        
+        
         // right
         if (ism_operator(nl->next->node.name)) {
             Code_Generation(nl->next->node, ol,fl);
@@ -1626,54 +1630,107 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
 
         }
         
+        // check whether string or num
+        OPERATION op2=OL_lastOperation(*ol);
         
+        // do the calculation directly
+        if (op1.arg1[0]=='#' && op2.arg1[0]=='#') {
+            printf("BOTH num or string\n");
+            
+            char *value1=substr(op1.arg1, 1, (int)strlen(op1.arg1));
+            char *value2=substr(op2.arg1, 1, (int)strlen(op2.arg1));
+            char *output_str=Walley_Calculation(value1,value2,tree.name);
+            printf("OUTPUT_str-----> %s\n",output_str);
+            
+            OL_pop(ol);
+            OL_pop(ol);
+            
+            // append # ahead output_str
+            int malloc_length=(int)strlen(output_str)+1;
+            char *output=(char*)malloc(sizeof(char)*(malloc_length+1));
+            strcpy(output, "#");
+            strcat(output, output_str);
+            output[malloc_length]=0;
+            
+            // local
+            if (NOW_LOCAL) {
+                LOCAL_OFFSET-=2;
+                
+                op.opcode=SETL;
+                op.arg0=intToCString(LOCAL_OFFSET);
+                op.arg1=output;
+                op.value=output;
+                
+                OL_append(ol, op);
+                
+                LOCAL_OFFSET++;
+            }
+            // GLOBAL
+            else{
+                GLOBAL_OFFSET-=2;
+                
+                op.opcode=SETG;
+                op.arg0=intToCString(GLOBAL_OFFSET);
+                op.arg1=output;
+                op.value=output;
+                
+                OL_append(ol, op);
+                
+                GLOBAL_OFFSET++;
+            }
+
+        }
         
-        if (term(tree.name, "+")) {
-            op.opcode=ADD;
-        }
-        else if (term(tree.name, "-")) {
-            op.opcode=SUB;
-        }
-        else if (term(tree.name, "*")) {
-            op.opcode=MUL;
-        }
-        else if (term(tree.name, "/")) {
-            op.opcode=DIV;
-        }
-        else if (term(tree.name, "%")) {
-            op.opcode=MOD;
-        }
-        else if (term(tree.name, "^")) {
-            op.opcode=POW;
-        }
-        else{
-            printf("m_operator error\n");
-            exit(0);
-        }
-        
-        // local
-        if (NOW_LOCAL) {
-            LOCAL_OFFSET-=2;
+        // can not do the calculation directly
+        else
+        {
+            if (term(tree.name, "+")) {
+                op.opcode=ADD;
+            }
+            else if (term(tree.name, "-")) {
+                op.opcode=SUB;
+            }
+            else if (term(tree.name, "*")) {
+                op.opcode=MUL;
+            }
+            else if (term(tree.name, "/")) {
+                op.opcode=DIV;
+            }
+            else if (term(tree.name, "%")) {
+                op.opcode=MOD;
+            }
+            else if (term(tree.name, "^")) {
+                op.opcode=POW;
+            }
+            else{
+                printf("m_operator error\n");
+                exit(0);
+            }
             
-            op.arg0=intToCString(LOCAL_OFFSET);
-            op.arg1=intToCString(LOCAL_OFFSET);
-            op.arg2=intToCString(LOCAL_OFFSET+1);
-            
-            OL_append(ol, op);
-            
-            LOCAL_OFFSET++;
-        }
-        // GLOBAL
-        else{
-            GLOBAL_OFFSET-=2;
-            
-            op.arg0=intToCString(GLOBAL_OFFSET);
-            op.arg1=intToCString(GLOBAL_OFFSET);
-            op.arg2=intToCString(GLOBAL_OFFSET+1);
-            
-            OL_append(ol, op);
-            
-            GLOBAL_OFFSET++;
+            // local
+            if (NOW_LOCAL) {
+                LOCAL_OFFSET-=2;
+                
+                op.arg0=intToCString(LOCAL_OFFSET);
+                op.arg1=intToCString(LOCAL_OFFSET);
+                op.arg2=intToCString(LOCAL_OFFSET+1);
+                
+                OL_append(ol, op);
+                
+                LOCAL_OFFSET++;
+            }
+            // GLOBAL
+            else{
+                GLOBAL_OFFSET-=2;
+                
+                op.arg0=intToCString(GLOBAL_OFFSET);
+                op.arg1=intToCString(GLOBAL_OFFSET);
+                op.arg2=intToCString(GLOBAL_OFFSET+1);
+                
+                OL_append(ol, op);
+                
+                GLOBAL_OFFSET++;
+            }
         }
         
         
