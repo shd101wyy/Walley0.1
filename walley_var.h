@@ -12,7 +12,7 @@
 //    then found value of a at address 0
 struct Var{
     char *var_name;
-    int address;
+    char *address;
 };
 
 struct Var_List{
@@ -24,7 +24,7 @@ void VL_init(Var_List **vl){
     (*vl)=(Var_List *)malloc(sizeof(Var_List)*1);
     (*vl)->next=NULL;
     (*vl)->current_var.var_name=NULL;
-    (*vl)->current_var.address=-1;
+    (*vl)->current_var.address="-1";
 }
 
 void VL_addVar(Var_List **vl, Var add_var){
@@ -45,14 +45,14 @@ void VL_addVar(Var_List **vl, Var add_var){
     }
 }
 
-void VL_addVarAccordingToVarNameAndAddress(Var_List **vl, char *var_name, int address){
+void VL_addVarAccordingToVarNameAndAddress(Var_List **vl, char *var_name, char *address){
     Var add_var;
     add_var.var_name=var_name;
     add_var.address=address;
     VL_addVar(vl, add_var);
 }
 
-int VL_address(Var_List *vl, char *var_name){
+char* VL_address(Var_List *vl, char *var_name){
     while (vl->next!=NULL) {
         if (strcmp(vl->current_var.var_name, var_name)==0) {
             return vl->current_var.address;
@@ -60,21 +60,21 @@ int VL_address(Var_List *vl, char *var_name){
         vl=vl->next;
     }
     if (vl->current_var.var_name==NULL) {
-        return -1;
+        return "-1";
     }
     if (strcmp(vl->current_var.var_name, var_name)==0) {
         return vl->current_var.address;
     }
     //does not find
-    return -1;
+    return "-1";
 }
 
 void VL_printVL(Var_List *vl){
     while (vl->next!=NULL) {
-        printf("%s  %d\n",vl->current_var.var_name,vl->current_var.address);
+        printf("%s  %s\n",vl->current_var.var_name,vl->current_var.address);
         vl=vl->next;
     }
-    printf("%s  %d\n",vl->current_var.var_name,vl->current_var.address);
+    printf("%s  %s\n",vl->current_var.var_name,vl->current_var.address);
 }
 
 

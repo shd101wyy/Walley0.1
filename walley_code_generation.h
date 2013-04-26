@@ -64,14 +64,14 @@ void getValue(TREE tree, int *var_set_index, char **var_value){
                     // find
                     if (term(local_var_list->current_var.var_name, tree.name)) {
                         *var_set_index=temp_vls->index;
-                        *var_value=intToCString(local_var_list->current_var.address);
+                        *var_value=local_var_list->current_var.address;
                         return;
                     }
                     local_var_list=local_var_list->next;
                 }
                 if (term(local_var_list->current_var.var_name, tree.name)) {
                     *var_set_index=temp_vls->index;
-                    *var_value=intToCString(local_var_list->current_var.address);
+                    *var_value=local_var_list->current_var.address;
                     return;
                 }
                 
@@ -87,14 +87,14 @@ void getValue(TREE tree, int *var_set_index, char **var_value){
             while (GLOBAL_VAR_LIST->next!=NULL) {
                 if (term(GLOBAL_VAR_LIST->current_var.var_name, tree.name)) {
                     *var_set_index=0;
-                    *var_value=intToCString(GLOBAL_VAR_LIST->current_var.address);
+                    *var_value=GLOBAL_VAR_LIST->current_var.address;
                     return;
                 }
                 GLOBAL_VAR_LIST=GLOBAL_VAR_LIST->next;
             }
             if (term(GLOBAL_VAR_LIST->current_var.var_name, tree.name)) {
                 *var_set_index=0;
-                *var_value=intToCString(GLOBAL_VAR_LIST->current_var.address);
+                *var_value=GLOBAL_VAR_LIST->current_var.address;
                 return;
             }
 
@@ -549,7 +549,7 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
                 
                 // add to local var list
                 Var param_var;
-                param_var.address=LOCAL_OFFSET;
+                param_var.address=intToCString(LOCAL_OFFSET);
                 param_var.var_name=param_name;
                 VL_addVar(VLS_finalVL(&LOCAL_VAR_SET), param_var);
                 
@@ -573,7 +573,7 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
             // add return
             // add to local var list
             Var param_var;
-            param_var.address=LOCAL_OFFSET;
+            param_var.address=intToCString(LOCAL_OFFSET);
             param_var.var_name="return";
             VL_addVar(VLS_finalVL(&LOCAL_VAR_SET), param_var);
             
@@ -842,7 +842,7 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
                 
                 // add to local var list
                 Var param_var;
-                param_var.address=LOCAL_OFFSET;
+                param_var.address=intToCString(LOCAL_OFFSET);
                 param_var.var_name=param_name;
                 VL_addVar(VLS_finalVL(&LOCAL_VAR_SET), param_var);
                 
@@ -1044,6 +1044,36 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
         }
         return;
         
+    }
+    
+    if (term(tree.name, "func")) {
+        
+        /*
+            add = def (a,b) then return a+b end
+            minus = def(a,b) then return a-b end
+            minus(3,4)
+         
+         
+         */
+        
+        TREE func_tree=tree.node_list->node;
+        char *func_name=func_tree.name;
+        TREE param_tree=tree.node_list->next->node;
+        
+        printf("FUNC_NAME----> %s\n",func_name);
+        TREE_print(param_tree);
+        
+        char *func_address;
+        int var_set_index;
+        getValue(func_tree,&var_set_index,&func_address);
+    
+        printf("func_address %s\n",func_address);
+    
+        if (term(func_address, "none")) {
+            printf("\nError..undefined function | %s |\n",func_name);
+            exit(0);
+        }
+        exit(0);
     }
     
     //simple_relation
@@ -1360,7 +1390,7 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
                     OL_append(ol, op);
                     
                     Var temp_var;
-                    temp_var.address=current__offset;
+                    temp_var.address=intToCString(current__offset);
                     temp_var.var_name=nl->node.name;
                     VL_addVar(&GLOBAL_VAR_LIST, temp_var);
                     
@@ -1422,7 +1452,7 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
                         
                         Var temp_var;
                         temp_var.var_name=nl->node.name;
-                        temp_var.address=var_name_offset;
+                        temp_var.address=intToCString(var_name_offset);
                         
                         VL_addVar(VLS_finalVL(&LOCAL_VAR_SET),temp_var);
                     }
@@ -1462,7 +1492,7 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
                         OL_append(ol, op);
                         
                         Var temp_var;
-                        temp_var.address=GLOBAL_OFFSET;
+                        temp_var.address=intToCString(GLOBAL_OFFSET);
                         temp_var.var_name=nl->node.name;
                         
                         LOCAL_OFFSET++;
