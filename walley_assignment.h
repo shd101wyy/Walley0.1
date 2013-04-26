@@ -259,10 +259,12 @@ bool var_value(TREE *tree, Token_List *tl){
         if (term(tl->current_token.TOKEN_STRING, "def")
             ||term(tl->current_token.TOKEN_STRING, "for")
             ||term(tl->current_token.TOKEN_STRING, "if")
-            ||term(tl->current_token.TOKEN_STRING, "while")) {
+            ||term(tl->current_token.TOKEN_STRING, "while")
+            ||term(tl->current_token.TOKEN_STRING, "(")) {
             count++;
         }
-        if (term(tl->current_token.TOKEN_STRING, "end")) {
+        if (term(tl->current_token.TOKEN_STRING, "end")
+            ||term(tl->current_token.TOKEN_STRING, ")")) {
             count--;
         }
         if (count==0 && term(tl->current_token.TOKEN_STRING, ",")) {

@@ -80,6 +80,8 @@ if x==1 and x==2:
                y  z  x  z
 */
 bool relation(TREE *tree, Token_List *tl){
+    
+
     if (INCOMPLETE_STATEMENT) {
         return FALSE;
     }
@@ -138,7 +140,6 @@ bool relation(TREE *tree, Token_List *tl){
         TREE_addNodeAtIndex(tree, index-1, "relation", "");
         return relation(TREE_getTreeAccordingToIndex(tree, index), TL_subtl(tl, 1, length_of_tl));
     }
-
     
     return simple_relation(tree, tl);
 }

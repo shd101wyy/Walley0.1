@@ -307,6 +307,9 @@ table_value ->
 
  */
 bool table_value(TREE *tree, Token_List *tl){
+    
+   
+    
     if (INCOMPLETE_STATEMENT) {
         return FALSE;
     }

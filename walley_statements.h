@@ -684,6 +684,8 @@ bool walley_statements(TREE *tree, Token_List *tl){
         
         int index=TREE_INDEX;
         TREE_addNode(tree, "statements", "");
+      
+        
         if (!statements(TREE_getTreeAccordingToIndex(tree, index), temp_tl)) {
             printf("Walley Statements Parse Error\n");
             return FALSE;

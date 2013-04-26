@@ -109,6 +109,8 @@ bool params(TREE *tree, Token_List *tl){
 }
 
 bool func(TREE *tree, Token_List *tl){
+   
+    
     if (INCOMPLETE_STATEMENT) {
         return FALSE;
     }

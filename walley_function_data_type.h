@@ -19,6 +19,7 @@ void FL_init(Function_List **fl){
     (*fl)=(Function_List *)malloc(sizeof(Function_List)*1);
     (*fl)->function_name=NULL;
     (*fl)->current_ol=NULL;
+    OL_init(&((*fl)->current_ol));
     (*fl)->next=NULL;
     (*fl)->next_in_function=NULL;
     }
@@ -73,6 +74,7 @@ int FL_length(Function_List *fl){
     int length=0;
     while (fl->next!=NULL) {
         length++;
+        fl=fl->next;
     }
     return length+1;
 }
