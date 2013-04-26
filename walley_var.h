@@ -28,10 +28,10 @@ void VL_init(Var_List **vl){
 }
 
 void VL_addVar(Var_List **vl, Var add_var){
-
-    
+        
     if ((*vl)->current_var.var_name==NULL) {
         (*vl)->current_var=add_var;
+        return;
     }
     else{
         Var_List **current_vl=&(*vl);

@@ -120,6 +120,8 @@ void Walley_Run(){
         printf("\n\nOPERATION_LIST============\n");
         
         OL_print(OPERATION_LIST);
+        printf("\n\nGLOBAL VAR================\n");
+        VL_printVL(GLOBAL_VAR_LIST);
         
         int length_of_STATEMENTS_LIST=SL_length(STATEMENTS_LIST);
         if (length_of_STATEMENTS_LIST==0) {

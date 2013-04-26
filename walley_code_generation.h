@@ -60,7 +60,7 @@ void getValue(TREE tree, int *var_set_index, char **var_value){
             
             if (local_var_list->current_var.var_name!=NULL && local_var_list!=GLOBAL_VAR_LIST) {
                 // check local
-                while (local_var_list->next!=NULL) {
+                while (local_var_list!=NULL) {
                     // find
                     if (term(local_var_list->current_var.var_name, tree.name)) {
                         *var_set_index=temp_vls->index;
@@ -69,35 +69,25 @@ void getValue(TREE tree, int *var_set_index, char **var_value){
                     }
                     local_var_list=local_var_list->next;
                 }
-                if (term(local_var_list->current_var.var_name, tree.name)) {
-                    *var_set_index=temp_vls->index;
-                    *var_value=local_var_list->current_var.address;
-                    return;
-                }
                 
             }
 
             temp_vls=temp_vls->next;
         }
         
-              
-       
-        if (GLOBAL_VAR_LIST->current_var.var_name!=NULL) {
+        
+        Var_List *temp_GLOBAL_VAR_LIST=GLOBAL_VAR_LIST;
+        if (temp_GLOBAL_VAR_LIST->current_var.var_name!=NULL) {
             // check global
-            while (GLOBAL_VAR_LIST->next!=NULL) {
-                if (term(GLOBAL_VAR_LIST->current_var.var_name, tree.name)) {
+            while (temp_GLOBAL_VAR_LIST!=NULL) {
+                if (term(temp_GLOBAL_VAR_LIST->current_var.var_name, tree.name)) {
                     *var_set_index=0;
-                    *var_value=GLOBAL_VAR_LIST->current_var.address;
+                    *var_value=temp_GLOBAL_VAR_LIST->current_var.address;
                     return;
                 }
-                GLOBAL_VAR_LIST=GLOBAL_VAR_LIST->next;
+                temp_GLOBAL_VAR_LIST=temp_GLOBAL_VAR_LIST->next;
             }
-            if (term(GLOBAL_VAR_LIST->current_var.var_name, tree.name)) {
-                *var_set_index=0;
-                *var_value=GLOBAL_VAR_LIST->current_var.address;
-                return;
-            }
-
+            
         }
        
     }
@@ -1446,6 +1436,9 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
                     Var temp_var;
                     temp_var.address=intToCString(current__offset);
                     temp_var.var_name=nl->node.name;
+                    
+                    printf("var_name %s   address %s\n",nl->node.name,intToCString(current__offset));
+                    
                     VL_addVar(&GLOBAL_VAR_LIST, temp_var);
                     
                     
