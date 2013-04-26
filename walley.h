@@ -117,7 +117,7 @@ void Walley_Run(){
         
         printf("\n\nFUNCTION_LIST===========\n");
         FL_print(FUNCTION_LIST);
-        printf("OPERATION_LIST============\n");
+        printf("\n\nOPERATION_LIST============\n");
         
         OL_print(OPERATION_LIST);
         

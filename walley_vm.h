@@ -60,6 +60,7 @@ enum OPCODE{
     JMPA,     // 19 JMPA 0        ; jump AHEAD to LABEL 0
     JMPB,     // 20 JMPB 0        ; jump BACK to LABEL 0
     NOT,      // 21 NOT dest      ; NOT 0, change value in 0 to opposite-> true to false, false to true
+    CALL,        //22 
     NEWTABLE,  // 24
     TADD,        //25
     ENDTABLE,      //26
@@ -170,6 +171,9 @@ char *OPCODE_getFromOpcode(enum OPCODE opcode){
         case ENDPARAMS:
             return "ENDPARAMS";
             break;
+        case CALL:
+            return "CALL";
+            break;
         default:
             printf("Error..Unavailable opcode\n");
             exit(0);
@@ -268,6 +272,8 @@ enum OPCODE OPCODE_getFromString(char *input_str){
         return RETURN;
     else if (term(input_str, "ENDPARAMS"))
         return ENDPARAMS;
+    else if (term(input_str, "CALL"))
+        return CALL;
     else{
         printf("Error.. wrong opcode %s\n",input_str);
         exit(0);
@@ -279,6 +285,7 @@ struct OPERATION{
     char *arg0;
     char *arg1;
     char *arg2;
+    char *value;        // SETG 0 0 1 ;x        x is value
 };
 
 void OPERATION_print(OPERATION operation){
@@ -443,12 +450,19 @@ void OL_init(struct OL **ol){
     (*ol)->current_index=0;
 }
 void OL_print(struct OL *ol){
-    while (ol->next!=NULL) {
-        printf("%d:|%s| |%s| |%s| |%s|\n",ol->current_index,OPCODE_getFromOpcode(ol->operation.opcode),ol->operation.arg0,ol->operation.arg1,ol->operation.arg2);
+    while (ol!=NULL) {
+        printf("%d:|%s| |%s| |%s| |%s|",ol->current_index,OPCODE_getFromOpcode(ol->operation.opcode),ol->operation.arg0,ol->operation.arg1,ol->operation.arg2);
+        
+        if (ol->operation.value==NULL) {
+            printf("\n");
+        }
+        else{
+            printf("      ; %s\n",ol->operation.value);
+        }
+        
         ol=ol->next;
     }
-    printf("%d:|%s| |%s| |%s| |%s|\n",ol->current_index,OPCODE_getFromOpcode(ol->operation.opcode),ol->operation.arg0,ol->operation.arg1,ol->operation.arg2);
-    
+       
 }
 
 void OL_append(struct OL **ol, OPERATION operation){

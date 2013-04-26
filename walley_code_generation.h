@@ -220,6 +220,7 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
     op.arg0=NULL;
     op.arg1=NULL;
     op.arg2=NULL;
+    op.value=NULL;
     
 
     
@@ -852,6 +853,7 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
                 temp_op.arg0=intToCString(LOCAL_OFFSET);
                 temp_op.arg1="none";
                 temp_op.arg2=NULL;
+                temp_op.value=param_name;
                 OL_append(&((*current_fl)->current_ol), temp_op);
                 
                 
@@ -1059,6 +1061,7 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
         TREE func_tree=tree.node_list->node;
         char *func_name=func_tree.name;
         TREE param_tree=tree.node_list->next->node;
+        Node_List *param_nl=param_tree.node_list;
         
         printf("FUNC_NAME----> %s\n",func_name);
         TREE_print(param_tree);
@@ -1073,7 +1076,43 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
             printf("\nError..undefined function | %s |\n",func_name);
             exit(0);
         }
-        exit(0);
+        
+        
+        int num_of_params=NL_length(param_nl);
+        printf("num_of_params ---> %d\n",num_of_params);
+        
+        // save offset
+        int current_offset;
+        if (NOW_LOCAL) {
+            current_offset=LOCAL_OFFSET;
+        }
+        else{
+            current_offset=GLOBAL_OFFSET;
+        }
+        
+        while (param_nl!=NULL) {
+            Code_Generation(param_nl->node, ol, fl);
+            param_nl=param_nl->next;
+        }
+        
+        
+        // call function
+        op.opcode=CALL;
+        op.arg0=func_address;
+        op.arg1=intToCString(current_offset);
+        op.arg2=intToCString(num_of_params);
+        op.value=func_name;
+        
+        OL_append(ol, op);
+        
+        // restore offset
+        if (NOW_LOCAL) {
+            LOCAL_OFFSET=current_offset+1;
+        }
+        else{
+            GLOBAL_OFFSET=current_offset+1;
+        }
+
     }
     
     //simple_relation
@@ -1167,6 +1206,8 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
             
             op.arg2=NULL;
             
+            op.value=var_value;
+            
             LOCAL_OFFSET++;
             OL_append(ol, op);
         }
@@ -1181,6 +1222,8 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
             op.arg1=var_value;
         
             op.arg2=NULL;
+            
+            op.value=var_value;
         
             GLOBAL_OFFSET++;
             OL_append(ol, op);
@@ -1203,6 +1246,8 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
                 op.opcode=SETL;
                 op.arg0=intToCString(LOCAL_OFFSET);
                 op.arg1="none";
+                op.value=tree.name;
+
                 
                 LOCAL_OFFSET++;
                 OL_append(ol, op);
@@ -1214,7 +1259,8 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
                 op.opcode=SETL;
                 op.arg0=intToCString(LOCAL_OFFSET);
                 op.arg1=var_value;
-                
+                op.value=tree.name;
+
                 
                LOCAL_OFFSET++;
                 OL_append(ol, op);
@@ -1226,6 +1272,8 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
                 op.arg0=intToCString(var_set_index);
                 op.arg1=intToCString(LOCAL_OFFSET);
                 op.arg2=var_value;
+                op.value=tree.name;
+
                 
                 LOCAL_OFFSET++;
                 OL_append(ol, op);
@@ -1244,6 +1292,8 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
             
             op.arg2=NULL;
             
+            op.value=tree.name;
+            
             GLOBAL_OFFSET++;
             OL_append(ol, op);
         }
@@ -1259,12 +1309,14 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
         if (NOW_LOCAL) {
             op.opcode=NEWTABLE;
             op.arg0=intToCString(LOCAL_OFFSET);
+            op.value=tree.name;
             OL_append(ol, op);
             LOCAL_OFFSET++;
         }
         else{
             op.opcode=NEWTABLE;
             op.arg0=intToCString(GLOBAL_OFFSET);
+            op.value=tree.name;
             OL_append(ol, op);
             GLOBAL_OFFSET++;
         }
@@ -1386,6 +1438,8 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
                     
                     op.arg0=intToCString(current__offset);
                     op.arg1="none";
+                    op.value=nl->node.name;
+
                     
                     OL_append(ol, op);
                     
@@ -1414,6 +1468,7 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
                 
                 op.arg0=intToCString(current__offset);
                 op.arg1=intToCString(value__offset);
+                op.value=nl->node.name;
                 
                 OL_append(ol, op);
                 
@@ -1444,6 +1499,7 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
                         op.opcode=SETL;
                         op.arg0=intToCString(LOCAL_OFFSET);
                         op.arg1="none";
+                        op.value=nl->node.name;
                         
                         OL_append(ol, op);
                         
@@ -1463,6 +1519,8 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
                     
                     op.arg0=intToCString(var_name_offset);
                     op.arg1=intToCString(var_value_offset);
+                    op.value=nl->node.name;
+
                     
                     OL_append(ol, op);
                     
@@ -1486,6 +1544,8 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
                         op.opcode=SETL;
                         op.arg0=intToCString(LOCAL_OFFSET);
                         op.arg1="none";
+                        op.value=nl->node.name;
+
                         
                         var_name_offset=LOCAL_OFFSET;
                         
@@ -1526,6 +1586,8 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
                     
                     op.arg0=intToCString(var_name_offset);
                     op.arg1=intToCString(value__offset);
+                    op.value=nl->node.name;
+
                     
                     OL_append(ol, op);
                     
@@ -1536,6 +1598,8 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
                     op.arg0="0";
                     op.arg1=intToCString(save_to_global_address);
                     op.arg2=intToCString(var_name_offset);
+                    op.value=nl->node.name;
+
                     OL_append(ol, op);
             }
            
