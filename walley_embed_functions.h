@@ -6,7 +6,7 @@
 //  Copyright (c) 2013年 shd101wyy. All rights reserved.
 //
 
-#include "walley_code_generation.h"
+#include "walley_cg_js.h"
 
 /*
 

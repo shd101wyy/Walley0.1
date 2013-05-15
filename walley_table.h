@@ -261,6 +261,14 @@ bool table(TREE *tree, Token_List *tl,int *key_index){
                 list_string2[i]=list_string[i+1];
             }
             list_string2[i]=0;
+            list_string2=trim(list_string2);
+            
+            // content empty
+            // x=[]
+            if (strlen(list_string2)==0) {
+                return TRUE;
+            }
+            
             
             Token_List *table_tl=Walley_Lexical_Analyzie(list_string2);
             return table_elements(tree, table_tl, key_index);

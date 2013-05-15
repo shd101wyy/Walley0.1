@@ -138,6 +138,19 @@ void SL_addString(struct SL **string_list, char *add_string){
 }
 
 
+void SL_addStringList(Str_List **sl, Str_List *add_sl){
+    int length_of_add_sl=SL_length(add_sl);
+    int i=0;
+    for (; i<length_of_add_sl; i++) {
+        char *add_string=add_sl->string_content;
+        
+        SL_addString(sl, add_string);
+        
+        add_sl=add_sl->next;
+    }
+}
+
+
 void SL_print(struct SL *string_list){
     int length=SL_length(string_list);
     int i=0;
@@ -498,6 +511,36 @@ char* substr(char* input_str, int from_index, int to_index) {
         
 }
 
+char *append(char *input_str, char *append_str){
+    char *output_str;
+    int malloc_length=(int)strlen(input_str)+(int)strlen(append_str);
+    output_str=(char*)malloc(sizeof(char)*(malloc_length+1));
+    
+    strcpy(output_str, input_str);
+    strcat(output_str, append_str);
+    output_str[malloc_length]=0;
+    return output_str;
+    
+}
+
+char *ltrim(char *s)
+{
+    while(isspace(*s)) s++;
+    return s;
+}
+
+char *rtrim(char *s)
+{
+    char* back = s + strlen(s);
+    while(isspace(*--back));
+    *(back+1) = '\0';
+    return s;
+}
+
+char *trim(char *s)
+{
+    return rtrim(ltrim(s));
+}
 
 
 

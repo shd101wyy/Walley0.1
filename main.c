@@ -12,9 +12,23 @@ int main(int argc, char **argv)
 {
     
     
-    Walley_Init();
-    Walley_Run();
+    //Walley_Init();
+    //Walley_Run();
     
+    
+    char *input_str="for i=0,i<10,i=i+1 then i=2 end";
+    
+    Token_List *tl=Walley_Lexical_Analyzie(input_str);
+    TREE tree=parser(tl);
+    printf("\n============\n");
+    
+    Str_List *sl;
+    SL_initSL(&sl);
+    Code_Generation_2_Javascript(&sl,tree);
+    
+    SL_print(sl);
+    
+    exit(0);
     
     /*
     // test sentence_seperation

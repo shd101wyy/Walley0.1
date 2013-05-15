@@ -51,6 +51,7 @@ char *Walley_Calculation(char *value1, char *value2, char *sign){
         else if (sign[0]=='*'){
             if (value1IsString && value2IsString) {
                 printf("Error.. Can not multiply two string %s and %s\n",value1,value2);
+                exit(0);
             }
             else{
                 int num=0;

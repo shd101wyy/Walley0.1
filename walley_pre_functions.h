@@ -193,6 +193,9 @@ Var_List *GLOBAL_VAR_LIST;
 
 Var_List_Set *LOCAL_VAR_SET;
 
+// js
+char* Code_Generation_2_Javascript(Str_List **sl,TREE tree);
+
 
 
 Function_List *FUNCTION_LIST;
