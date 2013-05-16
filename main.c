@@ -16,7 +16,7 @@ int main(int argc, char **argv)
     //Walley_Run();
     
     
-    char *input_str="for i,v in \"Hello\"+13 then local hello = i end";
+    char *input_str="x=a.hello.length()";
     
     Token_List *tl=Walley_Lexical_Analyzie(input_str);
     TREE tree=parser(tl);
@@ -24,9 +24,11 @@ int main(int argc, char **argv)
     
     Str_List *sl;
     SL_initSL(&sl);
-    Code_Generation_2_Javascript(&sl,tree);
+    char *output_str=Code_Generation_2_Javascript(&sl,tree);
     
     SL_print(sl);
+    
+    printf("output_str---> |%s|\n",output_str);
     
     exit(0);
     

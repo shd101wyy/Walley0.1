@@ -64,8 +64,12 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
         printf("walley_statements\n");
         Node_List *nl=tree.node_list;
         while (nl!=NULL) {
-            Code_Generation_2_Javascript(sl, nl->node);
+            char *temp_str=Code_Generation_2_Javascript(sl, nl->node);
             nl=nl->next;
+            
+            if ((int)strlen(temp_str)!=0) {
+                return temp_str;
+            }
         }
         
         return "";
@@ -316,8 +320,12 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
         }
         else{
             while (nl!=NULL) {
-                Code_Generation_2_Javascript(sl, nl->node);
+                char *temp_str=Code_Generation_2_Javascript(sl, nl->node);
                 nl=nl->next;
+                
+                if ((int)strlen(temp_str)!=0) {
+                    return temp_str;
+                }
             }
         }
         
@@ -456,18 +464,63 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
     else if(term(tree.name, "table_value")){
         Node_List *nl=tree.node_list;
         char *var_name=nl->node.name;
-        TREE key_tree=nl->next->node.node_list->node;
-        char *key_str=Code_Generation_2_Javascript(sl, key_tree);
-        
-        printf("key_str %s\n",key_str);
-        
         char *append_str=var_name;
-        append_str=append(append_str, "[");
-        append_str=append(append_str, key_str);
-        append_str=append(append_str, "]");
+
+        nl=nl->next;
+        while (nl!=NULL) {
+            TREE key_tree=nl->node;
+            char *key_str=Code_Generation_2_Javascript(sl, key_tree);
+            
+            printf("key_str %s\n",key_str);
+            
+            append_str=append(append_str, key_str);
+
+            
+            nl=nl->next;
+        }
+        
+        printf("append_str---> %s\n",append_str);
         return append_str;
         
 
+    }
+    else if (term(tree.name, "key")){
+        TREE key_tree=tree.node_list->node;
+        return append("[", append(Code_Generation_2_Javascript(sl, key_tree), "]"));
+    }
+    /*
+     ( func
+        (call toString)
+        ( params
+            (id b)
+            (id c)
+        )
+     )
+     
+     */
+    else if (term(tree.name, "func")){
+        printf("func\n");
+        char *append_str=tree.node_list->node.name;
+        append_str=append(".", append_str);
+        append_str=append(append_str, "(");
+        
+        TREE params_tree=tree.node_list->next->node;
+        Node_List *params_nl=params_tree.node_list;
+        while (params_nl!=NULL) {
+            append_str=append(append_str,Code_Generation_2_Javascript(sl, params_nl->node));
+            if(params_nl->next!=NULL){
+                append_str=append(append_str,",");
+            }
+            params_nl=params_nl->next;
+        }
+        
+        printf("append_str %s\n",append_str);
+        append_str=append(append_str, ")");
+        return append_str;
+    }
+    else if (term(tree.name, "value")){
+        Node_List *nl=tree.node_list;
+        return Code_Generation_2_Javascript(sl, nl->node);
     }
     else if (term(tree.name,"params")){
         char *append_string="";
