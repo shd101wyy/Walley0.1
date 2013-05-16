@@ -9,6 +9,7 @@
 #include "walley_code_generation.h"
 
 bool js_isTable=FALSE;
+bool js_isTableValue=FALSE;
 
 /*
     x=[1,2,3]
@@ -25,6 +26,35 @@ bool js_isTable=FALSE;
 // "Hello" is string
 // "Hello"+"Hi" is not string
 // Hello is not string
+Str_List *file_getStringList(char *file_name){
+    FILE *fp=fopen(file_name, "r");
+    if (fp==NULL) {
+        printf("File %s not existed\n",file_name);
+        exit(0);
+    }
+    char c=getc(fp);    
+    Str_List *sl;
+    SL_initSL(&sl);
+    
+    Char_List *cl;
+    CL_init(&cl);
+    while (c!=EOF) {
+        if (c!='\n') {
+            CL_addChar(&cl, c);
+        }
+        // new line
+        if (c=='\n') {
+            SL_addString(&sl, CL_toString(cl));
+            CL_init(&cl);
+        }
+        c=getc(fp);
+    }
+    SL_addString(&sl, CL_toString(cl));
+    fclose(fp);
+    
+    return sl;
+    
+}
 bool isString(char *input_str){
     if (input_str[0]!='"'||input_str[(int)strlen(input_str)-1]!='"') {
         return FALSE;
@@ -44,6 +74,7 @@ bool isString(char *input_str){
         return TRUE;
     }
 }
+
 void JS_Table(Str_List **sl,char *var_name, Node_List *table_expr_nl){
     while (table_expr_nl!=NULL) {
         
@@ -63,6 +94,7 @@ void JS_Table(Str_List **sl,char *var_name, Node_List *table_expr_nl){
         append_string=append(append_string, "]");
         
         if (term(value_str, "[]")) {
+            SL_addString(sl, append(append_string, "=[];"));
             JS_Table(sl, append_string, value_tree.node_list);
         }
         else{
@@ -484,6 +516,7 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
     }
     
     else if(term(tree.name, "table_value")){
+        js_isTableValue=TRUE;
         Node_List *nl=tree.node_list;
         char *var_name=nl->node.name;
         char *append_str=var_name;
@@ -492,6 +525,9 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
         while (nl!=NULL) {
             TREE key_tree=nl->node;
             char *key_str=Code_Generation_2_Javascript(sl, key_tree);
+            if (term(key_tree.name,"func")) {
+                append_str=append(append_str,".");
+            }
             
             printf("key_str %s\n",key_str);
             
@@ -502,6 +538,7 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
         }
         
         printf("append_str---> %s\n",append_str);
+        js_isTableValue=FALSE;
         return append_str;
         
 
@@ -522,8 +559,24 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
      */
     else if (term(tree.name, "func")){
         printf("func\n");
-        char *append_str=tree.node_list->node.name;
-        append_str=append(".", append_str);
+        char *append_str; //=tree.node_list->node.name;
+        if (js_isTableValue==FALSE) {
+            char *func_name=tree.node_list->node.name;
+            // embed func
+            if (term(func_name, "puts")) {
+                append_str="console.log";
+            }
+            // not embed func
+            else{
+                append_str=tree.node_list->node.name;
+
+            }
+        }
+        else{
+            append_str=tree.node_list->node.name;
+        }
+        
+        
         append_str=append(append_str, "(");
         
         TREE params_tree=tree.node_list->next->node;
@@ -536,7 +589,6 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
             params_nl=params_nl->next;
         }
         
-        printf("append_str %s\n",append_str);
         append_str=append(append_str, ")");
         return append_str;
     }
@@ -641,6 +693,28 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
         printf("Code Generation Error..\n");
         exit(0);
     }
+}
+
+Str_List *Compile_to_JS(char *file_name){
+    int length=(int)strlen(file_name);
+    if (file_name[length-1]!='y'||file_name[length-2]!='w'||file_name[length-3]!='.') {
+        printf("File format wrong.. need .wy file\n");
+        exit(0);
+    }
+    Str_List *sl_in_file=file_getStringList(file_name);
+    Str_List *output_sl;
+    SL_initSL(&output_sl);
     
+    while (sl_in_file!=NULL) {
+        Token_List *tl=Walley_Lexical_Analyzie(sl_in_file->string_content);
+        TREE tree=parser(tl);
+        char *output_str=Code_Generation_2_Javascript(&output_sl, tree);
+        
+        if (term(output_str, "")==FALSE) {
+            SL_addString(&output_sl, output_str);
+        }
+        sl_in_file=sl_in_file->next;
+    }
     
+    return output_sl;
 }

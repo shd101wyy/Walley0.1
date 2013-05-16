@@ -11,42 +11,23 @@
 int main(int argc, char **argv)
 {
     
-    
+  
     //Walley_Init();
     //Walley_Run();
     
     /*
-     ( walley_statements
-        ( statements
-            ( =
-                (id x)
-                ( +
-                    ( ^( +(id a)(num 3))(num 2))
-                    ( expr( table_value(id b)( key(string "length"))))
-                )
-            )
-        )
-    )
-
-     
-     
-     */
-    char *input_str="x=(a+3)^2+b.length";
-    
+    char *input_str="x=[[1,2,3],1]";
     Token_List *tl=Walley_Lexical_Analyzie(input_str);
     TREE tree=parser(tl);
-    printf("\n============\n");
-    
     Str_List *sl;
     SL_initSL(&sl);
-    char *output_str=Code_Generation_2_Javascript(&sl,tree);
+    
+    Code_Generation_2_Javascript(&sl, tree);
     
     SL_print(sl);
     
-    printf("output_str---> |%s|\n",output_str);
-    
     exit(0);
-    
+    */
     /*
     // test sentence_seperation
     //"x,y=def (a,b) then return a+b end,12 z=12"
@@ -118,6 +99,53 @@ int main(int argc, char **argv)
             char *file_name=argv[2];
             VM_Run_File(file_name);
         }
+        
+        // compile to min.js
+        else if (strcmp(argv[1], "js_min")==0){
+            printf("Begin to compile to javascript file\n");
+            Str_List *output_sl=Compile_to_JS(argv[2]);
+            
+            int length=(int)strlen(argv[2]);
+            char *compile_to_file=argv[2];
+            compile_to_file[length-1]='s';
+            compile_to_file[length-2]='j';
+            
+            printf("compile_to_file name %s\n",compile_to_file);
+            
+            FILE *fp=fopen(compile_to_file, "w");
+            while (output_sl!=NULL) {
+                
+                fputs(output_sl->string_content, fp);
+                output_sl=output_sl->next;
+            }
+            
+            fclose(fp);
+            
+        }
+        // compile to js
+        else if (strcmp(argv[1], "js")==0){
+            printf("Begin to compile to javascript file\n");
+            Str_List *output_sl=Compile_to_JS(argv[2]);
+            
+            int length=(int)strlen(argv[2]);
+            char *compile_to_file=argv[2];
+            compile_to_file[length-1]='s';
+            compile_to_file[length-2]='j';
+            
+            printf("compile_to_file name %s\n",compile_to_file);
+            
+            FILE *fp=fopen(compile_to_file, "w");
+            while (output_sl!=NULL) {
+                
+                fputs(output_sl->string_content, fp);
+                fputs("\n",fp);
+                output_sl=output_sl->next;
+            }
+            
+            fclose(fp);
+            
+        }
+
         /*
         else if (strcmp(argv[1],"cg")==0) {
             
