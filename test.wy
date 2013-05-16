@@ -1,4 +1,5 @@
-math=[]
-math.a=12
-math.add=def(a,b) then return a+b end
-puts(math.add(3,4))
+x=[1,2,3]
+for i,v in x then
+    puts(i)
+    puts(x[i])
+end

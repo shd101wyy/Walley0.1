@@ -231,7 +231,10 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
             
             nl=nl->next->next;
             while (nl!=NULL) {
-                Code_Generation_2_Javascript(sl, nl->node);
+                char *output_str=Code_Generation_2_Javascript(sl, nl->node);
+                if (term("", output_str)==FALSE) {
+                    SL_addString(sl, output_str);
+                }
                 nl=nl->next;
             }
         }
@@ -284,7 +287,10 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
             }
             
             while (nl->next!=NULL) {
-                Code_Generation_2_Javascript(sl, nl->node);
+                char *output_str=Code_Generation_2_Javascript(sl, nl->node);
+                if (term("", output_str)==FALSE) {
+                    SL_addString(sl, output_str);
+                }
                 nl=nl->next;
             }
             if (has_assignment_after_judge) {
@@ -368,7 +374,10 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
             
             nl=foreach_in_nl->next;
             while (nl!=NULL) {
-                Code_Generation_2_Javascript(sl, nl->node);
+                char *output_str=Code_Generation_2_Javascript(sl, nl->node);
+                if (term("", output_str)==FALSE) {
+                    SL_addString(sl, output_str);
+                }
                 nl=nl->next;
             }
             
@@ -716,10 +725,42 @@ Str_List *Compile_to_JS(char *file_name){
     Str_List *sl_in_file=file_getStringList(file_name);
     Str_List *output_sl;
     SL_initSL(&output_sl);
-       
+    
+    
+   
+    
+    
     while (sl_in_file!=NULL) {
         Token_List *tl=Walley_Lexical_Analyzie(sl_in_file->string_content);
         TREE tree=parser(tl);
+        
+        
+        if (INCOMPLETE_STATEMENT) {
+            char *temp_string="";
+            while (INCOMPLETE_STATEMENT) {
+                
+                COUNT_THEN_END=0;
+                temp_string=append(temp_string, sl_in_file->string_content);
+                temp_string=append(temp_string, " ");
+                Token_List *temp_tl=Walley_Lexical_Analyzie(temp_string);
+                
+                if (COUNT_THEN_END==0) {
+                    INCOMPLETE_STATEMENT=FALSE;
+                    tree=parser(temp_tl);
+                    
+                    if (INCOMPLETE_STATEMENT==FALSE) {
+                        break;
+                    }
+                    
+                }
+                
+
+                sl_in_file=sl_in_file->next;
+
+            }
+        }
+
+        
         char *output_str=Code_Generation_2_Javascript(&output_sl, tree);
         
         if (term(output_str, "")==FALSE) {

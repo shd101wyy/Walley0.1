@@ -1,6 +1,8 @@
-math=[];
-math["a"]=12;
-math["add"]=function(a,b){
-return a+b;
-};
-console.log(math.add(3,4))
+x=[];
+x[0]=1;
+x[1]=2;
+x[2]=3;
+for(i in x){
+v=(x)[i]
+console.log(i)
+}
