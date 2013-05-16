@@ -16,7 +16,7 @@ int main(int argc, char **argv)
     //Walley_Run();
     
     
-    char *input_str="for i=0,i<10,i=i+1 then i=2 end";
+    char *input_str="for i<10,i=i+1 then i=2 end";
     
     Token_List *tl=Walley_Lexical_Analyzie(input_str);
     TREE tree=parser(tl);

@@ -197,28 +197,56 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
             char *append_str="for (";
             
             if (term(nl->next->node.name, "assignment")) {
+                Code_Generation_2_Javascript(sl, nl->next->node.node_list->node);
+                nl=nl->next->next;
                 printf("assignment\n");
-                exit(0);
+                //exit(0);
             }
             else{
-                append_str=append(append_str,";");
+                nl=nl->next;
             }
+            append_str=append(append_str,";");
             
-            char *judge_str=Code_Generation_2_Javascript(sl, nl->next->node);
-            
-            printf("judge_str----> %s\n",judge_str);
+            // nl now is relation
+            char *judge_str=Code_Generation_2_Javascript(sl, nl->node);
             
             append_str=append(append_str, judge_str);
-            append_str=append(append_str,"){");
-            
-            printf("append_str----> %s\n",append_str);
+            append_str=append(append_str, ";){");
             SL_addString(sl, append_str);
             
-            nl=nl->next->next;
-            while (nl!=NULL) {
+            nl=nl->next;
+            Node_List *temp_nl;
+            bool has_assignment_after_judge=FALSE;
+            if (term(nl->node.name, "assignment")) {
+                has_assignment_after_judge=TRUE;
+                temp_nl=nl;
+                nl=nl->next;
+            }
+            
+            while (nl->next!=NULL) {
                 Code_Generation_2_Javascript(sl, nl->node);
                 nl=nl->next;
             }
+            if (has_assignment_after_judge) {
+                Code_Generation_2_Javascript(sl, temp_nl->node.node_list->node);
+            }
+            SL_addString(sl, "}");
+            
+            //printf("judge_str----> %s\n",judge_str);
+            //printf("append_str---> %s\n",append_str);
+            //exit(0);
+            
+           // append_str=append(append_str, judge_str);
+           // append_str=append(append_str,"){");
+            
+           // printf("append_str----> %s\n",append_str);
+           // SL_addString(sl, append_str);
+            
+           // nl=nl->next->next;
+           // while (nl!=NULL) {
+           //    Code_Generation_2_Javascript(sl, nl->node);
+           //     nl=nl->next;
+           // }
 
         }
         else{
