@@ -285,7 +285,7 @@ bool table(TREE *tree, Token_List *tl,int *key_index){
 /*
 
  table_value_key->
- | [(string|num)value]
+ | [(string|num)value|slice]        # slice need ":"    like ':3' ':3' or '0:3'
  | '.' id
  | '.' func
  | '.' func table_value_key                            // behind is [] or '.'
@@ -408,7 +408,7 @@ bool table_value(TREE *tree, Token_List *tl){
 
 /*
  table_value_key->
- | [(string|num)value]
+ | [(string|num)value|slice]        # slice need ":"    like ':3' ':3' or '0:3'
  | '.' id
  | '.' func
  | '.' func table_value_key                            // behind is [] or '.'
@@ -423,7 +423,7 @@ bool table_value_key(TREE *tree, Token_List *tl){
     }
     int length_of_tl=TL_length(tl);
     
-    // [(string|num)value]
+    // [(string|num)value|slice]        # slice need ":"    like ':3' ':3' or '0:3'
     if (length_of_tl==1 && term(tl->current_token.TOKEN_CLASS, "list_table")) {
         // get string inside []
         int length=(int)strlen(tl->current_token.TOKEN_STRING);
@@ -435,18 +435,97 @@ bool table_value_key(TREE *tree, Token_List *tl){
         string_inside[i]=0;
         //====================
         
-        int index1=TREE_INDEX;
-        TREE_addNode(tree, "key", "");
-        
         
         Token_List *key_tl=Walley_Lexical_Analyzie(string_inside);
-        TREE key_tree;
-        TREE_initWithName(&key_tree, "key");
-        value(&key_tree, key_tl);
         
-        TREE_addTree(TREE_getTreeAccordingToIndex(tree, index1),key_tree);
+        // check whether have :
+        int index_of_colon=-1;
+        Token_List *temp_tl=key_tl;
+        int a=0;
+        while (temp_tl!=NULL) {
+            if (term(temp_tl->current_token.TOKEN_STRING, ":")) {
+                index_of_colon=a;
+                break;
+            }
+            a=a+1;
+            temp_tl=temp_tl->next;
+        }
+        
+        // not slice
+        if (index_of_colon==-1) {
+            
+            int index1=TREE_INDEX;
+            TREE_addNode(tree, "key", "");
+            
+            
+            TREE key_tree;
+            TREE_initWithName(&key_tree, "key");
+            value(&key_tree, key_tl);
+            
+            TREE_addTree(TREE_getTreeAccordingToIndex(tree, index1),key_tree);
+            
+            return TRUE;
 
-        return TRUE;
+        }
+        
+        // slice
+        else{
+            int length_of_key_tl=TL_length(key_tl);
+            int index1=TREE_INDEX;
+            TREE_addNode(tree, "key", "");
+            
+            
+            TREE slice_tree;
+            TREE_initWithName(&slice_tree, "slice");
+            
+            Token_List *left_tl;
+            Token_List *right_tl;
+            
+            // has no left
+            if (index_of_colon==0) {
+                left_tl=NULL;
+            }
+            else{
+                left_tl=TL_subtl(key_tl, 0, index_of_colon);
+            }
+            
+            // has no right
+            if (index_of_colon==length_of_key_tl-1) {
+                right_tl=NULL;
+            }
+            else{
+                right_tl=TL_subtl(key_tl, index_of_colon+1, length_of_key_tl);
+            }
+            // add left
+            int index_left=TREE_INDEX;
+            if (left_tl==NULL) {
+                TREE_addNode(&slice_tree, "0","num");
+            }
+            else{
+                TREE_addNode(&slice_tree, "value", "");
+                value(TREE_getTreeAccordingToIndex(&slice_tree, index_left), left_tl);
+            }
+            
+            // add right
+            int index_right=TREE_INDEX;
+            if (right_tl==NULL) {
+                TREE_addNode(&slice_tree, "its_length","special");
+            }
+            else{
+                TREE_addNode(&slice_tree, "value", "");
+                value(TREE_getTreeAccordingToIndex(&slice_tree, index_right), right_tl);
+            }
+
+            
+            
+            
+            
+            
+            TREE_addTree(TREE_getTreeAccordingToIndex(tree, index1),slice_tree);
+            
+            return TRUE;
+        }
+        
     }
     //| '.' id
     else if (length_of_tl==2 && term(tl->current_token.TOKEN_STRING,".")&&term(tl->next->current_token.TOKEN_CLASS, "id")){

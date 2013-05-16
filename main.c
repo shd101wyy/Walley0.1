@@ -16,7 +16,15 @@ int main(int argc, char **argv)
     //Walley_Run();
     
     /*
-    char *input_str="math.add=def(a,b) then return a+b end";
+    char *input_str="[1,2,3][:4].length";
+    Token_List *tl=Walley_Lexical_Analyzie(input_str);
+    TREE tree=parser(tl);
+    exit(0);
+     */
+     
+     
+    /*
+    char *input_str="[1,2,3][3:].length";
     Token_List *tl=Walley_Lexical_Analyzie(input_str);
     TREE tree=parser(tl);
     Str_List *sl;

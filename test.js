@@ -1,8 +1,2 @@
-add=function(a,b){
-return a+b;
-};
-run=function(add){
-x=add(3,4);
-console.log(x)
-};
-run(add)
+x="Hello";
+console.log(x.slice(0,3)["length"]);

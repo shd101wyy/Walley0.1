@@ -567,8 +567,36 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
 
     }
     else if (term(tree.name, "key")){
-        TREE key_tree=tree.node_list->node;
-        return append("[", append(Code_Generation_2_Javascript(sl, key_tree), "]"));
+        if (term(tree.node_list->node.name,"slice")) {
+            printf("slice");
+            
+            char *append_str=".slice(";
+            
+            Node_List *nl=tree.node_list->node.node_list;
+            TREE left=nl->node;
+            TREE right=nl->next->node;
+            
+            char *left_str=Code_Generation_2_Javascript(sl, left);
+            append_str=append(append_str, left_str);
+            
+            // does not append
+            if (term(right.name,"its_length")) {
+                
+            }
+            else{
+                append_str=append(append_str, ",");
+                char *right_str=Code_Generation_2_Javascript(sl, right);
+                append_str=append(append_str, right_str);
+            }
+            append_str=append(append_str, ")");
+            //printf("append_str %s\n",append_str);
+            
+            return append_str;
+        }
+        else{
+            TREE key_tree=tree.node_list->node;
+            return append("[", append(Code_Generation_2_Javascript(sl, key_tree), "]"));
+        }
     }
     /*
      ( func
@@ -779,6 +807,7 @@ Str_List *Compile_to_JS(char *file_name){
         char *output_str=Code_Generation_2_Javascript(&output_sl, tree);
         
         if (term(output_str, "")==FALSE) {
+            output_str=append(output_str, ";");
             SL_addString(&output_sl, output_str);
         }
         
