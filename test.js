@@ -5,4 +5,5 @@ x[2]=3;
 for(i in x){
 v=(x)[i]
 console.log(i)
+console.log(x[i])
 }

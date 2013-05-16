@@ -29,17 +29,17 @@ int main(int argc, char **argv)
     exit(0);
     */
     /*
-    char *input_str="for i=0,i<10,i=i+1 then     puts(i) end";
+    char *input_str="puts(a) puts(b)";
     Token_List *tl=Walley_Lexical_Analyzie(input_str);
     TREE tree=parser(tl);
     exit(0);
     */
     
-    
+    /*
     Str_List *output_sl=Compile_to_JS("/Users/shd101wyy/Documents/workspace/xcode/Walley0.1/Walley0.1/test.wy");
     SL_print(output_sl);
     exit(0);
-     
+     */
     
     /*
     // test sentence_seperation
