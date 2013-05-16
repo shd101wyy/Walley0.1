@@ -1,9 +1,8 @@
-x=[];
-x[0]=1;
-x[1]=2;
-x[2]=3;
-for(i in x){
-v=(x)[i]
-console.log(i)
-console.log(x[i])
-}
+add=function(a,b){
+return a+b;
+};
+run=function(add){
+x=add(3,4);
+console.log(x)
+};
+run(add)

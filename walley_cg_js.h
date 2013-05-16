@@ -173,7 +173,10 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
             
             nl=nl->next->next;
             while (nl!=NULL) {
-                Code_Generation_2_Javascript(sl, nl->node);
+                char *output_str=Code_Generation_2_Javascript(sl, nl->node);
+                if (term("", output_str)==FALSE) {
+                    SL_addString(sl, output_str);
+                }
                 nl=nl->next;
             }
         }
@@ -193,7 +196,10 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
             
             nl=nl->next->next;
             while (nl!=NULL) {
-                Code_Generation_2_Javascript(sl, nl->node);
+                char *output_str=Code_Generation_2_Javascript(sl, nl->node);
+                if (term("", output_str)==FALSE) {
+                    SL_addString(sl, output_str);
+                }
                 nl=nl->next;
             }
         }
@@ -203,7 +209,10 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
             SL_addString(sl, append_str);
             nl=nl->next;
             while (nl!=NULL) {
-                Code_Generation_2_Javascript(sl, nl->node);
+                char *output_str=Code_Generation_2_Javascript(sl, nl->node);
+                if (term("", output_str)==FALSE) {
+                    SL_addString(sl, output_str);
+                }
                 nl=nl->next;
             }
         }
@@ -496,7 +505,10 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
              */
             Node_List *nl=var_value_tree.node_list->next->next;
             while (nl->next!=NULL) {
-                Code_Generation_2_Javascript(sl, nl->node);
+                char *output_str=Code_Generation_2_Javascript(sl, nl->node);
+                if (term("", output_str)==FALSE) {
+                    SL_addString(sl, output_str);
+                }
                 nl=nl->next;
             }
             SL_addString(sl, "};");
@@ -727,10 +739,13 @@ Str_List *Compile_to_JS(char *file_name){
     SL_initSL(&output_sl);
     
     
-   
-    
-    
     while (sl_in_file!=NULL) {
+        
+        if ((int)strlen(trim(sl_in_file->string_content))==0) {
+            sl_in_file=sl_in_file->next;
+            continue;
+        }
+        
         Token_List *tl=Walley_Lexical_Analyzie(sl_in_file->string_content);
         TREE tree=parser(tl);
         
@@ -759,13 +774,14 @@ Str_List *Compile_to_JS(char *file_name){
 
             }
         }
-
+        
         
         char *output_str=Code_Generation_2_Javascript(&output_sl, tree);
         
         if (term(output_str, "")==FALSE) {
             SL_addString(&output_sl, output_str);
         }
+        
         sl_in_file=sl_in_file->next;
     }
     
