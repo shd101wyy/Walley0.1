@@ -347,6 +347,7 @@ bool table_value(TREE *tree, Token_List *tl){
         TREE_addNode(TREE_getTreeAccordingToIndex(tree, index), tl->current_token.TOKEN_STRING, tl->current_token.TOKEN_CLASS);
         return table_value_key(TREE_getTreeAccordingToIndex(tree, index), TL_subtl(tl, 1, length_of_tl));
     }
+    // expr table_value_key                //  ("He"+"llo").length()   where expr can only be  inside '()'
     else{
         if (term(tl->current_token.TOKEN_STRING, "(")) {
             
@@ -377,6 +378,14 @@ bool table_value(TREE *tree, Token_List *tl){
                 return FALSE;
             }
             else{
+                if (index_of_right==length_of_tl-1) {
+                    return FALSE;
+                }
+                
+                // solve (a+3)^2 like problem
+                if (term(TL_tokenAtIndex(tl, index_of_right+1).TOKEN_CLASS, "list_table")==FALSE || term(TL_tokenAtIndex(tl, index_of_right+1).TOKEN_STRING, ".")==FALSE) {
+                    return FALSE;
+                }
                 int index=TREE_INDEX;
                 TREE_addNode(tree, "table_value", "");
                

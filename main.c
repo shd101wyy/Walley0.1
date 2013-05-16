@@ -15,8 +15,23 @@ int main(int argc, char **argv)
     //Walley_Init();
     //Walley_Run();
     
-    
-    char *input_str="x=a.hello.length()";
+    /*
+     ( walley_statements
+        ( statements
+            ( =
+                (id x)
+                ( +
+                    ( ^( +(id a)(num 3))(num 2))
+                    ( expr( table_value(id b)( key(string "length"))))
+                )
+            )
+        )
+    )
+
+     
+     
+     */
+    char *input_str="x=(a+3)^2+b.length";
     
     Token_List *tl=Walley_Lexical_Analyzie(input_str);
     TREE tree=parser(tl);

@@ -22,6 +22,28 @@ bool js_isTable=FALSE;
  
  
  */
+// "Hello" is string
+// "Hello"+"Hi" is not string
+// Hello is not string
+bool isString(char *input_str){
+    if (input_str[0]!='"'||input_str[(int)strlen(input_str)-1]!='"') {
+        return FALSE;
+    }
+    int count=0;
+    int i=0;
+    int length=(int)strlen(input_str);
+    for (; i<length; i++) {
+        if (input_str[i]=='"') {
+            count++;
+        }
+    }
+    if (count!=2) {
+        return FALSE;
+    }
+    else{
+        return TRUE;
+    }
+}
 void JS_Table(Str_List **sl,char *var_name, Node_List *table_expr_nl){
     while (table_expr_nl!=NULL) {
         
@@ -563,6 +585,13 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
         char *left_str=Code_Generation_2_Javascript(sl, left);
         char *right_str=Code_Generation_2_Javascript(sl, right);
         
+        if ((stringIsDigit(left_str)||isString(left_str))&&(stringIsDigit(right_str)||isString(right_str))) {
+            printf("Can calculate directly %s %s %s",left_str,right_str,tree.name);
+            char *value=Walley_Calculation(left_str, right_str, tree.name);
+            return value;
+        }
+        
+        
         bool left_need_bracket=TRUE;
         bool right_need_bracket=TRUE;
         
@@ -605,7 +634,9 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
             return append_str;
         }
     }
-    
+    else if (term(tree.name, "expr")){
+        return Code_Generation_2_Javascript(sl, tree.node_list->node);
+    }
     else{
         printf("Code Generation Error..\n");
         exit(0);
