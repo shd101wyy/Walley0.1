@@ -1,3 +1,4 @@
-puts("Hello")
-x=[[1,2,3],1]
-puts(x)
+math=[]
+math.a=12
+math.add=def(a,b) then return a+b end
+puts(math.add(3,4))

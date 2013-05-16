@@ -49,7 +49,9 @@ Str_List *file_getStringList(char *file_name){
         }
         c=getc(fp);
     }
-    SL_addString(&sl, CL_toString(cl));
+    if (term("", trim(CL_toString(cl)))==FALSE) {
+        SL_addString(&sl, CL_toString(cl));
+    }
     fclose(fp);
     
     return sl;
@@ -689,6 +691,16 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
     else if (term(tree.name, "expr")){
         return Code_Generation_2_Javascript(sl, tree.node_list->node);
     }
+    else if (term(tree.name, "return")){
+        printf("FIND RETURN\n");
+        char *append_str="return ";
+        Node_List *nl=tree.node_list;
+        append_str=append(append_str, Code_Generation_2_Javascript(sl, nl->node));
+        append_str=append(append_str, ";");
+        SL_addString(sl, append_str);
+        return "";
+        
+    }
     else{
         printf("Code Generation Error..\n");
         exit(0);
@@ -704,7 +716,7 @@ Str_List *Compile_to_JS(char *file_name){
     Str_List *sl_in_file=file_getStringList(file_name);
     Str_List *output_sl;
     SL_initSL(&output_sl);
-    
+       
     while (sl_in_file!=NULL) {
         Token_List *tl=Walley_Lexical_Analyzie(sl_in_file->string_content);
         TREE tree=parser(tl);

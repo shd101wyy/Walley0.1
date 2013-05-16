@@ -16,7 +16,7 @@ int main(int argc, char **argv)
     //Walley_Run();
     
     /*
-    char *input_str="x=[[1,2,3],1]";
+    char *input_str="math.add=def(a,b) then return a+b end";
     Token_List *tl=Walley_Lexical_Analyzie(input_str);
     TREE tree=parser(tl);
     Str_List *sl;
@@ -28,6 +28,10 @@ int main(int argc, char **argv)
     
     exit(0);
     */
+    
+    
+    //Str_List *output_sl=Compile_to_JS("/Users/shd101wyy/Documents/workspace/xcode/Walley0.1/Walley0.1/test.wy");
+    
     /*
     // test sentence_seperation
     //"x,y=def (a,b) then return a+b end,12 z=12"
