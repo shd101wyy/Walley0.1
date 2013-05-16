@@ -249,6 +249,71 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
            // }
 
         }
+        /*
+         ( walley_statements
+            ( statements
+                ( foreach)
+                (foreach_index i)
+                (foreach_value v)
+                (foreach_in 
+                    ( +(string "Hello")(num 13))
+                )
+                ( statements( =(id i)(num 2)))
+                ( end)
+            )
+         )
+         
+         */
+        else if (term(nl->node.name, "foreach")){
+            printf("For Each\n");
+            char *append_str="for(";
+            // for i,v in x
+            // get i
+            char *foreach_index=nl->next->node.name;
+            append_str=append(append_str, foreach_index);
+            append_str=append(append_str, " in ");
+            
+            
+            bool has_v=TRUE;
+            Node_List *foreach_in_nl;
+            if (term(nl->next->next->node.name, "")) {
+                
+                has_v=FALSE;
+                foreach_in_nl=nl->next->next->next;
+            }
+            else{
+                foreach_in_nl=nl->next->next->next;
+            }
+            
+            char *foreach_in_value=Code_Generation_2_Javascript(sl, foreach_in_nl->node.node_list->node);
+            // append in value
+            append_str=append(append_str,foreach_in_value);
+            append_str=append(append_str, "){");
+            
+            printf("append_str----> %s\n",append_str);
+            SL_addString(sl, append_str);
+            
+            if (has_v) {
+                
+                char *value_var_name=foreach_in_nl->ahead->node.name;
+                append_str=append(value_var_name,"=");
+                
+                char *in_value=append("(", append(foreach_in_value, ")"));
+                char *in_value_and_key=append(in_value, append("[", append(foreach_index,"]")));
+                
+                append_str=append(append_str, in_value_and_key);
+                printf("append_str----> %s\n",append_str);
+                SL_addString(sl, append_str);
+            }
+            
+            nl=foreach_in_nl->next;
+            while (nl!=NULL) {
+                Code_Generation_2_Javascript(sl, nl->node);
+                nl=nl->next;
+            }
+            
+            return "";
+        }
         else{
             while (nl!=NULL) {
                 Code_Generation_2_Javascript(sl, nl->node);

@@ -69,6 +69,11 @@
  
  version 2.0
  for_stms ->
+ 
+ # new on May 16    foreach
+ |  'for' id ',' id 'in' value 'then' walley_statements 'end'
+ |  'for' id        'in' value 'then' walley_statements 'end'
+ 
  |  'for' simple_relation ',' assignment 'then' walley_statements 'end'
  |  'for' ',' simple_relation ',' assignment 'then' walley_statements 'end'
  |  'for' assignment ',' simple_relation ',' assignment 'then' walley_statements 'end'
@@ -294,6 +299,10 @@ for_stms ->
 
 version 2.0
 for_stms ->
+ # new on May 16    foreach
+|  'for' id ',' id 'in' value 'then' walley_statements 'end'
+|  'for' id        'in' value 'then' walley_statements 'end'
+ 
 |  'for' simple_relation ',' assignment 'then' walley_statements 'end'
 |  'for' ',' simple_relation ',' assignment 'then' walley_statements 'end'
 |  'for' assignment ',' simple_relation ',' assignment 'then' walley_statements 'end'
@@ -320,6 +329,84 @@ bool for_stms(TREE *tree, Token_List *tl){
     }
     
     int length_of_tl=TL_length(tl);
+    
+    /*
+     
+     check 
+     |  'for' id ',' id 'in' value 'then' walley_statements 'end'
+     |  'for' id        'in' value 'then' walley_statements 'end'
+     
+     */
+    // assume it is correct
+    if (term(TL_tokenAtIndex(tl, 4).TOKEN_STRING, "in") || term(TL_tokenAtIndex(tl, 2).TOKEN_STRING, "in")) {
+        printf("For Each ====\n");
+        
+        
+        int index_of_then=-1;
+        // check then index;
+        Token_List *temp_tl=tl;
+        int i=0;
+        while (temp_tl!=NULL) {
+            if (term(temp_tl->current_token.TOKEN_STRING, "then")) {
+                index_of_then=i;
+                break;
+            }
+            temp_tl=temp_tl->next;
+            i++;
+        }
+        
+        printf("index of then --> %d\n",index_of_then);
+        
+        TREE_addNode(tree, "foreach", "");
+        
+        temp_tl=tl;
+        
+        // for i,v in x
+        // check i error
+        if (term(tl->next->current_token.TOKEN_CLASS, "id")==FALSE) {
+            Walley_Print_Error(TL_toString(tl), "for each statements error, for i,v in value, i,v must be id", tl->next->current_token.TOKEN_START);
+        }
+        
+        // add i
+        TREE_addNode(tree, tl->next->current_token.TOKEN_STRING, "foreach_index");
+        
+        if (term(tl->next->next->current_token.TOKEN_STRING, ",")) {
+            // check v error
+            if (term(tl->next->next->next->current_token.TOKEN_CLASS, "id")==FALSE) {
+                Walley_Print_Error(TL_toString(tl), "for each statements error, for i,v in value, i,v must be id", tl->next->current_token.TOKEN_START);
+            }
+            
+            // add v
+            TREE_addNode(tree, tl->next->next->next->current_token.TOKEN_STRING, "foreach_value");
+            tl=tl->next->next->next->next->next; // value
+            
+            // add in value
+            int index=TREE_INDEX;
+            TREE_addNode(tree, "", "foreach_in");
+            TREE_addNode(TREE_getTreeAccordingToIndex(tree, index), "value", "");
+            index+=1;
+            value(TREE_getTreeAccordingToIndex(tree, index), TL_subtl(temp_tl, 5, index_of_then));
+            
+        }
+        else{
+            // add v
+            TREE_addNode(tree, "", "foreach_value");
+            tl=tl->next->next->next; // value
+            
+            // add in value
+            int index=TREE_INDEX;
+            TREE_addNode(tree, "", "foreach_in");
+            TREE_addNode(TREE_getTreeAccordingToIndex(tree, index), "value", "");
+            index+=1;
+            value(TREE_getTreeAccordingToIndex(tree, index), TL_subtl(temp_tl, 3, index_of_then));
+        }
+        
+        
+        return walley_statements(tree, TL_subtl(temp_tl, index_of_then+1, length_of_tl-1))
+        && end_stm(tree, TL_subtl(temp_tl, length_of_tl-1, length_of_tl));
+    }
+    
+    
     
     int num_of_semi_colon=0;
     int count_of_p=0; // count of ()
