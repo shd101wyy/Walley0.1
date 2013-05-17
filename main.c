@@ -12,8 +12,8 @@ int main(int argc, char **argv)
 {
     
   
-    //Walley_Init();
-    //Walley_Run();
+    Walley_Init();
+    Walley_Run();
     
     /*
     char *input_str="[1,2,3][:4].length";

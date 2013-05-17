@@ -497,95 +497,6 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
         
             return;
         }
-        // def statements
-        else if (term(nl->node.name, "def")){
-            printf("Begin to Define a function\n");
-            printf("ERROR...DEF should not enter this old scope\n");
-            exit(0);
-            
-            // push def
-            SL_addString(&STATEMENTS_LIST, "def");
-
-            // begin new var set
-            VLS_push(&LOCAL_VAR_SET);
-            
-            // backup local offset
-            SL_addString(&LOCAL_OFFSET_LIST, intToCString(LOCAL_OFFSET));
-            LOCAL_OFFSET=0;
-            
-
-
-            
-            //( statements( def)( func(call add)( params(id num1)(id num2))))
-            TREE func_tree=nl->next->node;
-            char *func_name=func_tree.node_list->node.name;
-            
-            // add func_name
-            FL_addFuncName(fl, func_name);
-            
-            
-            // begin new local registers
-            op.opcode=BEGINLOCAL;
-            FL_addOperation(fl, op);
-
-            
-            TREE param_tree=func_tree.node_list->next->node;
-            int params_num=NL_length(param_tree.node_list);
-            
-            Node_List *params_nl=param_tree.node_list;
-            //add params to local var list and local operation list;
-            int i=0;
-            for (; i<params_num; i++) {
-                char *param_name=params_nl->node.name;
-                
-                // add to local var list
-                Var param_var;
-                param_var.address=intToCString(LOCAL_OFFSET);
-                param_var.var_name=param_name;
-                VL_addVar(VLS_finalVL(&LOCAL_VAR_SET), param_var);
-                
-                // add to local operation list
-                OPERATION temp_op;
-                temp_op.opcode=SETL;
-                temp_op.arg0=intToCString(LOCAL_OFFSET);
-                temp_op.arg1="none";
-                temp_op.arg2=NULL;
-                FL_addOperation(fl, temp_op);
-                
-                
-                LOCAL_OFFSET++;
-                
-                params_nl=params_nl->next;
-                
-            }
-            
-           
-            
-            // add return
-            // add to local var list
-            Var param_var;
-            param_var.address=intToCString(LOCAL_OFFSET);
-            param_var.var_name="return";
-            VL_addVar(VLS_finalVL(&LOCAL_VAR_SET), param_var);
-            
-            // add to local operation list
-            OPERATION temp_op;
-            temp_op.opcode=SETL;
-            temp_op.arg0=intToCString(LOCAL_OFFSET);
-            temp_op.arg1="none";
-            temp_op.arg2=NULL;
-            FL_addOperation(fl, temp_op);
-            
-            
-            LOCAL_OFFSET++;
-                
-            NOW_FUNCTION=TRUE;
-            
-            
-            // init fl inside function
-            FL_init(&((*fl)->next_in_function));
-        }
-
         
         else{
             while (nl->next!=NULL) {
@@ -776,8 +687,19 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
         
         
         OL_init(&((*current_fl)->current_ol));
+        
+        // init func id
+        char *func_id=append("f", intToCString(FUNC_ID));
+        FUNC_ID++;
+        
+        // begin new func
+        op.opcode=BEGINFUNC;
+        op.arg0=func_id;
+        OL_append(&((*current_fl)->current_ol), op);
+        
         // begin new local registers
         op.opcode=BEGINLOCAL;
+        op.arg0=NULL;
         OL_append(&((*current_fl)->current_ol), op);
 
         
@@ -820,17 +742,7 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
             // eg add = def(a,b) then return a+b end... set a=none b=none
             else{
                 
-                /*
-                TREE temp_assignment_tree;
-                TREE_initWithName(&temp_assignment_tree, "=");
-                TREE_addNode(&temp_assignment_tree, param_name, "id");
-                TREE_addNode(&temp_assignment_tree, "none", "id");
-                
-                TREE_print(temp_assignment_tree);
-                // this place has problem
-                Code_Generation(temp_assignment_tree, &((*fl)->current_ol), &((*fl)->next_in_function));
-                */
-                
+
                 // add to local var list
                 Var param_var;
                 param_var.address=intToCString(LOCAL_OFFSET);
@@ -866,9 +778,15 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
             temp_nl=temp_nl->next;
         }
         
-        printf("FL_LENGTH == %d\n",FL_length(*fl));
         
-        
+        // add function to ol
+        Operation_List *ol_func=(*current_fl)->current_ol;
+        while (ol_func!=NULL) {
+            OL_append(ol, ol_func->operation);
+            ol_func=ol_func->next;
+        }
+       
+
         
         // set func_index
         // local
@@ -878,7 +796,9 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
             
             op.arg0=intToCString(LOCAL_OFFSET);
             
-            op.arg1=current_fl_address_string;
+            //op.arg1=current_fl_address_string;
+            op.arg1=func_id;
+
             
             op.arg2=NULL;
             
@@ -890,44 +810,26 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
             op.opcode=SETG;
             op.arg0=intToCString(GLOBAL_OFFSET);
             
-            op.arg1=current_fl_address_string;
-            
+            //op.arg1=current_fl_address_string;
+            op.arg1=func_id;
+
             op.arg2=NULL;
             
             GLOBAL_OFFSET++;
             OL_append(ol, op);
         }
+        
+        
+        printf("NOW HERE=======\n");
+        printf("FL==========\n");
+        FL_print(*fl);
+        printf("OL==========\n");
+        OL_print(*ol);
+        exit(0);
+        
         return;
         
-        //FL_print(*fl);
         
-        
-        
-        /*
-        // add return
-        // add to local var list
-        Var param_var;
-        param_var.address=LOCAL_OFFSET;
-        param_var.var_name="return";
-        VL_addVar(VLS_finalVL(&LOCAL_VAR_SET), param_var);
-        
-        // add to local operation list
-        OPERATION temp_op;
-        temp_op.opcode=SETL;
-        temp_op.arg0=intToCString(LOCAL_OFFSET);
-        temp_op.arg1="none";
-        temp_op.arg2=NULL;
-        FL_addOperation(fl, temp_op);
-        
-        
-        LOCAL_OFFSET++;
-        
-        NOW_FUNCTION=TRUE;
-        
-        
-        // init fl inside function
-        FL_init(&((*fl)->next_in_function));
-         */
     }
     
     
@@ -979,6 +881,9 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
             
             // free local registers
             op.opcode=FREELOCAL;
+            OL_append(ol, op);
+            // end defining func
+            op.opcode=ENDFUNC;
             OL_append(ol, op);
             
 

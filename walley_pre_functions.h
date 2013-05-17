@@ -193,6 +193,8 @@ Var_List *GLOBAL_VAR_LIST;
 
 Var_List_Set *LOCAL_VAR_SET;
 
+int FUNC_ID=0;      // function index
+
 // js
 char* Code_Generation_2_Javascript(Str_List **sl,TREE tree);
 
