@@ -636,7 +636,7 @@ bool table_value_key(TREE *tree, Token_List *tl){
         TREE func_tree;
         TREE_initWithName(&func_tree, "func");
         int tree_index=TREE_INDEX;
-        TREE_addNode(&func_tree, "", "call");
+        TREE_addNode(&func_tree, "", "table_call");
         TREE_addNode(TREE_getTreeAccordingToIndex(&func_tree, tree_index), "", "");
         tree_index+=1;
 

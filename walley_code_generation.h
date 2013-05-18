@@ -959,7 +959,7 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
         TREE param_tree=tree.node_list->next->node;
         Node_List *param_nl=param_tree.node_list;
         
-        printf("FUNC_NAME----> %s\n",func_name);
+        printf("FUNC_NAME----> |%s|\n",func_name);
         TREE_print(param_tree);
         
         char *func_address;
@@ -975,12 +975,40 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
             // it is function in table
             // which can not be judged whether existed or not now
             if (TABLE_FUNCTION==TRUE) {
-                func_address=func_name;
+                
+                
+                // empty func_name
+                /*
+                 
+                 ( func
+                    (table_call 
+                        (string "a")
+                    )
+                    ( params(id c)(id d))
+                 )
+                 */
+                if ((int)strlen(func_name)==0) {
+                    Code_Generation(tree.node_list->node.node_list->node, ol, fl);
+                    if (NOW_LOCAL) {
+                        //LOCAL_OFFSET--;
+                        func_address=intToCString(LOCAL_OFFSET-1);
+                    }
+                    else{
+                        //GLOBAL_OFFSET--;
+                        func_address=intToCString(GLOBAL_OFFSET-1);
+                    }
+                }
+                else{
+                    func_address=func_name;
+                }
             }
             else{
                 printf("\nError..undefined function | %s |\n",func_name);
                 exit(0);
             }
+        }
+        else{
+            func_address=append("f", func_address);
         }
         
         
