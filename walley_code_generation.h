@@ -7,7 +7,8 @@
 //
 
 #include "walley_calculation.h"
-
+bool TABLE_FUNCTION=FALSE;
+bool TABLE_VALUE_VAR_NAME=FALSE;
 
 
 // NOW I CAN ONLY GENERATE CODE FOR assignmnet
@@ -967,10 +968,21 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
     
         printf("func_address %s\n",func_address);
     
+        
+        
         if (term(func_address, "none")) {
-            printf("\nError..undefined function | %s |\n",func_name);
-            exit(0);
+            
+            // it is function in table
+            // which can not be judged whether existed or not now
+            if (TABLE_FUNCTION==TRUE) {
+                func_address=func_name;
+            }
+            else{
+                printf("\nError..undefined function | %s |\n",func_name);
+                exit(0);
+            }
         }
+        
         
         
         int num_of_params=NL_length(param_nl);
@@ -1201,19 +1213,33 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
     }
     // table
     if (term(tree.token_class, "table")) {
+        
+        VLS_push(&TABLE_SET);
+        
         if (NOW_LOCAL) {
             op.opcode=NEWTABLE;
+            
             op.arg0=intToCString(LOCAL_OFFSET);
+            op.arg1=append("t", intToCString(TABLE_INDEX));
+            TABLE_INDEX++;
+            
+            
+            //op.arg0=intToCString(LOCAL_OFFSET);
             op.value=tree.name;
             OL_append(ol, op);
-            LOCAL_OFFSET++;
+            //LOCAL_OFFSET++;
         }
         else{
             op.opcode=NEWTABLE;
+            
             op.arg0=intToCString(GLOBAL_OFFSET);
+            op.arg1=append("t", intToCString(TABLE_INDEX));
+            TABLE_INDEX++;
+            
+            //op.arg0=intToCString(GLOBAL_OFFSET);
             op.value=tree.name;
             OL_append(ol, op);
-            GLOBAL_OFFSET++;
+            //GLOBAL_OFFSET++;
         }
         
         Node_List *nl=tree.node_list;
@@ -1266,27 +1292,155 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
         }
         // not table
         else{
+            
+            Var_List **table_vl=VLS_finalVL(&TABLE_SET);
+            int length_of_table_vl=VL_length(*table_vl);
+            int address_that_need_to_add=length_of_table_vl;
+            
+            TREE key_tree=tree.node_list->node.node_list->node;
+            
+            if (term(key_tree.token_class, "num")==FALSE&&term(key_tree.token_class, "string")==FALSE) {
+                Walley_Print_Error("", "Error.. invalid way of initing table\ninvalid key", 0);
+            }
+            
+            char *key_name=key_tree.name;
+            
+            // access key tree
+            Code_Generation(key_tree, ol, fl);
+            
+            
             Code_Generation(value_tree, ol,fl);
         // add value
             // local
             if (NOW_LOCAL) {
                 LOCAL_OFFSET--;
                 op.opcode=TADD;
-                op.arg0=intToCString(LOCAL_OFFSET);
+                op.arg0=intToCString(LOCAL_COUNT-1);
+                op.arg1=intToCString(LOCAL_OFFSET);
                 
                 OL_append(ol, op);
+                
+                // add var to table_vl;
+                Var key_var;
+                key_var.var_name=key_name;
+                key_var.address=intToCString(address_that_need_to_add);
+                VL_addVar(table_vl, key_var);
+                
+                
 
             }
             // global
             else{
                 GLOBAL_OFFSET--;
                 op.opcode=TADD;
-                op.arg0=intToCString(GLOBAL_OFFSET);
+                op.arg0=intToCString(GLOBAL_OFFSET-1);
+                op.arg1=intToCString(GLOBAL_OFFSET);
                 
                 OL_append(ol, op);
+                
+                // add var to table_vl;
+                Var key_var;
+                key_var.var_name=key_name;
+                key_var.address=intToCString(address_that_need_to_add);
+                VL_addVar(table_vl, key_var);
             }
+            
+            VL_printVL(*table_vl);
+            
+        }
+    }
+    
+    // table_value
+    // valid form is only
+    // id '.' ...
+    //  ! first must be
+    //  !   id
+    if (term(tree.name, "table_value")) {
+        TABLE_FUNCTION=TRUE;
+        
+        printf("table_value\n");
+        if (term(tree.node_list->node.token_class, "id")==FALSE) {
+            Walley_Print_Error("", "invalid table_value\n", 0);
+        }
+        char *var_name=tree.node_list->node.name;
+        if (term(var_name, "table")||term(var_name, "string")) {
+            printf("Error.. Buildin functions are still under development");
+            exit(0);
+        }
+        char *var_value;
+        int var_set;
+        
+        getValue(tree.node_list->node, &var_set, &var_value);
+        
+        printf("VAR_VALUE ---> %s\n",var_value);
+        printf("VAR_SET -----> %d\n",var_set);
+        
+        // does not exist
+        if (var_set==-1) {
+            printf("Error.. %s does not exist\n",var_name);
+            exit(0);
         }
         
+        op.opcode=TABLESTART;
+        op.arg0=var_value;
+        if (NOW_LOCAL) {
+            op.arg1=intToCString(LOCAL_OFFSET);
+            LOCAL_OFFSET++;
+        }
+        else{
+            op.arg1=intToCString(GLOBAL_OFFSET);
+            GLOBAL_OFFSET++;
+        }
+        OL_append(ol, op);
+        op.arg1=NULL;
+        
+        if (TABLE_VALUE_VAR_NAME) {
+            op.opcode=TABLEENTER;
+        }
+        else{
+            op.opcode=TABLEGET;
+        }
+        
+        Node_List *key_nl=tree.node_list->next;
+        while (key_nl!=NULL) {
+            // deal with key
+            TREE key_tree=key_nl->node;
+            
+            
+            Code_Generation(key_tree, ol, fl);
+            if (NOW_LOCAL) {
+                LOCAL_OFFSET--;
+                op.arg0=intToCString(LOCAL_OFFSET);
+               
+            }
+            else{
+                GLOBAL_OFFSET--;
+                op.arg0=intToCString(GLOBAL_OFFSET);
+               
+            }
+            OL_append(ol, op);
+        
+            
+            key_nl=key_nl->next;
+        }
+        
+        
+        op.opcode=ENDTABLE;
+        op.arg0=NULL;
+        op.arg1=NULL;
+        OL_append(ol, op);
+        
+        
+        printf("======HERE\n");
+        OL_print(*ol);
+        
+        TABLE_FUNCTION=FALSE;
+        //exit(0);
+    }
+    // key
+    if (term(tree.name, "key")) {
+        Code_Generation(tree.node_list->node, ol, fl);
+        return;
     }
     
     // global
@@ -1314,6 +1468,7 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
         //NL_print(nl);
         // x=12+3
         if (length_of_nl==2||(length_of_nl==3&&IS_LOCAL_VAR)) {
+            bool need_to_restore_offset_due_to_table_value_var_name=FALSE;
             // global
             // so OFFSET == GLOBAL_OFFSET
             if (NOW_LOCAL==FALSE) {
@@ -1323,11 +1478,21 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
                 
                 //printf("var_set_index %d    var_name_adderss %s\n",var_set_index,var_name_address);
                 
-                int current__offset;
-                int value__offset;
+                int current__offset=GLOBAL_OFFSET;
+                int value__offset=GLOBAL_OFFSET;
                 
+                
+                // table_value_var_name
+                if (term(nl->node.name, "table_value")) {
+                    printf("table_value var name\n");
+                    TABLE_VALUE_VAR_NAME=TRUE;
+                    Code_Generation(nl->node, ol, fl);
+                    TABLE_VALUE_VAR_NAME=FALSE;
+                    need_to_restore_offset_due_to_table_value_var_name=TRUE;
+                    value__offset++;
+                }
                 // var does not exist
-                if (term(var_name_address, "none")) {
+                else if (term(var_name_address, "none")) {
                     current__offset=GLOBAL_OFFSET;
                     op.opcode=SETG;
                     
@@ -1382,11 +1547,21 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
                     int var_set_index;
                     getValue(nl->node, &var_set_index, &var_name_address);
                     
-                    int var_name_offset;
-                    int var_value_offset;
+                    int var_name_offset=LOCAL_OFFSET;
+                    int var_value_offset=LOCAL_OFFSET;
                     
+                    
+                    // table_value_var_name
+                    if (term(nl->node.name, "table_value")) {
+                        printf("table_value var name\n");
+                        TABLE_VALUE_VAR_NAME=TRUE;
+                        Code_Generation(nl->node, ol, fl);
+                        TABLE_VALUE_VAR_NAME=FALSE;
+                        need_to_restore_offset_due_to_table_value_var_name=TRUE;
+
+                    }
                     // same var exist in local registers
-                    if (var_set_index==CURRENT_VAR_SET_INDEX) {
+                    else if (var_set_index==CURRENT_VAR_SET_INDEX) {
                         var_name_offset=atoi(var_name_address);
                         var_value_offset=LOCAL_OFFSET;
                     }
@@ -1432,11 +1607,20 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
                     int var_set_index;
                     getValue(nl->node, &var_set_index, &var_name_address);
                     
-                    int save_to_global_address;
-                    int var_name_offset;
-                    int value__offset;
+                    int save_to_global_address=GLOBAL_OFFSET;
+                    int var_name_offset=LOCAL_OFFSET;
+                    int value__offset=LOCAL_OFFSET;
+                    
+                    // table_value_var_name
+                    if (term(nl->node.name, "table_value")) {
+                        printf("table_value var name\n");
+                        TABLE_VALUE_VAR_NAME=TRUE;
+                        Code_Generation(nl->node, ol, fl);
+                        TABLE_VALUE_VAR_NAME=FALSE;
+                        need_to_restore_offset_due_to_table_value_var_name=TRUE;
+                    }
                     // does not exist
-                    if (term(var_name_address, "none")) {
+                    else if (term(var_name_address, "none")) {
                         save_to_global_address=GLOBAL_OFFSET;
                         
                         op.opcode=SETL;
@@ -1503,6 +1687,14 @@ void Code_Generation(TREE tree, Operation_List **ol, Function_List **fl){
            
             }
             
+            if (need_to_restore_offset_due_to_table_value_var_name) {
+                if (NOW_LOCAL) {
+                    LOCAL_OFFSET--;
+                }
+                else{
+                    GLOBAL_OFFSET--;
+                }
+            }
         }
         else{
             printf("Does not support function def like x=def (a,b) ... now\n");

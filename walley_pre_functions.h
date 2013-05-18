@@ -195,6 +195,9 @@ Var_List_Set *LOCAL_VAR_SET;
 
 int FUNC_ID=0;      // function index
 
+int TABLE_INDEX=1;    // table index
+Var_List_Set *TABLE_SET; // table set
+
 // js
 char* Code_Generation_2_Javascript(Str_List **sl,TREE tree);
 

@@ -69,6 +69,15 @@ char* VL_address(Var_List *vl, char *var_name){
     return "-1";
 }
 
+int VL_length(Var_List *vl){
+    int length=0;
+    while (vl!=NULL) {
+        vl=vl->next;
+        length++;
+    }
+    return length;
+}
+
 void VL_printVL(Var_List *vl){
     while (vl->next!=NULL) {
         printf("%s  %s\n",vl->current_var.var_name,vl->current_var.address);

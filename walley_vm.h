@@ -72,7 +72,10 @@ enum OPCODE{
     RETURN,     // 32
     ENDPARAMS,  // 33
     BEGINFUNC,  // 34 BEGIN a new FUNCTION
-    ENDFUNC     // 35 END A new FUNCTION
+    ENDFUNC,     // 35 END A new FUNCTION
+    TABLEGET,     // 36
+    TABLESTART,      // 37
+    TABLEENTER        // 38
 };
 char *OPCODE_getFromOpcode(enum OPCODE opcode){
     switch (opcode) {
@@ -182,6 +185,15 @@ char *OPCODE_getFromOpcode(enum OPCODE opcode){
         case ENDFUNC:
             return "ENDFUNC";
             break;
+        case TABLEGET:
+            return "TABLEGET";
+            break;
+        case TABLESTART:
+            return "TABLESTART";
+            break;
+        case TABLEENTER:
+            return "TABLEENTER";
+            break;
         default:
             printf("Error..Unavailable opcode\n");
             exit(0);
@@ -286,6 +298,12 @@ enum OPCODE OPCODE_getFromString(char *input_str){
         return BEGINFUNC;
     else if (term(input_str, "ENDFUNC"))
         return ENDFUNC;
+    else if(term(input_str, "TABLEGET"))
+        return TABLEGET;
+    else if(term(input_str, "TABLESTART"))
+        return TABLESTART;
+    else if (term(input_str, "TABLEENTER"))
+        return TABLEENTER;
     else{
         printf("Error.. wrong opcode %s\n",input_str);
         exit(0);

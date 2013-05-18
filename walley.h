@@ -9,6 +9,7 @@
 
 void Walley_Init(){
     VLS_init(&LOCAL_VAR_SET);
+    VLS_init(&TABLE_SET);
     VL_init(&GLOBAL_VAR_LIST);
     SL_initSL(&STATEMENTS_LIST);
     SL_initSL(&WHILE_LIST_OL_INDEX);
