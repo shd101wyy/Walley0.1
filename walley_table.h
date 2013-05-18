@@ -290,6 +290,10 @@ bool table(TREE *tree, Token_List *tl,int *key_index){
  | '.' func
  | '.' func table_value_key                            // behind is [] or '.'
  | [(string|num)value] table_value_key                 // behind is [] or '.'
+ 
+ // new on 05/18/2013
+ | [(string|num)value] '(' params ')' table_value_key
+ 
  | '.' id table_value_key                              // behind is [] or '.'
  
 table_value ->
@@ -413,6 +417,10 @@ bool table_value(TREE *tree, Token_List *tl){
  | '.' func
  | '.' func table_value_key                            // behind is [] or '.'
  | [(string|num)value] table_value_key                 // behind is [] or '.'
+ 
+ // new on 05/18/2013
+ | [(string|num)value] '(' params ')' table_value_key
+ 
  | '.' id table_value_key                              // behind is [] or '.'
  
  */
@@ -592,6 +600,76 @@ bool table_value_key(TREE *tree, Token_List *tl){
              (term(tl->next->current_token.TOKEN_STRING, ".")||term(tl->next->current_token.TOKEN_CLASS, "list_table"))
              ){
         return table_value_key(tree, TL_subtl(tl, 0, 1)) && table_value_key(tree, TL_subtl(tl, 1, length_of_tl));
+    }
+    
+    //| [(string|num)value] '(' params ')' table_value_key
+    else if (length_of_tl>=3 && term(tl->current_token.TOKEN_CLASS, "list_table") && term(tl->next->current_token.TOKEN_STRING, "(")){
+       
+        // get index_of )
+        int index=-1;
+        int count=0;
+        Token_List *temp_tl=tl;
+        int i=0;
+        while (temp_tl!=NULL) {
+            if (term(temp_tl->current_token.TOKEN_STRING,"(")) {
+                count++;
+            }
+            else if (term(temp_tl->current_token.TOKEN_STRING, ")")){
+                count--;
+                if (count==0) {
+                    index=i;
+                    break;
+                }
+                
+            }
+            i++;
+            temp_tl=temp_tl->next;
+        }
+        
+        // index = -1 incomplete
+        if(index==-1){
+            INCOMPLETE_STATEMENT=TRUE;
+            return FALSE;
+        }
+        
+        
+        TREE func_tree;
+        TREE_initWithName(&func_tree, "func");
+        int tree_index=TREE_INDEX;
+        TREE_addNode(&func_tree, "", "call");
+        TREE_addNode(TREE_getTreeAccordingToIndex(&func_tree, tree_index), "", "");
+        tree_index+=1;
+
+        // get string inside []
+        int length=(int)strlen(tl->current_token.TOKEN_STRING);
+        char *string_inside=(char*)malloc(sizeof(char)*(length-2+1));
+        i=0;
+        for (; i<length-2; i++) {
+            string_inside[i]=tl->current_token.TOKEN_STRING[i+1];
+        }
+        string_inside[i]=0;
+        //====================
+        Token_List *string_inside_tl=Walley_Lexical_Analyzie(string_inside);
+        value(TREE_getTreeAccordingToIndex(&func_tree, tree_index), string_inside_tl);
+
+        tree_index=TREE_INDEX;
+        TREE_addNode(&func_tree, "params", "");
+        if (2!=index) {
+            params(TREE_getTreeAccordingToIndex(&func_tree, tree_index), TL_subtl(tl, 2, index));
+
+        }
+
+        TREE_addTree(tree, func_tree);
+
+        if (index==length_of_tl-1) {
+            return TRUE;
+        }
+        printf("ENTER HERE\n");
+        exit(0);
+
+        return table_value(tree, TL_subtl(tl, index+1, length_of_tl));
+
+
     }
     //| '.' id table_value_key                              // behind is [] or '.'
     else if (length_of_tl>=3 && term(tl->current_token.TOKEN_STRING, ".")&&term(tl->next->current_token.TOKEN_CLASS, "id")
