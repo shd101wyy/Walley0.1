@@ -293,6 +293,186 @@ void Pre_Code_Generation(Operation_List **ol, TREE tree){
         
     }
     
+    // func_value
+    if (term(tree.name, "func_value")) {
+        /*
+         ( walley_statements
+            ( statements
+                ( =
+                    (id add)
+                    ( func_value
+                        ( def)
+                        ( params( =(id a)(num 2))(id b))
+                        ( statements
+                            ( return( +(id a)(id b)))
+                        )
+                    ( end)
+                    )
+                )
+            )
+         )
+         
+         
+         */
+        
+        // begin to define func
+        op.opcode=BEGINFUNC;
+        OL_append(ol, op);
+        op.opcode=BEGINLOCAL;
+        OL_append(ol, op);
+        
+        Node_List*nl=tree.node_list;
+        nl=nl->next;
+        
+        
+        // INIT PARAMS
+        TREE param_tree=nl->node;
+        nl=nl->next;
+        int params_num=NL_length(param_tree.node_list);
+        
+        Node_List *params_nl=param_tree.node_list;
+        //add params to local var list and local operation list;
+        int i=0;
+        for (; i<params_num; i++) {
+            char *param_name=params_nl->node.name;
+            // assignment param
+            if (term(param_name, "=")) {
+                
+                // change params to local
+                // add = def (a=3) then return a=3
+                // change 'a=3' to 'local a=3'
+                TREE temp_tree;
+                TREE_initWithName(&temp_tree, "=");
+                TREE_addNode(&temp_tree, "local", "");
+                
+                Node_List *temp_nl=params_nl->node.node_list;
+                while (temp_nl!=NULL) {
+                    TREE_addNode(&temp_tree, temp_nl->node.name, temp_nl->node.token_class);
+                    temp_nl=temp_nl->next;
+                }
+                Pre_Code_Generation(ol, temp_tree);
+                
+            }
+            
+            // default params
+            // set none to them
+            // eg add = def(a,b) then return a+b end... set a=none b=none
+            else{
+                
+                // add to local operation list
+                OPERATION temp_op;
+                temp_op.opcode=SETL;
+                temp_op.arg0=param_name;
+                temp_op.arg1="none";
+                temp_op.arg2=NULL;
+                temp_op.value=param_name;
+                OL_append(ol, temp_op);
+                
+            }
+            params_nl=params_nl->next;
+            
+        }
+        
+        
+        // FINISH INITIALIZE PARAMS
+        op.opcode=ENDPARAMS;
+        OL_append(ol, op);
+        
+        
+        
+        while (nl->next!=NULL) {
+            Pre_Code_Generation(ol, nl->node);
+            nl=nl->next;
+        }
+        
+        // end
+        op.opcode=FREELOCAL;
+        OL_append(ol, op);
+        op.opcode=ENDFUNC;
+        OL_append(ol, op);
+        
+        // func_id
+        op.opcode=SET;
+        op.arg0=getTEMP_VARS(TEMP_OFFSET);
+        op.arg1="JUST_DEFINED_FUNCTION";
+        OL_append(ol, op);
+        
+        return;
+    }
+    
+    // call func
+    if (term(tree.name, "func")) {
+        
+        // call
+        Pre_Code_Generation(ol,tree.node_list->node.node_list->node);
+        
+        op.opcode=CALL;
+        op.arg0=getTEMP_VARS(TEMP_OFFSET);
+        OL_append(ol, op);
+        
+        // init params
+        TREE param_tree=tree.node_list->next->node;
+        
+        int params_num=NL_length(param_tree.node_list);
+        
+        Node_List *params_nl=param_tree.node_list;
+        //add params to local var list and local operation list;
+        int i=0;
+        for (; i<params_num; i++) {
+            char *param_name=params_nl->node.name;
+            // assignment param
+            if (term(param_name, "=")) {
+                
+                // change params to local
+                // add = def (a=3) then return a=3
+                // change 'a=3' to 'local a=3'
+                TREE temp_tree;
+                TREE_initWithName(&temp_tree, "=");
+                TREE_addNode(&temp_tree, "local", "");
+                
+                Node_List *temp_nl=params_nl->node.node_list;
+                while (temp_nl!=NULL) {
+                    TREE_addNode(&temp_tree, temp_nl->node.name, temp_nl->node.token_class);
+                    temp_nl=temp_nl->next;
+                }
+                Pre_Code_Generation(ol, temp_tree);
+                
+            }
+            
+            // default params
+            // set none to them
+            // eg add = def(a,b) then return a+b end... set a=none b=none
+            else{
+                
+                Pre_Code_Generation(ol, params_nl->node);
+                
+                op.opcode=SETP;
+                op.arg0=getTEMP_VARS(TEMP_OFFSET);
+                OL_append(ol, op);
+                                
+            }
+            params_nl=params_nl->next;
+            
+        }
+
+        // finish initing params
+        
+        // save return to arg0
+        op.opcode=ENDCALL;
+        op.arg0=getTEMP_VARS(TEMP_OFFSET);
+        OL_append(ol, op);
+        return;
+    }
+    
+    // return
+    if (term(tree.name, "return")) {
+        
+        Pre_Code_Generation(ol, tree.node_list->node);
+        op.opcode=RETURN;
+        op.arg0=getTEMP_VARS(TEMP_OFFSET);
+        OL_append(ol, op);
+        return;
+    }
 }
 
 
