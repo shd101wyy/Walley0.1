@@ -244,6 +244,55 @@ void Pre_Code_Generation(Operation_List **ol, TREE tree){
         return;
     }
     
+    // table
+    if (term(tree.token_class, "table")) {
+        char *table_id=tree.name;
+        op.opcode=CREATETABLE;
+        op.arg0=table_id;
+        OL_append(ol, op);
+        
+        op.opcode=ENTERTABLE;
+        op.arg0=table_id;
+        OL_append(ol, op);
+        
+        Node_List *nl=tree.node_list;
+        while (nl!=NULL) {
+            Pre_Code_Generation(ol, nl->node);
+            nl=nl->next;
+        }
+        
+        op.opcode=QUITTABLE;
+        op.arg0=NULL;
+        OL_append(ol, op);
+        
+        op.opcode=SET;
+        op.arg0=getTEMP_VARS(TEMP_OFFSET);
+        op.arg1=table_id;
+        OL_append(ol, op);
+
+        return;
+        
+    }
+    
+    // table_expr
+    if (term(tree.name, "table_expr")) {
+        Node_List *nl=tree.node_list;
+        TREE key_tree=nl->node;
+        TREE value_key=nl->next->node;
+        
+        op.opcode=SETT;
+        Pre_Code_Generation(ol, key_tree);
+        op.arg0=getTEMP_VARS(TEMP_OFFSET);
+        TEMP_OFFSET++;
+        Pre_Code_Generation(ol, value_key);
+        op.arg1=getTEMP_VARS(TEMP_OFFSET);
+        TEMP_OFFSET--;
+        
+        OL_append(ol, op);
+        return;
+        
+    }
+    
 }
 
 
