@@ -26,11 +26,11 @@ bool TABLE_VALUE_VAR_NAME=FALSE;
  */
 int TEMP_OFFSET=0;
 char *TEMP_VARS[]={
-  "TEMP1","TEMP2"
+  "TEMP1","TEMP2","TEMP3"
 };
 
 char *getTEMP_VARS(int temp_offset){
-    return TEMP_VARS[(temp_offset+2)%2];
+    return TEMP_VARS[(temp_offset+3)%3];
 }
 
 void Pre_Code_Generation(Operation_List **ol, TREE tree){
@@ -76,22 +76,77 @@ void Pre_Code_Generation(Operation_List **ol, TREE tree){
         }
         
         
-        // x=12 kind.. not x["a"] kind
-        // right side
-        Pre_Code_Generation(ol, right);
-        // left side
-        char *var_name=left.name;
+        // x["a"]=12
+        if (term(left.name, "table_value")) {
+            printf("ENTER TABLE_VALUE\n");
+            Node_List *nl=left.node_list;
+            if (term(nl->node.token_class, "id")==FALSE) {
+                printf("Error.. Invalid var name %s\n",nl->node.name);
+                exit(0);
+            }
+            
+            op.opcode=ENTERTABLE;
+            op.arg0=nl->node.name;
+            OL_append(ol, op);
+            op.arg0=NULL;
+            
+            nl=nl->next;
+            int i=0;
+            while (nl->next!=NULL) {
+                Pre_Code_Generation(ol, nl->node);
+                op.opcode=ENTERTABLE;
+                op.arg0=getTEMP_VARS(TEMP_OFFSET);
+                OL_append(ol, op);
+                
+                nl=nl->next;
+                i++;
+            }
+            
+            // insert code here
+            Pre_Code_Generation(ol, nl->node);
+            op.opcode=SETT;
+            op.arg0=getTEMP_VARS(TEMP_OFFSET);
+            
+            TEMP_OFFSET++;
+            Pre_Code_Generation(ol, right);
+            op.arg1=getTEMP_VARS(TEMP_OFFSET);
+            
+            OL_append(ol, op);
+            op.arg0=NULL;
+            op.arg1=NULL;
+            
+            
+            while (i!=0) {
+                op.opcode=QUITTABLE;
+                OL_append(ol, op);
+                nl=nl->next;
+                i--;
+            }
+            op.opcode=QUITTABLE;
+            OL_append(ol, op);
+            
+        }
         
-        // set
-        if (now_local) {
-            op.opcode=SETL;
-        }
+        // x=12
         else{
-            op.opcode=SET;
+            
+            // x=12 kind.. not x["a"] kind
+            // right side
+            Pre_Code_Generation(ol, right);
+            // left side
+            char *var_name=left.name;
+            
+            // set
+            if (now_local) {
+                op.opcode=SETL;
+            }
+            else{
+                op.opcode=SET;
+            }
+            op.arg0=var_name;
+            op.arg1=getTEMP_VARS(TEMP_OFFSET);
+            OL_append(ol, op);
         }
-        op.arg0=var_name;
-        op.arg1=getTEMP_VARS(TEMP_OFFSET);
-        OL_append(ol, op);
     }
     
     // num /string /id
@@ -181,6 +236,12 @@ void Pre_Code_Generation(Operation_List **ol, TREE tree){
             return;
         }
 
+    }
+    
+    // key
+    if (term(tree.name, "key")) {
+        Pre_Code_Generation(ol, tree.node_list->node);
+        return;
     }
     
 }

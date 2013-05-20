@@ -78,7 +78,9 @@ enum OPCODE{
     TABLEENTER,        // 38
     QUITTABLE,
     GETT,
-    SETP
+    SETT,
+    SETP,
+    ENTERTABLE
 };
 char *OPCODE_getFromOpcode(enum OPCODE opcode){
     switch (opcode) {
@@ -206,6 +208,12 @@ char *OPCODE_getFromOpcode(enum OPCODE opcode){
         case SETP:
             return "SETP";
             break;
+        case ENTERTABLE:
+            return "ENTERTABLE";
+            break;
+        case SETT:
+            return "SETT";
+            break;
         default:
             printf("Error..Unavailable opcode\n");
             exit(0);
@@ -322,6 +330,10 @@ enum OPCODE OPCODE_getFromString(char *input_str){
         return GETT;
     else if(term(input_str, "SETP"))
         return SETP;
+    else if(term(input_str, "ENTERTABLE"))
+        return ENTERTABLE;
+    else if(term(input_str, "SETT"))
+        return SETT;
     else{
         printf("Error.. wrong opcode %s\n",input_str);
         exit(0);
