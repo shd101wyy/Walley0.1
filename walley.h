@@ -104,7 +104,13 @@ void Walley_Run(){
         }
 
         
+    
         
+        /*
+         
+         REMOVED ON 05/20/2013
+         
+         
         printf("\n==========\n");
         //if (NOW_FUNCTION) {
         //    Code_Generation(syntax_tree, &(FUNCTION_LIST->current_ol),&(FUNCTION_LIST->next_in_function));
@@ -128,6 +134,10 @@ void Walley_Run(){
         if (length_of_STATEMENTS_LIST==0) {
             OL_init(&OPERATION_LIST);
         }
+         */
+        
+        Pre_Code_Generation(&OPERATION_LIST, syntax_tree);
+        OL_print(OPERATION_LIST);
         
     }
 }

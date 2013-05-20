@@ -143,7 +143,8 @@ bool func(TREE *tree, Token_List *tl){
         
         tree->name="func";
         tree->token_class="";
-        TREE_addNode(tree, test_id->current_token.TOKEN_STRING, "call");
+        TREE_addNode(tree, "", "call");
+        TREE_addNode(TREE_getTreeAccordingToIndex(tree, TREE_INDEX-1),toString(test_id->current_token.TOKEN_STRING), "string");
         int index=TREE_INDEX;
         TREE_addNode(tree, "params", "");
         return params(TREE_getTreeAccordingToIndex(tree, index), params_tl);

@@ -11,6 +11,204 @@ bool TABLE_FUNCTION=FALSE;
 bool TABLE_VALUE_VAR_NAME=FALSE;
 
 
+
+
+
+/*
+ ===========================================================
+ ===========================================================
+ ===========================================================
+ ===========      PRE CODE GENERATION        ===============
+ ===========================================================
+ ===========================================================
+ ===========================================================
+ 
+ */
+int TEMP_OFFSET=0;
+char *TEMP_VARS[]={
+  "TEMP1","TEMP2"
+};
+
+char *getTEMP_VARS(int temp_offset){
+    return TEMP_VARS[(temp_offset+2)%2];
+}
+
+void Pre_Code_Generation(Operation_List **ol, TREE tree){
+    OPERATION op;
+    //op.opcode=NULL;
+    op.arg0=NULL;
+    op.arg1=NULL;
+    op.arg2=NULL;
+    
+    // walley_statements
+    if (term(tree.name, "walley_statements")) {
+        Node_List *nl=tree.node_list;
+        while (nl!=NULL) {
+            Pre_Code_Generation(ol, nl->node);
+            nl=nl->next;
+        }
+        return;
+    }
+    
+    // statements
+    if (term(tree.name, "statements")) {
+        Node_List *nl=tree.node_list;
+        while (nl!=NULL) {
+            Pre_Code_Generation(ol, nl->node);
+            nl=nl->next;
+        }
+        return;
+    }
+    
+    // =
+    if (term(tree.name, "=")) {
+        bool now_local=FALSE;
+        TREE left;
+        TREE right;
+        if (term(tree.node_list->node.name, "local")) {
+            now_local=TRUE;
+            left=tree.node_list->next->node;
+            right=tree.node_list->next->next->node;
+        }
+        else{
+            left=tree.node_list->node;
+            right=tree.node_list->next->node;
+        }
+        
+        
+        // x=12 kind.. not x["a"] kind
+        // right side
+        Pre_Code_Generation(ol, right);
+        // left side
+        char *var_name=left.name;
+        
+        // set
+        if (now_local) {
+            op.opcode=SETL;
+        }
+        else{
+            op.opcode=SET;
+        }
+        op.arg0=var_name;
+        op.arg1=getTEMP_VARS(TEMP_OFFSET);
+        OL_append(ol, op);
+    }
+    
+    // num /string /id
+    if (term(tree.token_class, "num")||term(tree.token_class, "string")||term(tree.token_class, "id")) {
+        op.opcode=SET;
+        op.arg0=getTEMP_VARS(TEMP_OFFSET);
+        op.arg1=tree.name;
+        OL_append(ol, op);
+        return;
+    }
+    // + - * /
+    if (ism_operator(tree.name)) {
+        
+        TREE left=tree.node_list->node;
+        TREE right=tree.node_list->next->node;
+        
+        // can calculate directly
+        if ((term(left.token_class,"string")||term(left.token_class, "num"))
+            && (term(right.token_class, "string")||term(right.token_class, "num"))
+            ) {
+            char *output=Walley_Calculation(left.name, right.name, tree.name);
+            op.opcode=SET;
+            op.arg0=getTEMP_VARS(TEMP_OFFSET);
+            op.arg1=output;
+            OL_append(ol, op);
+            return;
+        }
+        else{
+            if (term(tree.name, "+")) {
+                op.opcode=ADD;
+            }
+            else if (term(tree.name, "-")) {
+                op.opcode=SUB;
+            }
+            else if (term(tree.name, "*")) {
+                op.opcode=MUL;
+            }
+            else if (term(tree.name, "/")) {
+                op.opcode=DIV;
+            }
+            else if (term(tree.name, "%")) {
+                op.opcode=MOD;
+            }
+            else if (term(tree.name, "^")) {
+                op.opcode=POW;
+            }
+            else{
+                printf("m_operator error\n");
+                exit(0);
+            }
+            
+            bool left_=ism_operator(left.name);
+            bool right_=ism_operator(right.name);
+            
+            if (left_) {
+                if (right_) {
+                    Pre_Code_Generation(ol, left);
+                    TEMP_OFFSET++;
+                    Pre_Code_Generation(ol, right);
+                    TEMP_OFFSET--;
+                    op.arg0=getTEMP_VARS(TEMP_OFFSET);
+                    op.arg1=getTEMP_VARS(TEMP_OFFSET);
+                    op.arg2=getTEMP_VARS(TEMP_OFFSET+1);
+                    
+                }
+                else{
+                    Pre_Code_Generation(ol, left);
+                    op.arg0=getTEMP_VARS(TEMP_OFFSET);
+                    op.arg1=getTEMP_VARS(TEMP_OFFSET);
+                    op.arg2=right.name;                
+                }
+            }
+            else{
+                if (right_) {
+                    Pre_Code_Generation(ol, right);
+                    op.arg0=getTEMP_VARS(TEMP_OFFSET);
+                    op.arg1=left.name;
+                    op.arg2=op.arg0;
+                }
+                else{
+                    op.arg0=getTEMP_VARS(TEMP_OFFSET);
+                    op.arg1=left.name;
+                    op.arg2=right.name;
+                }
+            }
+            OL_append(ol, op);
+            return;
+        }
+
+    }
+    
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // NOW I CAN ONLY GENERATE CODE FOR assignmnet
 bool ism_operator(char *input_str){
     if (term(input_str, "+")

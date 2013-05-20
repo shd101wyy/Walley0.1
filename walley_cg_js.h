@@ -609,10 +609,13 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
      
      */
     else if (term(tree.name, "func")){
-        printf("func\n");
+        printf("func THIS PLACE NEED TO BE CHECKED 05/20/2013\n");
         char *append_str; //=tree.node_list->node.name;
         if (js_isTableValue==FALSE) {
-            char *func_name=tree.node_list->node.name;
+            // i changed parser for func on 05/20/2013
+            char *func_name=tree.node_list->node.node_list->node.name;
+            //char *func_name=tree.node_list->node.name;
+            
             // embed func
             if (term(func_name, "puts")) {
                 append_str="console.log";

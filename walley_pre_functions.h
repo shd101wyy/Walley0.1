@@ -197,7 +197,7 @@ int FUNC_ID=0;      // function index
 
 int TABLE_INDEX=1;    // table index
 Var_List_Set *TABLE_SET; // table set
-
+bool ism_operator(char *input_str);
 // js
 char* Code_Generation_2_Javascript(Str_List **sl,TREE tree);
 
