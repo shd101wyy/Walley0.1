@@ -5,20 +5,7 @@
 //  Created by shd101wyy on 13-4-6.
 //  Copyright (c) 2013年 shd101wyy. All rights reserved.
 //
-#include "walley_embed_functions.h"
-
-void Walley_Init(){
-    VLS_init(&LOCAL_VAR_SET);
-    VLS_init(&TABLE_SET);
-    VL_init(&GLOBAL_VAR_LIST);
-    SL_initSL(&STATEMENTS_LIST);
-    SL_initSL(&WHILE_LIST_OL_INDEX);
-    FL_init(&FUNCTION_LIST);
-    OL_init(&OPERATION_LIST);
-    SL_initSL(&LOCAL_OFFSET_LIST);
-    LOCAL_OFFSET=0;
-    GLOBAL_OFFSET=0;
-}
+#include "walley_cg_js.h"
 
 // run script in cmd
 void Walley_Run(){
@@ -81,6 +68,11 @@ void Walley_Run(){
             continue;
         }
         
+        // empty tl
+        if (tl->current_token.TOKEN_STRING==NULL) {
+            continue;
+        }
+        
         //printf("Token_List===============\n");
         //TL_print(tl);
         
@@ -102,67 +94,87 @@ void Walley_Run(){
             SL_addString(&saved_str_list, input_str2);
             continue;
         }
-
         
-    
         
-        /*
-         
-         REMOVED ON 05/20/2013
-         
-         
-        printf("\n==========\n");
-        //if (NOW_FUNCTION) {
-        //    Code_Generation(syntax_tree, &(FUNCTION_LIST->current_ol),&(FUNCTION_LIST->next_in_function));
-        //}
+        Str_List *output_sl;
+        SL_initSL(&output_sl);
         
-        //else{
-            Code_Generation(syntax_tree, &OPERATION_LIST,&FUNCTION_LIST);
-        //}
         
-    
+        char *output_str=Code_Generation_2_Javascript(&output_sl, syntax_tree);
         
-        printf("\n\nFUNCTION_LIST===========\n");
-        FL_print(FUNCTION_LIST);
-        printf("\n\nOPERATION_LIST============\n");
-        
-        OL_print(OPERATION_LIST);
-        printf("\n\nGLOBAL VAR================\n");
-        VL_printVL(GLOBAL_VAR_LIST);
-        
-        int length_of_STATEMENTS_LIST=SL_length(STATEMENTS_LIST);
-        if (length_of_STATEMENTS_LIST==0) {
-            OL_init(&OPERATION_LIST);
+        if (term(output_str, "")==FALSE) {
+            output_str=append(output_str, ";");
+            SL_addString(&output_sl, output_str);
         }
-         */
-        
-        Pre_Code_Generation(&OPERATION_LIST, syntax_tree);
-        OL_print(OPERATION_LIST);
-        
+        SL_print(output_sl);
     }
 }
 
 
-void Test(char *input_str){
-    char *to_analyze_str=input_str;
-    //printf("input_str--------> %s\n",input_str);
-    struct TL *tl=Walley_Lexical_Analyzie(to_analyze_str);
-    TL_print(tl);
-    TREE output_tree=parser(tl);
+Str_List *Compile_to_JS(char *file_name){
+    int length=(int)strlen(file_name);
+    if (file_name[length-1]!='y'||file_name[length-2]!='w'||file_name[length-3]!='.') {
+        printf("File format wrong.. need .wy file\n");
+        exit(0);
+    }
+    Str_List *sl_in_file=file_getStringList(file_name);
+    Str_List *output_sl;
+    SL_initSL(&output_sl);
     
-    if (NOW_FUNCTION) {
-        Code_Generation(output_tree, &(FUNCTION_LIST->current_ol),&(FUNCTION_LIST->next_in_function));
+    // this string is from prototype.js in walley folder
+    char *preload_js_str="String.prototype.find=function(e,t){if(typeof t==\"undefined\"){t=0}return this.indexOf(e,t)};String.prototype.tolower=function(){return this.toLowerCase()};String.prototype.toupper=function(){return this.toUpperCase()};String.prototype.reverse=function(){return this.split("").reverse().join("")};Math[\"cot\"]=function(e){return 1/Math.tan(e)};Math[\"sec\"]=function(e){return 1/Math.cos(e)};Math[\"csc\"]=function(e){return 1/Math.sin(e)};Array.prototype.append=function(e){this.push(e)};Array.prototype.insert=function(e,t){if(typeof t==\"undefined\"){return this.push(e)}this.splice(e,0,t)};Array.prototype.remove=function(e){this.splice(e,1)}";
+    SL_addString(&output_sl, preload_js_str);
+    
+    
+    
+    
+    while (sl_in_file!=NULL) {
+        
+        if ((int)strlen(trim(sl_in_file->string_content))==0) {
+            sl_in_file=sl_in_file->next;
+            continue;
+        }
+        
+        Token_List *tl=Walley_Lexical_Analyzie(sl_in_file->string_content);
+        TREE tree=parser(tl);
+        
+        
+        if (INCOMPLETE_STATEMENT) {
+            char *temp_string="";
+            while (INCOMPLETE_STATEMENT) {
+                
+                COUNT_THEN_END=0;
+                temp_string=append(temp_string, sl_in_file->string_content);
+                temp_string=append(temp_string, " ");
+                Token_List *temp_tl=Walley_Lexical_Analyzie(temp_string);
+                
+                if (COUNT_THEN_END==0) {
+                    INCOMPLETE_STATEMENT=FALSE;
+                    tree=parser(temp_tl);
+                    
+                    if (INCOMPLETE_STATEMENT==FALSE) {
+                        break;
+                    }
+                    
+                }
+                
+                
+                sl_in_file=sl_in_file->next;
+                
+            }
+        }
+        
+        
+        char *output_str=Code_Generation_2_Javascript(&output_sl, tree);
+        
+        if (term(output_str, "")==FALSE) {
+            output_str=append(output_str, ";");
+            SL_addString(&output_sl, output_str);
+        }
+        
+        sl_in_file=sl_in_file->next;
     }
     
-    else{
-        Code_Generation(output_tree, &OPERATION_LIST,&FUNCTION_LIST);
-    }
-    
-    OPERATION op;
-    op.opcode=$;
-    op.arg0="===================";
-    op.arg1=NULL;
-    op.arg2=NULL;
-    OL_append(&OPERATION_LIST, op);
-    
+    return output_sl;
 }
+

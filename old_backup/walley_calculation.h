@@ -6,7 +6,7 @@
 //  Copyright (c) 2013年 shd101wyy. All rights reserved.
 //
 
-#include "walley_parser.h"
+#include "walley_function_data_type.h"
 
 // 3 , 4 ,+ -----> 7
 char *Walley_Calculation(char *value1, char *value2, char *sign){
@@ -146,18 +146,4 @@ char *cleanDotZeroAfterNumAndKeepOneZero(char *num){
         }
         return num;
     }
-}
-
-
-// NOW I CAN ONLY GENERATE CODE FOR assignmnet
-bool ism_operator(char *input_str){
-    if (term(input_str, "+")
-        ||term(input_str, "-")
-        ||term(input_str, "*")
-        ||term(input_str, "/")
-        ||term(input_str,"^")
-        ||term(input_str, "%")) {
-        return TRUE;
-    }
-    return FALSE;
 }

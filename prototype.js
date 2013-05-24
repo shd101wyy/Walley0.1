@@ -1,3 +1,5 @@
+none=null;
+
 // String
 // find
 String.prototype.find=function(find_str, start){

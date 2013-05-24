@@ -426,15 +426,14 @@ char* Walley_Analyze_Token_Class(char *input_str, int i, int *end){
         return "relation";
     }
     
-    
     // 5 left_annotation
-    if (i<=length-2 && input_str[i]=='#' && input_str[i+1]=='~') {
+    if (i<=length-2&&(input_str[i]=='#'&&input_str[i+1]=='~')) {
         *end=i+2;
         return "l_annotation";
     }
     
     // 6 right_annotation
-    if (i<=length-2&&(input_str[i]=='~' && input_str[i+1]=='#')) {
+    if (i<=length-2&&(input_str[i]=='~'&&input_str[i+1]=='#')) {
         *end=i+2;
         return "r_annotation";
     }
@@ -667,34 +666,11 @@ struct TL * Walley_Lexical_Analyzie(char *input_str){
     
     int end=0;
     
-    bool now_in_long_annotation=FALSE;
-    
     for (; i<length; i++) {
         char *token_class=Walley_Analyze_Token_Class(input_str, i, &end);
         
         // delete white_space
         if (strcmp(token_class, "white_space")==0) {
-            i=end-1;
-            continue;
-        }
-        
-        // annotation #
-        if(strcmp(token_class, "annotation")==0){
-            break;
-        }
-        
-        if (strcmp(token_class, "l_annotation")==0) {
-            now_in_long_annotation=TRUE;
-            i=end-1;
-            continue;
-        }
-        if (strcmp(token_class, "r_annotation")!=0 && now_in_long_annotation) {
-            // now in long annotation;
-            continue;
-        }
-        
-        if (strcmp(token_class, "r_annotation")==0 && now_in_long_annotation) {
-            now_in_long_annotation=FALSE;
             i=end-1;
             continue;
         }
@@ -718,9 +694,6 @@ struct TL * Walley_Lexical_Analyzie(char *input_str){
         i=end-1;
     }
     
-    if (now_in_long_annotation) {
-        INCOMPLETE_STATEMENT=TRUE;
-    }
     
     
     return tl;

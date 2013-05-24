@@ -6,7 +6,7 @@
 //  Copyright (c) 2013年 shd101wyy. All rights reserved.
 //
 
-#include "walley_calculation.h"
+#include "walley_code_generation.h"
 
 bool js_isTable=FALSE;
 bool js_isTableValue=FALSE;
@@ -548,12 +548,11 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
         while (nl!=NULL) {
             TREE key_tree=nl->node;
             char *key_str=Code_Generation_2_Javascript(sl, key_tree);
-            /* change .length() to ["length"]()
             if (term(key_tree.name,"func")) {
                 append_str=append(append_str,".");
             }
-             printf("key_str %s\n",key_str);
-            */
+            
+            printf("key_str %s\n",key_str);
             
             append_str=append(append_str, key_str);
 
@@ -610,14 +609,12 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
      
      */
     else if (term(tree.name, "func")){
-        printf("func THIS PLACE NEED TO BE CHECKED 05/20/2013 %d\n",js_isTableValue);
+        printf("func THIS PLACE NEED TO BE CHECKED 05/20/2013\n");
         char *append_str; //=tree.node_list->node.name;
         if (js_isTableValue==FALSE) {
             // i changed parser for func on 05/20/2013
-            char *func_name_string=Code_Generation_2_Javascript(sl,tree.node_list->node.node_list->node);
-            char *func_name= substr(func_name_string,1,(int)strlen(func_name_string)-1);
-            
-            printf("func_name---> %s\n",func_name);
+            char *func_name=tree.node_list->node.node_list->node.name;
+            //char *func_name=tree.node_list->node.name;
             
             // embed func
             if (term(func_name, "puts")) {
@@ -625,13 +622,12 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
             }
             // not embed func
             else{
-                append_str=func_name;
+                append_str=tree.node_list->node.name;
+
             }
         }
         else{
-            char *func_name=Code_Generation_2_Javascript(sl,tree.node_list->node.node_list->node);
-            // add []
-            append_str=append("[",append(func_name, "]"));
+            append_str=tree.node_list->node.name;
         }
         
         
@@ -658,22 +654,11 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
         char *append_string="";
         Node_List *nl=tree.node_list;
         while (nl!=NULL) {
-            
             if (term(nl->node.name, "=")) {
                 printf("Does not support = in params now\n");
                 exit(0);
             }
-            
-            char *need_to_be_appended=Code_Generation_2_Javascript(sl, nl->node);
-            
-            // none params
-            if(term(need_to_be_appended, "null")){
-                nl=nl->next;
-                continue;
-            }
-            
-            append_string=append(append_string, need_to_be_appended);
-
+            append_string=append(append_string, Code_Generation_2_Javascript(sl, nl->node));
             if (nl->next!=NULL) {
                 append_string=append(append_string, ",");
             }
@@ -687,10 +672,6 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
     }
     
     else if (term(tree.token_class,"id")){
-        // change 'none' to 'null'
-        if (term(tree.name, "none")) {
-            return "null";
-        }
         return tree.name;
     }
     
@@ -735,38 +716,28 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
         }
         
         if (need_bracket) {
-            //char *append_str=left_str;
+            char *append_str=left_str;
             if (left_need_bracket) {
-                left_str=append("(",append(left_str, ")"));
+                append_str=append("(", append_str);
+                append_str=append(append_str, ")");
             }
-                
-            
+    
+            append_str=append(append_str,tree.name);
             if(right_need_bracket){
-                right_str=append("(", append(right_str, ")"));
-            }
-                        
-            // change ^ to Math.pow()
-            if (term(tree.name, "^")) {
-                
-                char *append_str=append("Math.pow(", append(append(left_str, append(",", right_str)), ")"));
-                return append_str;
+                append_str=append(append_str,"(");
+                append_str=append(append_str, right_str);
+                append_str=append(append_str,")");
             }
             else{
-                char *append_str=append(left_str, append(tree.name, right_str));
-                return append_str;
+                append_str=append(append_str, right_str);
             }
-            
+            return append_str;
         }
         else{
-            if (term(tree.name, "^")) {
-              return  append("Math.pow(", append(append(left_str, append(",", right_str)), ")"));
-            }
-            else{
-                char *append_str=left_str;
-                append_str=append(append_str, tree.name);
-                append_str=append(append_str, right_str);
-                return append_str;
-            }
+            char *append_str=left_str;
+            append_str=append(append_str, tree.name);
+            append_str=append(append_str, right_str);
+            return append_str;
         }
     }
     else if (term(tree.name, "expr")){
@@ -788,29 +759,69 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
     }
 }
 
+Str_List *Compile_to_JS(char *file_name){
+    int length=(int)strlen(file_name);
+    if (file_name[length-1]!='y'||file_name[length-2]!='w'||file_name[length-3]!='.') {
+        printf("File format wrong.. need .wy file\n");
+        exit(0);
+    }
+    Str_List *sl_in_file=file_getStringList(file_name);
+    Str_List *output_sl;
+    SL_initSL(&output_sl);
+    
+    // this string is from prototype.js in walley folder
+    char *preload_js_str="String.prototype.find=function(e,t){if(typeof t==\"undefined\"){t=0}return this.indexOf(e,t)};String.prototype.tolower=function(){return this.toLowerCase()};String.prototype.toupper=function(){return this.toUpperCase()};String.prototype.reverse=function(){return this.split("").reverse().join("")};Math[\"cot\"]=function(e){return 1/Math.tan(e)};Math[\"sec\"]=function(e){return 1/Math.cos(e)};Math[\"csc\"]=function(e){return 1/Math.sin(e)};Array.prototype.append=function(e){this.push(e)};Array.prototype.insert=function(e,t){if(typeof t==\"undefined\"){return this.push(e)}this.splice(e,0,t)};Array.prototype.remove=function(e){this.splice(e,1)}";
+    SL_addString(&output_sl, preload_js_str);
+    
+    
+    
+    
+    while (sl_in_file!=NULL) {
+        
+        if ((int)strlen(trim(sl_in_file->string_content))==0) {
+            sl_in_file=sl_in_file->next;
+            continue;
+        }
+        
+        Token_List *tl=Walley_Lexical_Analyzie(sl_in_file->string_content);
+        TREE tree=parser(tl);
+        
+        
+        if (INCOMPLETE_STATEMENT) {
+            char *temp_string="";
+            while (INCOMPLETE_STATEMENT) {
+                
+                COUNT_THEN_END=0;
+                temp_string=append(temp_string, sl_in_file->string_content);
+                temp_string=append(temp_string, " ");
+                Token_List *temp_tl=Walley_Lexical_Analyzie(temp_string);
+                
+                if (COUNT_THEN_END==0) {
+                    INCOMPLETE_STATEMENT=FALSE;
+                    tree=parser(temp_tl);
+                    
+                    if (INCOMPLETE_STATEMENT==FALSE) {
+                        break;
+                    }
+                    
+                }
+                
 
+                sl_in_file=sl_in_file->next;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+            }
+        }
+        
+        
+        char *output_str=Code_Generation_2_Javascript(&output_sl, tree);
+        
+        if (term(output_str, "")==FALSE) {
+            output_str=append(output_str, ";");
+            SL_addString(&output_sl, output_str);
+        }
+        
+        sl_in_file=sl_in_file->next;
+    }
+    
+    return output_sl;
+}
