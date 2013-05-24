@@ -339,7 +339,6 @@ bool for_stms(TREE *tree, Token_List *tl){
      */
     // assume it is correct
     if (term(TL_tokenAtIndex(tl, 4).TOKEN_STRING, "in") || term(TL_tokenAtIndex(tl, 2).TOKEN_STRING, "in")) {
-        printf("For Each ====\n");
         
         
         int index_of_then=-1;
@@ -355,7 +354,6 @@ bool for_stms(TREE *tree, Token_List *tl){
             i++;
         }
         
-        printf("index of then --> %d\n",index_of_then);
         
         TREE_addNode(tree, "foreach", "");
         

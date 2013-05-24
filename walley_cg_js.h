@@ -8,8 +8,24 @@
 
 #include "walley_calculation.h"
 
-bool js_isTable=FALSE;
 bool js_isTableValue=FALSE;
+
+/*
+ (table [1,2,3]
+    ( table_expr
+        ( key(num 0))
+        (num 1)
+    )
+    ( table_expr
+        ( key(num 1))
+        (num 2))
+    ( table_expr
+        ( key(num 2))
+        (num 3)
+    )
+)
+ 
+ */
 
 /*
     x=[1,2,3]
@@ -117,7 +133,6 @@ void JS_Table(Str_List **sl,char *var_name, Node_List *table_expr_nl){
 char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
     if (term(tree.name, "walley_statements")) {
         
-        printf("walley_statements\n");
         Node_List *nl=tree.node_list;
         while (nl!=NULL) {
             char *temp_str=Code_Generation_2_Javascript(sl, nl->node);
@@ -132,11 +147,9 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
     }
     
     else if (term(tree.name, "statements")){
-        printf("statements\n");
         Node_List *nl=tree.node_list;
         
         if (term(nl->node.name, "if")) {
-            printf("if\n");
             /*
              ( statements
                 ( if)
@@ -163,12 +176,10 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
             char *append_str="if (";
             char *judge_str=Code_Generation_2_Javascript(sl, nl->next->node);
             
-            printf("judge_str----> %s\n",judge_str);
             
             append_str=append(append_str, judge_str);
             append_str=append(append_str,"){");
             
-            printf("append_str----> %s\n",append_str);
             SL_addString(sl, append_str);
             
             nl=nl->next->next;
@@ -186,12 +197,10 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
             char *append_str="else if (";
             char *judge_str=Code_Generation_2_Javascript(sl, nl->next->node);
             
-            printf("judge_str----> %s\n",judge_str);
             
             append_str=append(append_str, judge_str);
             append_str=append(append_str,"){");
             
-            printf("append_str----> %s\n",append_str);
             SL_addString(sl, append_str);
             
             nl=nl->next->next;
@@ -230,12 +239,10 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
             char *append_str="while (";
             char *judge_str=Code_Generation_2_Javascript(sl, nl->next->node);
             
-            printf("judge_str----> %s\n",judge_str);
             
             append_str=append(append_str, judge_str);
             append_str=append(append_str,"){");
             
-            printf("append_str----> %s\n",append_str);
             SL_addString(sl, append_str);
             
             nl=nl->next->next;
@@ -248,7 +255,6 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
             }
         }
         else if (term(nl->node.name,"for")){
-            printf("for\n");
             /*
              // for i=0,i<10,i=i+1 then i=2 end
             ( walley_statements
@@ -271,7 +277,6 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
             if (term(nl->next->node.name, "assignment")) {
                 Code_Generation_2_Javascript(sl, nl->next->node.node_list->node);
                 nl=nl->next->next;
-                printf("assignment\n");
                 //exit(0);
             }
             else{
@@ -307,22 +312,7 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
             }
             SL_addString(sl, "}");
             
-            //printf("judge_str----> %s\n",judge_str);
-            //printf("append_str---> %s\n",append_str);
-            //exit(0);
-            
-           // append_str=append(append_str, judge_str);
-           // append_str=append(append_str,"){");
-            
-           // printf("append_str----> %s\n",append_str);
-           // SL_addString(sl, append_str);
-            
-           // nl=nl->next->next;
-           // while (nl!=NULL) {
-           //    Code_Generation_2_Javascript(sl, nl->node);
-           //     nl=nl->next;
-           // }
-
+           
         }
         /*
          ( walley_statements
@@ -340,7 +330,6 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
          
          */
         else if (term(nl->node.name, "foreach")){
-            printf("For Each\n");
             char *append_str="for(";
             // for i,v in x
             // get i
@@ -365,7 +354,6 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
             append_str=append(append_str,foreach_in_value);
             append_str=append(append_str, "){");
             
-            printf("append_str----> %s\n",append_str);
             SL_addString(sl, append_str);
             
             if (has_v) {
@@ -377,7 +365,6 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
                 char *in_value_and_key=append(in_value, append("[", append(foreach_index,"]")));
                 
                 append_str=append(append_str, in_value_and_key);
-                printf("append_str----> %s\n",append_str);
                 SL_addString(sl, append_str);
             }
             
@@ -408,7 +395,6 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
     
     // this place has problem
     else if (term(tree.name, "relation")){
-        printf("relation\n");
         TREE judge_tree=tree.node_list->node;
         //<(num 4)(id x)
         
@@ -433,7 +419,6 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
     
     // this place has problem
     else if (term(tree.name, "simple_relation")){
-        printf("simple_relation\n");
         TREE judge_tree=tree.node_list->node;
         //<(num 4)(id x)
         
@@ -453,7 +438,6 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
     else if (term(tree.name,"=")){
         bool is_local=FALSE;
         char *append_string;
-        printf("assign\n");
         
         Node_List *nl=tree.node_list;
         TREE var_name_tree=nl->node;
@@ -479,7 +463,6 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
         
         //func_value
         if (term(var_value_tree.name, "func_value")) {
-            printf("func_value");
             append_string=append(append_string,"function(");
             
             char *param_str=Code_Generation_2_Javascript(sl, var_value_tree.node_list->next->node);
@@ -518,26 +501,55 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
         }
         
         char *var_value=Code_Generation_2_Javascript(sl, var_value_tree);
+        
         append_string=append(append_string, var_value);
         append_string=append(append_string,";");
 
-        //printf("append_str----> %s\n",append_string);
         SL_addString(sl, append_string);
         
-        // is table
-        if (js_isTable) {
-            js_isTable=FALSE;
-            Node_List *table_expr_nl=var_value_tree.node_list;
-            JS_Table(sl, var_name, table_expr_nl);
-        }
-        
+                
         return "";
         
     }
-    
+    /*
+     (table [1,2,3]
+        ( table_expr
+            ( key(num 0))
+            (num 1)
+        )
+        ( table_expr
+            ( key(num 1))
+            (num 2))
+        ( table_expr
+            ( key(num 2))
+            (num 3)
+        )
+     )
+        Convert Walley Table to JS array
+    */
     else if (term(tree.token_class, "table")){
-        js_isTable=TRUE;
-        return "[]";
+        char *append_str="{";
+        Node_List *nl=tree.node_list;
+        while (nl!=NULL) {
+            
+            char *temp_str=Code_Generation_2_Javascript(sl, nl->node);
+            append_str=append(append_str, temp_str);
+            if (nl->next!=NULL) {
+                append_str=append(append_str, ",");
+            }
+            
+            nl=nl->next;
+        }
+        append_str=append(append_str, "}");
+        return append_str;
+    }
+    else if (term(tree.name, "table_expr")){
+        TREE key_tree=tree.node_list->node;
+        TREE value_tree=tree.node_list->next->node;
+        char *left=Code_Generation_2_Javascript(sl, key_tree.node_list->node);
+        char *right=Code_Generation_2_Javascript(sl, value_tree);
+        
+        return append(left, append(":", right));
     }
     
     else if(term(tree.name, "table_value")){
@@ -563,7 +575,6 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
             nl=nl->next;
         }
         
-        printf("append_str---> %s\n",append_str);
         js_isTableValue=FALSE;
         return append_str;
         
@@ -571,7 +582,6 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
     }
     else if (term(tree.name, "key")){
         if (term(tree.node_list->node.name,"slice")) {
-            printf("slice");
             
             char *append_str=".slice(";
             
@@ -592,7 +602,6 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
                 append_str=append(append_str, right_str);
             }
             append_str=append(append_str, ")");
-            //printf("append_str %s\n",append_str);
             
             return append_str;
         }
@@ -612,14 +621,11 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
      
      */
     else if (term(tree.name, "func")){
-        printf("func THIS PLACE NEED TO BE CHECKED 05/20/2013 %d\n",js_isTableValue);
         char *append_str; //=tree.node_list->node.name;
         if (js_isTableValue==FALSE) {
             // i changed parser for func on 05/20/2013
             char *func_name_string=Code_Generation_2_Javascript(sl,tree.node_list->node.node_list->node);
             char *func_name= substr(func_name_string,1,(int)strlen(func_name_string)-1);
-            
-            printf("func_name---> %s\n",func_name);
             
             // embed func
             if (term(func_name, "puts")) {
@@ -723,7 +729,6 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
         char *right_str=Code_Generation_2_Javascript(sl, right);
         
         if ((stringIsDigit(left_str)||isString(left_str))&&(stringIsDigit(right_str)||isString(right_str))) {
-            printf("Can calculate directly %s %s %s",left_str,right_str,tree.name);
             char *value=Walley_Calculation(left_str, right_str, tree.name);
             return value;
         }
@@ -785,7 +790,6 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
         return Code_Generation_2_Javascript(sl, tree.node_list->node);
     }
     else if (term(tree.name, "return")){
-        printf("FIND RETURN\n");
         char *append_str="return ";
         Node_List *nl=tree.node_list;
         append_str=append(append_str, Code_Generation_2_Javascript(sl, nl->node));

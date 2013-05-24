@@ -10,7 +10,6 @@
 
 // 3 , 4 ,+ -----> 7
 char *Walley_Calculation(char *value1, char *value2, char *sign){
-    printf("value1 %s,  value2 %s,   sign %s\n",value1,value2,sign);
     
     // number calculation
     if (value1[0]!='"'&&value2[0]!='"') {

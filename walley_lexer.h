@@ -546,7 +546,7 @@ char* Walley_Analyze_Token_Class(char *input_str, int i, int *end){
     if (input_str[i]=='[') {
         int index_of_final=LIST_indexOfFinalBracket(input_str, i);
         if (index_of_final==-1) {
-            Walley_Print_Error(input_str, "Can not find final ]", i);
+            INCOMPLETE_STATEMENT=TRUE;
         }
         *end=index_of_final+1;
         return "list_table";
@@ -672,6 +672,9 @@ struct TL * Walley_Lexical_Analyzie(char *input_str){
     for (; i<length; i++) {
         char *token_class=Walley_Analyze_Token_Class(input_str, i, &end);
         
+        if (INCOMPLETE_STATEMENT) {
+            break;
+        }
         // delete white_space
         if (strcmp(token_class, "white_space")==0) {
             i=end-1;

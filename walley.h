@@ -23,18 +23,16 @@ void Walley_Run(){
         if (strcmp(input_str, "exit()") == 0)
             break;
         
-        Token_List *tl=Walley_Lexical_Analyzie(input_str);
+        Token_List *tl;
+        tl=Walley_Lexical_Analyzie(input_str);
         
         
         // now complete
         if (begin==TRUE && COUNT_THEN_END==0) {
-            
-            SL_print(saved_str_list);
             begin=FALSE;
             
             char *saved_string=SL_toString(saved_str_list);
-            //printf("SAVED_STRING---> %s\n",saved_string);
-            
+                      
             // reinitialize saved_str_list
             SL_initSL(&saved_str_list);
             
@@ -45,16 +43,17 @@ void Walley_Run(){
             strcat(input_str2, input_str);
             input_str2[malloc_length]=0;
             
-            // regenerate tl
-            tl=Walley_Lexical_Analyzie(input_str2);
             
             // reset INCOMPLETE_STATEMENT
             INCOMPLETE_STATEMENT=FALSE;
+            
+            // regenerate tl
+            tl=Walley_Lexical_Analyzie(input_str2);
+            
         }
         
         // incomplete statements
         if (COUNT_THEN_END!=0 || INCOMPLETE_STATEMENT) {
-            //printf("COUNT_THEN_END-->%d incomplete \n",COUNT_THEN_END);
             begin=TRUE;
             
             // append space after input_str
@@ -73,8 +72,6 @@ void Walley_Run(){
             continue;
         }
         
-        //printf("Token_List===============\n");
-        //TL_print(tl);
         
         TREE syntax_tree=parser(tl);
         
@@ -106,6 +103,7 @@ void Walley_Run(){
             output_str=append(output_str, ";");
             SL_addString(&output_sl, output_str);
         }
+        printf("\n");
         SL_print(output_sl);
     }
 }

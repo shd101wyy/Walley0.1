@@ -664,7 +664,6 @@ bool table_value_key(TREE *tree, Token_List *tl){
         if (index==length_of_tl-1) {
             return TRUE;
         }
-        printf("ENTER HERE\n");
         exit(0);
 
         return table_value(tree, TL_subtl(tl, index+1, length_of_tl));

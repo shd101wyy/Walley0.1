@@ -108,7 +108,6 @@ bool assignment(TREE *tree, Token_List *tl){
         TREE_initWithName(&var_value_tree, "var_value");
         Token_List *var_value_list=TL_subtl(tl, index_of_equal+1, length_of_tl);
         
-        TL_print(var_value_list);
         
         var_value(&var_value_tree, var_value_list);
         
@@ -117,43 +116,21 @@ bool assignment(TREE *tree, Token_List *tl){
       
 
         
-       
-        
-       // printf("var_name_tree->\n");
-       // TREE_print(var_name_tree);
-       // printf("\nvar_value_tree->\n");
-       // TREE_print(var_value_tree);
-        
         int var_name_num=NL_length(var_name_tree.node_list);
-       // printf("var_name_num %d\n",var_name_num);
-        
-       // int var_value_num=NL_length(var_value_tree.node_list);
-       // printf("var_value_num %d\n",var_value_num);
-        
-        
+              
         int i=0;
         Node_List *var_name_nl=var_name_tree.node_list;
         Node_List *var_value_nl=var_value_tree.node_list;
         for (; i<var_name_num; i++) {
             int index=TREE_INDEX;
             TREE_addNode(tree, "=", "");
-            
-            
-            
-            //char *var_name_str=var_name_nl->node.name;
-            //char *var_value_str=var_value_nl->node.name;
-            //printf("now_var_name---> %s\n",var_name_str);
-            //printf("now_var_value---> %s\n",var_value_str);
-            
+      
             // local variable
             if (is_local) {
                 TREE_addNode(TREE_getTreeAccordingToIndex(tree, index),"local", "");
             }
             TREE_addTree(TREE_getTreeAccordingToIndex(tree, index), var_name_nl->node);
             TREE_addTree(TREE_getTreeAccordingToIndex(tree, index), var_value_nl->node);
-
-           // TREE_addNode(TREE_getTreeAccordingToIndex(tree, index), var_name_str , "var_name");
-           // TREE_addNode(TREE_getTreeAccordingToIndex(tree, index), var_value_str, "var_value");
             
             // eg x,y=12
             // then x=12
