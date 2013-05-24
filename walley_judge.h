@@ -80,8 +80,8 @@ if x==1 and x==2:
                y  z  x  z
 */
 bool relation(TREE *tree, Token_List *tl){
-    
 
+    
     if (INCOMPLETE_STATEMENT) {
         return FALSE;
     }

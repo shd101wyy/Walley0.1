@@ -553,10 +553,10 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
     }
     
     else if(term(tree.name, "table_value")){
-        js_isTableValue=TRUE;
         Node_List *nl=tree.node_list;
-        char *var_name=nl->node.name;
+        char *var_name=Code_Generation_2_Javascript(sl,nl->node);
         char *append_str=var_name;
+        js_isTableValue=TRUE;
 
         nl=nl->next;
         while (nl!=NULL) {

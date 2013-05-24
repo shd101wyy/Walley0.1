@@ -34,6 +34,7 @@
  */
 
 bool params(TREE *tree, Token_List *tl){
+      
     if (INCOMPLETE_STATEMENT) {
         return FALSE;
     }
@@ -70,7 +71,7 @@ bool params(TREE *tree, Token_List *tl){
         tl=tl->next;
     }
     tl=temp_tl;
-    
+        
     // -> assignment
     // -> value
     if (index_of_comma==-1) {
@@ -79,27 +80,28 @@ bool params(TREE *tree, Token_List *tl){
             return TRUE;
         }
         else{
-            
+                    
             int index=TREE_INDEX;
             TREE_addNode(tree, "value", "");
             
-            
-            return  //assignment(TREE_getTreeAccordingToIndex(tree, index), tl)
-            value(TREE_getTreeAccordingToIndex(tree, index), tl);
+            return value(TREE_getTreeAccordingToIndex(tree, index), tl);
         }
       
     }
     // -> assignment ',' params
     // -> value ',' params
     else{
+        
         Token_List *tl1=TL_subtl(tl, 0, index_of_comma);
         Token_List *tl2=TL_subtl(tl, index_of_comma+1, length_of_tl);
         
+    
         if (assignment(tree, tl1)) {
             return params(tree, tl2);
         }
         else{
-        
+                        
+            
             int index_of_tl1=TREE_INDEX;
             TREE_addNode(tree, "value","");
             return value(TREE_getTreeAccordingToIndex(tree, index_of_tl1), tl1)
@@ -109,8 +111,7 @@ bool params(TREE *tree, Token_List *tl){
 }
 
 bool func(TREE *tree, Token_List *tl){
-   
-    
+          
     if (INCOMPLETE_STATEMENT) {
         return FALSE;
     }
@@ -123,7 +124,8 @@ bool func(TREE *tree, Token_List *tl){
     if (strcmp(TL_tokenAtIndex(tl, length_of_tl-1).TOKEN_STRING,")")!=0||index_of_left==-1||index_of_left==0) {
         return FALSE;
     }
-    else{
+    else{        
+        
         Token_List *test_id=TL_subtl(tl, 0, index_of_left);
         Token_List *params_tl;
         // no params
@@ -136,10 +138,13 @@ bool func(TREE *tree, Token_List *tl){
             params_tl=TL_subtl(tl, index_of_left+1, index_of_right);
         }
         
+
+        
         int length_of_test_id=TL_length(test_id);
         if (length_of_test_id!=1||strcmp(test_id->current_token.TOKEN_CLASS, "id")!=0) {
             return FALSE;
         }
+
         
         tree->name="func";
         tree->token_class="";
@@ -147,6 +152,10 @@ bool func(TREE *tree, Token_List *tl){
         TREE_addNode(TREE_getTreeAccordingToIndex(tree, TREE_INDEX-1),toString(test_id->current_token.TOKEN_STRING), "string");
         int index=TREE_INDEX;
         TREE_addNode(tree, "params", "");
+        
+      
+    
+        
         return params(TREE_getTreeAccordingToIndex(tree, index), params_tl);
         
     }

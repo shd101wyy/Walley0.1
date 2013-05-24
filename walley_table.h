@@ -304,6 +304,8 @@ table_value ->
             list_table table_value_key          // [1,2,3].length()
             num table_value_key                 //  13.toString()
             expr table_value_key                //  ("He"+"llo").length() where expr can only be  inside '()' 
+        // new support on 05/24/2013
+            func table_value_key
 
 */
 
@@ -316,11 +318,13 @@ table_value ->
         list_table table_value_key          // [1,2,3].length()
         num table_value_key                 //  13.toString()
         expr table_value_key                //  ("He"+"llo").length()   where expr can only be  inside '()' 
+ 
+        // new support on 05/24/2013
+        func table_value_key
+
 
  */
 bool table_value(TREE *tree, Token_List *tl){
-    
-   
     
     if (INCOMPLETE_STATEMENT) {
         return FALSE;
@@ -351,6 +355,43 @@ bool table_value(TREE *tree, Token_List *tl){
         TREE_addNode(TREE_getTreeAccordingToIndex(tree, index), tl->current_token.TOKEN_STRING, tl->current_token.TOKEN_CLASS);
         return table_value_key(TREE_getTreeAccordingToIndex(tree, index), TL_subtl(tl, 1, length_of_tl));
     }
+    // new support on 05/24/2013
+    //func table_value_key
+    else if (length_of_tl>=3 && term(tl->current_token.TOKEN_CLASS, "id") && term(tl->next->current_token.TOKEN_STRING, "(")){
+        int index=-1; // find index of )
+        
+        Token_List *temp_tl=tl;
+        int i=0;
+        int count=0;
+        while (temp_tl!=NULL) {
+            if (term(temp_tl->current_token.TOKEN_STRING, "(")) {
+                count++;
+            }
+            else if (term(temp_tl->current_token.TOKEN_STRING, ")")){
+                count--;
+                if (count==0) {
+                    index=i;
+                    break;
+                }
+            }
+            temp_tl=temp_tl->next;
+            i++;
+        }
+        
+        // fix 'add(3,4)' bug
+        if (index==length_of_tl-1) {
+            return FALSE;
+        }
+        
+        int tree_index=TREE_INDEX;
+        TREE_addNode(tree, "table_value", "");
+        int tree_index2=TREE_INDEX;
+        TREE_addNode(TREE_getTreeAccordingToIndex(tree, tree_index), "func", "");
+        func(TREE_getTreeAccordingToIndex(tree, tree_index2), TL_subtl(tl, 0, index+1));
+        
+        return table_value_key(TREE_getTreeAccordingToIndex(tree, tree_index), TL_subtl(tl, index+1, length_of_tl));
+    }
+    
     // expr table_value_key                //  ("He"+"llo").length()   where expr can only be  inside '()'
     else{
         if (term(tl->current_token.TOKEN_STRING, "(")) {

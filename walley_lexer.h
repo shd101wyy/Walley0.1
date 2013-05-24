@@ -135,157 +135,6 @@
 
 
 /*
-bool is_id(char *input_str){
-    int i=0;
-    int length=(int)strlen(input_str);
-    
-    bool has_alpha=FALSE;
-    
-    // check whether has alpha
-    for (; i<length; i++) {
-        if (isalpha(input_str[0])) {
-            has_alpha=TRUE;
-            break;
-        }
-    }
-    if (has_alpha==FALSE) {
-        return FALSE;
-    }
-    
-    // 2a is not allowed
-    if (isdigit(input_str[0])) {
-        return FALSE;
-    }
-    return TRUE;
-}
-*/
-/*
-char *Walley_Analyze_Token_Class(char *input_str){
-    //  1  m_operator
-    if (strcmp(input_str, "+")==0
-        ||strcmp(input_str, "-")==0
-        ||strcmp(input_str, "*")==0
-        ||strcmp(input_str, "/")==0
-        ||strcmp(input_str, "%")==0
-        ||strcmp(input_str, "^")==0
-        ||strcmp(input_str, "**")==0
-        ) {
-        return "m_operator";
-    }
-    
-    //  2  punctuation
-    if (strcmp(input_str, ",")==0
-        ||strcmp(input_str, ";")==0
-        ||strcmp(input_str, ":")==0
-        ) {
-        return "punctuation";
-    }
-    if (strcmp(input_str, ".")==0) {
-        return "dot";
-    }
-    
-    // 3 judge_sign
-    if (strcmp(input_str, ">")==0
-        ||strcmp(input_str, "<")==0
-        ||strcmp(input_str, "==")==0
-        ||strcmp(input_str, ">=")==0
-        ||strcmp(input_str, "<=")==0
-        ||strcmp(input_str, "!=")==0
-
-        ) {
-        return "judge_sign";
-    }
-    
-    // 4 relation
-    if (strcmp(input_str, "and")==0
-        ||strcmp(input_str, "or")==0
-        ||strcmp(input_str, "not")==0) {
-        return "relation";
-    }
-    
-    // 5 left_annotation
-    if (strcmp(input_str, "#~")==0) {
-        return "l_annotation";
-    }
-    
-
-    // 6 right_annotation
-    if (strcmp(input_str, "~#")==0) {
-        return "r_annotation";
-    }
-
-    // 7 keyword
-    if(strcmp(input_str, "if")==0
-       ||strcmp(input_str, "elif")==0
-       ||strcmp(input_str, "else")==0
-       ||strcmp(input_str, "switch")==0
-       ||strcmp(input_str, "case")==0
-       ||strcmp(input_str, "for")==0
-       ||strcmp(input_str, "while")==0
-       ||strcmp(input_str, "def")==0
-       ||strcmp(input_str, "class")==0
-       ){
-        return "keyword";
-    }
-
-    // 8 assignment
-    if(strcmp(input_str, "=")==0)
-        return "assignment_operator";
-
-    
-
-    // 9 annotation
-    if(strcmp(input_str, "#")==0){
-        return "annotation";
-    }
-
-    // 10 ()[]{}
-    if(strcmp(input_str, "(")==0
-       ||strcmp(input_str, ")")==0
-       ||strcmp(input_str, "[")==0
-       ||strcmp(input_str, "]")==0
-       ||strcmp(input_str, "{")==0
-       ||strcmp(input_str, "}")==0
-       ){
-        return input_str;
-    }
-
-    // 11 string
-    if(input_str[0]=='"' && input_str[(int)strlen(input_str)-1]=='"'){
-        return "string";
-    }
-
-    // 12 digit
-    if(stringIsDigit(input_str))
-        return "num";
-
-    // 13 white_space
-    int i=0;
-    bool is_white_space=TRUE;
-    for (i=0; i<(int)strlen(input_str); i++) {
-            if(input_str[i]!=' '
-               &&input_str[i]!='\n'
-               &&input_str[i]!='\t'){
-                is_white_space=FALSE;
-                break;
-            }
-    }
-    if(is_white_space){
-        return "white_space";
-    }
-
-    // 14 id
-    bool isid=is_id(input_str);
-    if (isid) {
-        return "id";
-    }
-    
-    // 15 error
-    printf("Can not analyze %s\n",input_str);
-    exit(0);
-}
-*/
-/*
     input_str : x=12
                 0123
     start     :0
@@ -622,17 +471,30 @@ char* Walley_Analyze_Token_Class(char *input_str, int i, int *end){
     }
     
     // 14 id
-    if (isalpha(input_str[i])||input_str[i]=='_') {
+    if (isalpha(input_str[i])||input_str[i]=='_'||input_str[i]=='$') {
+        int a=i+1;
+        for(;a<length;a++){
+            if (isalpha(input_str[a])||input_str[a]=='_'||input_str[a]=='$') {
+                continue;
+            }
+            else{
+                break;
+            }
+        }
+        *end=a;
+        return "id";
+        
+        /*
         int a=i+1;
         bool has_alpha=FALSE;
-        if (isalpha(input_str[i])) {
+        if (isalpha(input_str[a])) {
             has_alpha=TRUE;
         }
         for (; a<length; a++) {
             if (isalpha(input_str[a])) {
                 has_alpha=TRUE;
             }
-            if (!isalpha(input_str[a])&&!isdigit(input_str[a])&&input_str[a]!='_') {
+            if (!isalpha(input_str[a])&&!isdigit(input_str[a])&&input_str[a]!='_'&&input_str[a]!='$') {
                 break;
             }
         }
@@ -641,7 +503,7 @@ char* Walley_Analyze_Token_Class(char *input_str, int i, int *end){
             *end=a;
             return "id";
         }
-
+         */
     }
   
     // 15 dot

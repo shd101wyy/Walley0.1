@@ -55,6 +55,7 @@ bool COUNT_THEN_END=0;
 
 typedef struct TOKEN Token;
 typedef struct TL Token_List;
+char *TL_toString(Token_List *tl);
 
 
 //walley_tree
