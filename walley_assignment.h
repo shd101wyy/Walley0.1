@@ -39,7 +39,7 @@
 */
 
 bool assignment(TREE *tree, Token_List *tl){
-   
+     
     if (INCOMPLETE_STATEMENT) {
         return FALSE;
     }
@@ -77,7 +77,7 @@ bool assignment(TREE *tree, Token_List *tl){
         tl=tl->next;
     }
     tl=temp_tl;
-    
+   
     // it is not assignment
     if (count_of_equal!=1) {
         return FALSE;
@@ -103,14 +103,21 @@ bool assignment(TREE *tree, Token_List *tl){
         var_name(&var_name_tree, var_name_list);
 
         
-        
         TREE_INDEX=0;
         TREE var_value_tree;
         TREE_initWithName(&var_value_tree, "var_value");
         Token_List *var_value_list=TL_subtl(tl, index_of_equal+1, length_of_tl);
+        
+        TL_print(var_value_list);
+        
         var_value(&var_value_tree, var_value_list);
         
         TREE_INDEX=save_TREE_INDEX;
+        
+      
+
+        
+       
         
        // printf("var_name_tree->\n");
        // TREE_print(var_name_tree);
@@ -310,6 +317,7 @@ bool var_value(TREE *tree, Token_List *tl){
     }
     //value
     else{
+        
         int index_of_tl=TREE_INDEX;
         TREE_addNode(tree,"value","");
 

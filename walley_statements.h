@@ -661,6 +661,9 @@ bool def_stms(TREE *tree, Token_List *tl){
             return FALSE;
         }
         
+        
+       
+        
         Token_List *new_tl;
         TL_init(&new_tl);
         
@@ -691,7 +694,6 @@ bool def_stms(TREE *tree, Token_List *tl){
             temp_tl=temp_tl->next;
         }
         
-               
         return assignment(tree, new_tl);
     }
     else{
@@ -757,6 +759,9 @@ bool statements(TREE *tree, Token_List *tl){
 //walley_statements ->
 //| statements, statements        // use sentences_seperation
 bool walley_statements(TREE *tree, Token_List *tl){
+    
+  
+    
     if (INCOMPLETE_STATEMENT) {
         return FALSE;
     }

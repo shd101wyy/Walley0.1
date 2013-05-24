@@ -11,17 +11,18 @@
 int main(int argc, char **argv)
 {
     
-
+   
     if (argc==1) {
         
+        /*
         printf("Walley Language version 0.0.1.567\n");
         Str_List *sl=file_getStringList("./introduction");
         while (sl!=NULL) {
             printf("%s\n",sl->string_content);
             sl=sl->next;
         }
-        printf("\n\n\n");
-     
+        printf("\n\");
+        */
         Walley_Run();
     
               

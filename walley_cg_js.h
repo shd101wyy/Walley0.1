@@ -481,7 +481,9 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
         if (term(var_value_tree.name, "func_value")) {
             printf("func_value");
             append_string=append(append_string,"function(");
+            
             char *param_str=Code_Generation_2_Javascript(sl, var_value_tree.node_list->next->node);
+            
             append_string=append(append_string, param_str);
             append_string=append(append_string, "){");
             SL_addString(sl, append_string);
@@ -653,6 +655,16 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
     else if (term(tree.name, "value")){
         Node_List *nl=tree.node_list;
         return Code_Generation_2_Javascript(sl, nl->node);
+    }
+    // and( +(num 3)(num 4))(id a)
+    else if (term(tree.name, "and")||term(tree.name, "or")){
+        char *left_str=Code_Generation_2_Javascript(sl, tree.node_list->node);
+        char *right_str=Code_Generation_2_Javascript(sl, tree.node_list->next->node);
+        char *judge_sign="&&";
+        if (term(tree.name, "or")) {
+            judge_sign="||";
+        }
+        return append(left_str, append(judge_sign, right_str));
     }
     else if (term(tree.name,"params")){
         char *append_string="";
