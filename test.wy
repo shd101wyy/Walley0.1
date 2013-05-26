@@ -1,8 +1,3 @@
-Cat=[
-init=def()then
-	self=[]
-	self.age=12
-	return self
-end,
-z=12
-]
+for i=0,i<10,i=i+1 then
+	x=12
+end

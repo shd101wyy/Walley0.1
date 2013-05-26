@@ -120,7 +120,7 @@ void JS_Table(Str_List **sl,char *var_name, Node_List *table_expr_nl){
         
             append_string=append(append_string, "=");
             append_string=append(append_string, value_str);
-            append_string=append(append_string, ";");
+            append_string=append(append_string, ";\n");
             SL_addString(sl, append_string);
 
         }
@@ -134,16 +134,22 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
     if (term(tree.name, "walley_statements")) {
         
         Node_List *nl=tree.node_list;
+        
+        char *output_str="";
+        
         while (nl!=NULL) {
             char *temp_str=Code_Generation_2_Javascript(sl, nl->node);
             nl=nl->next;
             
             if ((int)strlen(temp_str)!=0) {
-                return temp_str;
+                output_str=append(output_str,temp_str);
+                if (output_str[(int)strlen(output_str)-1]!='\n') {
+                    output_str=append(output_str, "\n");
+                }
             }
         }
         
-        return "";
+        return output_str;
     }
     
     else if (term(tree.name, "statements")){
@@ -178,52 +184,75 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
             
             
             append_str=append(append_str, judge_str);
-            append_str=append(append_str,"){");
+            append_str=append(append_str,"){\n");
             
             SL_addString(sl, append_str);
             
             nl=nl->next->next;
+            
+            char *output_str="";
+            
             while (nl!=NULL) {
-                char *output_str=Code_Generation_2_Javascript(sl, nl->node);
-                if (term("", output_str)==FALSE) {
-                    SL_addString(sl, output_str);
-                }
+                char *temp_str=Code_Generation_2_Javascript(sl, nl->node);
                 nl=nl->next;
+                
+                if ((int)strlen(temp_str)!=0) {
+                    output_str=append(output_str,temp_str);
+                    if (output_str[(int)strlen(output_str)-1]!='\n') {
+                        output_str=append(output_str, "\n");
+                    }
+                }
             }
+            SL_addString(sl, output_str);
         }
         else if (term(nl->node.name, "elif")){
-            SL_addString(sl, "}");
+            SL_addString(sl, "}\n");
             
             char *append_str="else if (";
             char *judge_str=Code_Generation_2_Javascript(sl, nl->next->node);
             
             
             append_str=append(append_str, judge_str);
-            append_str=append(append_str,"){");
+            append_str=append(append_str,"){\n");
             
             SL_addString(sl, append_str);
             
             nl=nl->next->next;
+            char *output_str="";
+            
             while (nl!=NULL) {
-                char *output_str=Code_Generation_2_Javascript(sl, nl->node);
-                if (term("", output_str)==FALSE) {
-                    SL_addString(sl, output_str);
-                }
+                char *temp_str=Code_Generation_2_Javascript(sl, nl->node);
                 nl=nl->next;
+                
+                if ((int)strlen(temp_str)!=0) {
+                    output_str=append(output_str,temp_str);
+                    if (output_str[(int)strlen(output_str)-1]!='\n') {
+                        output_str=append(output_str, "\n");
+                    }
+                }
             }
+            SL_addString(sl, output_str);
         }
         else if (term(nl->node.name, "else")){
-            SL_addString(sl, "}");
-            char *append_str="else{";
+            SL_addString(sl, "}\n");
+            char *append_str="else{\n";
             SL_addString(sl, append_str);
             nl=nl->next;
+            char *output_str="";
+            
             while (nl!=NULL) {
-                char *output_str=Code_Generation_2_Javascript(sl, nl->node);
-                if (term("", output_str)==FALSE) {
-                    SL_addString(sl, output_str);
-                }
+                char *temp_str=Code_Generation_2_Javascript(sl, nl->node);
                 nl=nl->next;
+                
+                if ((int)strlen(temp_str)!=0) {
+                    output_str=append(output_str,temp_str);
+                    if (output_str[(int)strlen(output_str)-1]!='\n') {
+                        output_str=append(output_str, "\n");
+                    }
+                }
             }
+            SL_addString(sl, output_str);
+
         }
         else if(term(nl->node.name, "while")){
             /*
@@ -275,20 +304,19 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
             char *append_str="for (";
             
             if (term(nl->next->node.name, "assignment")) {
-                Code_Generation_2_Javascript(sl, nl->next->node.node_list->node);
+                append_str=append(append_str,Code_Generation_2_Javascript(sl, nl->next->node.node_list->node));
                 nl=nl->next->next;
                 //exit(0);
             }
             else{
                 nl=nl->next;
             }
-            append_str=append(append_str,";");
             
             // nl now is relation
             char *judge_str=Code_Generation_2_Javascript(sl, nl->node);
             
             append_str=append(append_str, judge_str);
-            append_str=append(append_str, ";){");
+            append_str=append(append_str, ";){\n");
             SL_addString(sl, append_str);
             
             nl=nl->next;
@@ -300,17 +328,25 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
                 nl=nl->next;
             }
             
+            char *output_str="";
+            
             while (nl->next!=NULL) {
-                char *output_str=Code_Generation_2_Javascript(sl, nl->node);
-                if (term("", output_str)==FALSE) {
-                    SL_addString(sl, output_str);
-                }
+                char *temp_str=Code_Generation_2_Javascript(sl, nl->node);
                 nl=nl->next;
+                
+                if ((int)strlen(temp_str)!=0) {
+                    output_str=append(output_str,temp_str);
+                    if (output_str[(int)strlen(output_str)-1]!='\n') {
+                        output_str=append(output_str, "\n");
+                    }
+                }
             }
+            SL_addString(sl, output_str);
+
             if (has_assignment_after_judge) {
                 Code_Generation_2_Javascript(sl, temp_nl->node.node_list->node);
             }
-            SL_addString(sl, "}");
+            SL_addString(sl, "}\n");
             
            
         }
@@ -352,7 +388,7 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
             char *foreach_in_value=Code_Generation_2_Javascript(sl, foreach_in_nl->node.node_list->node);
             // append in value
             append_str=append(append_str,foreach_in_value);
-            append_str=append(append_str, "){");
+            append_str=append(append_str, "){\n");
             
             SL_addString(sl, append_str);
             
@@ -365,29 +401,42 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
                 char *in_value_and_key=append(in_value, append("[", append(foreach_index,"]")));
                 
                 append_str=append(append_str, in_value_and_key);
+                append_str=append(append_str, ";\n");
                 SL_addString(sl, append_str);
             }
             
             nl=foreach_in_nl->next;
-            while (nl!=NULL) {
-                char *output_str=Code_Generation_2_Javascript(sl, nl->node);
-                if (term("", output_str)==FALSE) {
-                    SL_addString(sl, output_str);
-                }
-                nl=nl->next;
-            }
+            char *output_str="";
             
-            return "";
-        }
-        else{
             while (nl!=NULL) {
                 char *temp_str=Code_Generation_2_Javascript(sl, nl->node);
                 nl=nl->next;
                 
                 if ((int)strlen(temp_str)!=0) {
-                    return temp_str;
+                    output_str=append(output_str,temp_str);
+                    if (output_str[(int)strlen(output_str)-1]!='\n') {
+                        output_str=append(output_str, "\n");
+                    }
                 }
             }
+            SL_addString(sl, output_str);
+            
+            return "";
+        }
+        else{
+            char *output_str="";
+            while (nl!=NULL) {
+                char *temp_str=Code_Generation_2_Javascript(sl, nl->node);
+                nl=nl->next;
+                
+                if ((int)strlen(temp_str)!=0) {
+                    output_str=append(output_str,temp_str);
+                    if (output_str[(int)strlen(output_str)-1]!='\n') {
+                        output_str=append(output_str, "\n");
+                    }
+                }
+            }
+            return output_str;
         }
         
         return "";
@@ -428,7 +477,16 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
         char *left_str=Code_Generation_2_Javascript(sl, left_tree);
         char *right_str=Code_Generation_2_Javascript(sl, right_tree);
         char *append_str=left_str;
-        append_str=append(append_str, judge_tree.name);
+        
+        char *judge_sign=judge_tree.name;
+        if (term(judge_sign, "==")) {
+            judge_sign="===";
+        }
+        else if (term(judge_sign, "!=")){
+            judge_sign="!==";
+        }
+        
+        append_str=append(append_str, judge_sign);
         append_str=append(append_str, right_str);
         
         return append_str;
@@ -482,7 +540,7 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
         char *param_str=Code_Generation_2_Javascript(sl, tree.node_list->next->node);
         
         append_string=append(append_string, param_str);
-        append_string=append(append_string, "){");
+        append_string=append(append_string, "){\n");
         
         //( func_value( def)( params(id none))( statements( =(id a)(num 12)))( end))
         /*
@@ -504,7 +562,7 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
         Node_List *nl=tree.node_list->next->next;
         while (nl->next!=NULL) {
             char *output_str=Code_Generation_2_Javascript(sl, nl->node);
-            append_string=append(append_string, append(" ",output_str));
+            append_string=append(append_string, append("     ",output_str));
             nl=nl->next;
         }
         
@@ -703,8 +761,7 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
         return append_string;
     }
     else if (term(tree.name, "end")){
-        SL_addString(sl, "}");
-        return "";
+        return "}\n";
     }
     
     else if (term(tree.token_class,"id")){
@@ -808,7 +865,7 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
         char *append_str="return ";
         Node_List *nl=tree.node_list;
         append_str=append(append_str, Code_Generation_2_Javascript(sl, nl->node));
-        append_str=append(append_str, ";");
+        append_str=append(append_str, ";\n");
         // SL_addString(sl, append_str);
         return append_str;
         

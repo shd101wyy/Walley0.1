@@ -404,6 +404,7 @@ char* Walley_Analyze_Token_Class(char *input_str, int i, int *end){
     // 11 string
     if(input_str[i]=='"'){
         int index_of_right_dq=indexOfFinalDoubleQuote(input_str, i);
+        
         if (index_of_right_dq==-1) {
             printf("incomplete str\n");
             exit(0);
@@ -653,7 +654,7 @@ bool sentences_seperation(Token_List *tl, Token_List **output_tl,int *begin){
         // x=1 y=2 ->
         // x=1
         // y=2
-        if (i<length_of_tl-1&&(term(tl->current_token.TOKEN_CLASS, "num")||term(tl->current_token.TOKEN_CLASS, "id")||term(tl->current_token.TOKEN_CLASS, "list_table")||term(tl->current_token.TOKEN_STRING, ")"))
+        if (i<length_of_tl-1&&(term(tl->current_token.TOKEN_CLASS, "num")||term(tl->current_token.TOKEN_CLASS, "string")||term(tl->current_token.TOKEN_CLASS, "id")||term(tl->current_token.TOKEN_CLASS, "list_table")||term(tl->current_token.TOKEN_STRING, ")"))
             && (term(tl->next->current_token.TOKEN_CLASS, "id") ||term(tl->next->current_token.TOKEN_CLASS, "num")
                 ||term(tl->next->current_token.TOKEN_CLASS, "return")||term(tl->next->current_token.TOKEN_STRING, "continue")||term(tl->next->current_token.TOKEN_STRING, "break"))) {
             int end=i+1;

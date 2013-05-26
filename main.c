@@ -12,7 +12,8 @@ int main(int argc, char **argv)
 {
     
     /*
-    Token_List *tl=Walley_Lexical_Analyzie("Cat.init=def()then 	self=[] 	self.age=12 	return self end ");
+    Token_List *tl=Walley_Lexical_Analyzie("self.address=\"\" self.setFileName=def(file_name) then self.file_name=file_name end self.setFolderName=def(folder_name) then self.folder_name=folder_name end self.setAddress=def(address) then 		self.address=address end");
+        
     TREE tree=parser(tl);
     
     Str_List *sl;
@@ -27,16 +28,25 @@ int main(int argc, char **argv)
     if (argc==1) {
         
         /*
-        printf("Walley Language version 0.0.1.567\n");
-        Str_List *sl=file_getStringList("./introduction");
-        while (sl!=NULL) {
-            printf("%s\n",sl->string_content);
-            sl=sl->next;
-        }
-        printf("\n");
-        */
+         */
         Walley_Run();
               
+    }
+    else if(argc==2){
+        if (term(argv[1], "help")) {
+            printf("Walley Language version 0.0.1.567\n");
+            Str_List *sl=file_getStringList("./introduction");
+            while (sl!=NULL) {
+                printf("%s\n",sl->string_content);
+                sl=sl->next;
+            }
+            printf("\n");
+
+        }
+        else{
+            printf("Command Error\n");
+            exit(0);
+        }
     }
     else if (argc==3){
         if (term(argv[1], "compile")) {
@@ -54,7 +64,6 @@ int main(int argc, char **argv)
             while (output_sl!=NULL) {
                 
                 fputs(output_sl->string_content, fp);
-                fputs("\n",fp);
                 output_sl=output_sl->next;
             }
             
