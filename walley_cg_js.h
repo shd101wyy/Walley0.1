@@ -547,6 +547,15 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
         TREE key_tree=tree.node_list->node;
         TREE value_tree=tree.node_list->next->node;
         char *left=Code_Generation_2_Javascript(sl, key_tree.node_list->node);
+        bool left_is_string=isString(left);
+        if (left_is_string==FALSE && stringIsDigit(left)==FALSE) {
+            printf("Error.. invalid key %s\n",left);
+            exit(0);
+        }
+        if (left_is_string) {
+            left=substr(left, 1, (int)strlen(left)-1);
+        }
+        
         char *right=Code_Generation_2_Javascript(sl, value_tree);
         
         return append(left, append(":", right));

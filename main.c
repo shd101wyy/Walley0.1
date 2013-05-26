@@ -14,7 +14,7 @@ int main(int argc, char **argv)
    
     if (argc==1) {
         
-        
+        /*
         printf("Walley Language version 0.0.1.567\n");
         Str_List *sl=file_getStringList("./introduction");
         while (sl!=NULL) {
@@ -22,15 +22,32 @@ int main(int argc, char **argv)
             sl=sl->next;
         }
         printf("\n");
-        
-        
+        */
         Walley_Run();
-    
               
     }
     else if (argc==3){
         if (term(argv[1], "compile")) {
             printf("Begin to compile Walley Language file to JS file\n");
+            Str_List *output_sl=Compile_to_JS(argv[2]);
+            
+            int length=(int)strlen(argv[2]);
+            char *compile_to_file=argv[2];
+            compile_to_file[length-1]='s';
+            compile_to_file[length-2]='j';
+            
+            printf("compile_to_file name %s\n",compile_to_file);
+            
+            FILE *fp=fopen(compile_to_file, "w");
+            while (output_sl!=NULL) {
+                
+                fputs(output_sl->string_content, fp);
+                fputs("\n",fp);
+                output_sl=output_sl->next;
+            }
+            
+            fclose(fp);
+            
         }
         else{
             printf("Command Error\n");
