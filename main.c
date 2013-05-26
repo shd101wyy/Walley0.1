@@ -11,6 +11,18 @@
 int main(int argc, char **argv)
 {
     
+    /*
+    Token_List *tl=Walley_Lexical_Analyzie("Cat.init=def()then 	self=[] 	self.age=12 	return self end ");
+    TREE tree=parser(tl);
+    
+    Str_List *sl;
+    SL_initSL(&sl);
+    char *output=Code_Generation_2_Javascript(&sl, tree);
+    printf("\n\n%s\n",output);
+    SL_print(sl);
+    
+    exit(0);
+    */
    
     if (argc==1) {
         

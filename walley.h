@@ -14,7 +14,6 @@ void Walley_Run(){
     Str_List *saved_str_list;
     SL_initSL(&saved_str_list);
     
-    bool begin=FALSE;
     while (1) {
         
         printf("\n>>> ");
@@ -96,8 +95,10 @@ Str_List *Compile_to_JS(char *file_name){
         
         
         if (INCOMPLETE_STATEMENT) {
-            char *temp_string="";
+            char *temp_string=sl_in_file->string_content;
             while (INCOMPLETE_STATEMENT) {
+                sl_in_file=sl_in_file->next;
+
                 if (sl_in_file==NULL) {
                     printf("Error.. Incomplete statements %s\n",temp_string);
                     exit(0);
@@ -108,11 +109,10 @@ Str_List *Compile_to_JS(char *file_name){
                 
                 temp_string=append(temp_string, sl_in_file->string_content);
                 temp_string=append(temp_string, " ");
-            
+                            
                 Token_List *temp_tl=Walley_Lexical_Analyzie(temp_string);
                 tree=parser(temp_tl);
-
-                sl_in_file=sl_in_file->next;
+                
                 
             }
         }
@@ -120,12 +120,15 @@ Str_List *Compile_to_JS(char *file_name){
         
         char *output_str=Code_Generation_2_Javascript(&output_sl, tree);
         
+        
         if (term(output_str, "")==FALSE) {
             if (output_str[(int)strlen(output_str)-1]!=';') {
                 output_str=append(output_str, ";");
             }
             SL_addString(&output_sl, output_str);
         }
+        
+
         
         sl_in_file=sl_in_file->next;
     }

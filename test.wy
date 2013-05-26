@@ -1,1 +1,8 @@
-Cat=[]
+Cat=[
+init=def()then
+	self=[]
+	self.age=12
+	return self
+end,
+z=12
+]
