@@ -471,10 +471,11 @@ char* Walley_Analyze_Token_Class(char *input_str, int i, int *end){
     }
     
     // 14 id
+    // the first char can not be digit
     if (isalpha(input_str[i])||input_str[i]=='_'||input_str[i]=='$') {
         int a=i+1;
         for(;a<length;a++){
-            if (isalpha(input_str[a])||input_str[a]=='_'||input_str[a]=='$') {
+            if (isalpha(input_str[a])||input_str[a]=='_'||input_str[a]=='$'||isdigit(input_str[a])) {
                 continue;
             }
             else{

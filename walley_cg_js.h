@@ -627,14 +627,8 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
             char *func_name_string=Code_Generation_2_Javascript(sl,tree.node_list->node.node_list->node);
             char *func_name= substr(func_name_string,1,(int)strlen(func_name_string)-1);
             
-            // embed func
-            if (term(func_name, "puts")) {
-                append_str="console.log";
-            }
-            // not embed func
-            else{
-                append_str=func_name;
-            }
+            append_str=func_name;
+            
         }
         else{
             char *func_name=Code_Generation_2_Javascript(sl,tree.node_list->node.node_list->node);
@@ -705,6 +699,18 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
     }
     
     else if (term(tree.token_class,"id")){
+        // continue
+        if (term(tree.name, "continue")) {
+            SL_addString(sl, "continue;");
+            return "";
+        }
+        
+        if (term(tree.name, "break")) {
+            SL_addString(sl, "break;");
+            return "";
+        }
+        
+        
         // change 'none' to 'null'
         if (term(tree.name, "none")) {
             return "null";
