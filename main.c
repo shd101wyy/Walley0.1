@@ -70,6 +70,25 @@ int main(int argc, char **argv)
             fclose(fp);
             
         }
+        else if (term(argv[1], "compile_min")){
+            printf("Begin to compile Walley Language file to JS file\n");
+            Str_List *output_sl=Compile_to_JS(argv[2]);
+            
+            int length=(int)strlen(argv[2]);
+            char *compile_to_file=argv[2];
+            compile_to_file[length-1]='s';
+            compile_to_file[length-2]='j';
+            
+            printf("compile_to_file name %s\n",compile_to_file);
+            
+            char *write_to_file=JS_min(output_sl);
+            
+            FILE *fp=fopen(compile_to_file, "w");
+                
+            fputs(write_to_file, fp);
+            
+            fclose(fp);
+        }
         else{
             printf("Command Error\n");
             exit(0);

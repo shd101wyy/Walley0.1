@@ -129,6 +129,33 @@ void JS_Table(Str_List **sl,char *var_name, Node_List *table_expr_nl){
 
 }
 
+// remove /n
+char *JS_min(Str_List *sl){
+    char *temp=SL_toString(sl);
+    int length=(int)strlen(temp);
+    char *output=(char*)malloc(sizeof(char)*(length+1));
+    int i=0;
+    int count=0;
+    int index=0;
+    for (; i<length; i++) {
+        if (temp[i]=='"') {
+            count++;
+            output[index]='"';
+            index++;
+        }
+        else if (temp[i]=='\n' && count%2==0){
+            continue;
+        }
+        else{
+            output[index]=temp[i];
+            index++;
+        }
+        
+    }
+    output[index]=0;
+    return output;
+}
+
 // compile to javascript
 char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
     if (term(tree.name, "walley_statements")) {
