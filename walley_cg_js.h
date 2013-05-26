@@ -462,54 +462,54 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
         append_string=append(append_string, "=");
         
         //func_value
-        if (term(var_value_tree.name, "func_value")) {
-            append_string=append(append_string,"function(");
-            
-            char *param_str=Code_Generation_2_Javascript(sl, var_value_tree.node_list->next->node);
-            
-            append_string=append(append_string, param_str);
-            append_string=append(append_string, "){");
-            SL_addString(sl, append_string);
-            
-            //( func_value( def)( params(id none))( statements( =(id a)(num 12)))( end))
-            /*
-             ( func_value
-             ( def)
-             ( params(id none))
-             ( statements( =(id a)(num 12)))
-             ( end)
-             )
-             
-             
-             */
-            /*
-             char *append_string="function(";
-             char *param_str=Code_Generation_2_Javascript(sl, tree.node_list->next->node);
-             append_string=append(append_string, param_str);
-             append_string=append(append_string, "){\n");
-             */
-            Node_List *nl=var_value_tree.node_list->next->next;
-            while (nl->next!=NULL) {
-                char *output_str=Code_Generation_2_Javascript(sl, nl->node);
-                if (term("", output_str)==FALSE) {
-                    SL_addString(sl, output_str);
-                }
-                nl=nl->next;
-            }
-            SL_addString(sl, "};");
-            return "";
-        }
+        
         
         char *var_value=Code_Generation_2_Javascript(sl, var_value_tree);
         
         append_string=append(append_string, var_value);
+        
         append_string=append(append_string,";");
 
-        SL_addString(sl, append_string);
+        //SL_addString(sl, append_string);
         
                 
-        return "";
+        return append_string;
         
+    }
+    if (term(tree.name, "func_value")) {
+        char *append_string="function(";
+        
+        char *param_str=Code_Generation_2_Javascript(sl, tree.node_list->next->node);
+        
+        append_string=append(append_string, param_str);
+        append_string=append(append_string, "){");
+        
+        //( func_value( def)( params(id none))( statements( =(id a)(num 12)))( end))
+        /*
+         ( func_value
+            ( def)
+            ( params(id none))
+            ( statements( =(id a)(num 12)))
+            ( end)
+         )
+         
+         
+         */
+        /*
+         char *append_string="function(";
+         char *param_str=Code_Generation_2_Javascript(sl, tree.node_list->next->node);
+         append_string=append(append_string, param_str);
+         append_string=append(append_string, "){\n");
+         */
+        Node_List *nl=tree.node_list->next->next;
+        while (nl->next!=NULL) {
+            char *output_str=Code_Generation_2_Javascript(sl, nl->node);
+            append_string=append(append_string, append(" ",output_str));
+            nl=nl->next;
+        }
+        
+        append_string=append(append_string," }");
+        return append_string;
     }
     /*
      (table [1,2,3]
@@ -800,8 +800,8 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
         Node_List *nl=tree.node_list;
         append_str=append(append_str, Code_Generation_2_Javascript(sl, nl->node));
         append_str=append(append_str, ";");
-        SL_addString(sl, append_str);
-        return "";
+        // SL_addString(sl, append_str);
+        return append_str;
         
     }
     else{

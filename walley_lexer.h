@@ -613,12 +613,49 @@ bool sentences_seperation(Token_List *tl, Token_List **output_tl,int *begin){
     for (; i<length_of_tl; i++) {
        
         
+        
+        // from ( find )
+        if (term(tl->current_token.TOKEN_STRING, "(")) {
+            
+            
+            int index_of_right=-1;
+            int count=0;
+            while (tl!=NULL) {
+                if (term(tl->current_token.TOKEN_STRING, "(")) {
+                    count++;
+                }
+                else if (term(tl->current_token.TOKEN_STRING, ")")){
+                    count--;
+                    if (count==0) {
+                        index_of_right=i;
+                        break;
+                    }
+                }
+                tl=tl->next;
+                i++;
+            }
+                        
+            // did not find right
+            if (index_of_right==-1) {
+                INCOMPLETE_STATEMENT=TRUE;
+                return FALSE;
+            }
+            else{
+                int end=index_of_right+1;
+                *output_tl=TL_subtl(temp_tl, *begin, end);
+                
+                *begin=i+1;
+                return TRUE;
+            }
+            
+        }
+        
         // x=1 y=2 ->
         // x=1
         // y=2
         if (i<length_of_tl-1&&(term(tl->current_token.TOKEN_CLASS, "num")||term(tl->current_token.TOKEN_CLASS, "id")||term(tl->current_token.TOKEN_CLASS, "list_table")||term(tl->current_token.TOKEN_STRING, ")"))
             && (term(tl->next->current_token.TOKEN_CLASS, "id") ||term(tl->next->current_token.TOKEN_CLASS, "num")
-                ||term(tl->next->current_token.TOKEN_CLASS, "return"))) {
+                ||term(tl->next->current_token.TOKEN_CLASS, "return")||term(tl->next->current_token.TOKEN_STRING, "continue")||term(tl->next->current_token.TOKEN_STRING, "break"))) {
             int end=i+1;
             
             Token_List *ahead_tl=TL_subtl(temp_tl, *begin, end);
@@ -894,86 +931,6 @@ bool sentences_seperation(Token_List *tl, Token_List **output_tl,int *begin){
             return TRUE;
         }
 
-        
-        /*
-        // def add() then return x+y end ->
-        // 1:def add() then
-        // 2:return x+y
-        // 3:end
-        // find then behind def
-        if ((term(tl->current_token.TOKEN_STRING, "def")&&term(tl->next->current_token.TOKEN_STRING, "(")==FALSE)
-            ||term(tl->current_token.TOKEN_STRING, "if")
-            ||term(tl->current_token.TOKEN_STRING, "elif")
-            ||term(tl->current_token.TOKEN_STRING, "for")
-            ||term(tl->current_token.TOKEN_STRING, "while")) {
-            printf("Find Define %d\n",i);
-            
-            int end=i;
-            if (*begin<end) {
-                Token_List *ahead_tl=TL_subtl(temp_tl, *begin, end);
-                
-                *begin=i;
-                *output_tl=ahead_tl;
-                return TRUE;
-            }
-            else{
-                *begin=i;
-            }
-            
-            
-            // find then behind def
-            int index_of_then=-1;
-            for (; i<length_of_tl; i++) {
-                if (term(tl->current_token.TOKEN_STRING, "then")) {
-                    index_of_then=i;
-                    break;
-                }
-                tl=tl->next;
-            }
-            if (index_of_then==-1) {
-                INCOMPLETE_STATEMENT=TRUE;
-                //printf("Cannot find index of then\n");
-                return FALSE;
-            }
-            
-            end=index_of_then+1;
-            Token_List *ahead_tl=TL_subtl(temp_tl, *begin, end);
-                       
-            *output_tl=ahead_tl;
-            *begin=end;
-            
-            return TRUE;
-            
-        }
-        
-        // end->
-        // end
-        if (term(tl->current_token.TOKEN_STRING, "end")
-            ||term(tl->current_token.TOKEN_STRING, "else")) {
-            printf("Find End\n");
-            int end=i;
-            if (*begin<i) {
-                Token_List *ahead_tl=TL_subtl(temp_tl, *begin, end);
-                
-                *begin=end;
-                *output_tl=ahead_tl;
-                return TRUE;
-            }
-            else{
-                *begin=end;
-            }
-            
-            
-            end=i+1;
-            Token_List *ahead_tl=TL_subtl(temp_tl, *begin, end);
-           
-            *begin=end;
-            *output_tl=ahead_tl;
-            return TRUE;
-            
-        }
-        
-        */
         
         tl=tl->next;
     }

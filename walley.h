@@ -71,8 +71,7 @@ void Walley_Run(){
         if (tl->current_token.TOKEN_STRING==NULL) {
             continue;
         }
-        
-        
+                
         TREE syntax_tree=parser(tl);
         
         
@@ -101,7 +100,9 @@ void Walley_Run(){
         char *output_str=Code_Generation_2_Javascript(&output_sl, syntax_tree);
         
         if (term(output_str, "")==FALSE) {
-            output_str=append(output_str, ";");
+            if (output_str[(int)strlen(output_str)-1]!=';') {
+                output_str=append(output_str, ";");                
+            }
             SL_addString(&output_sl, output_str);
         }
         printf("\n");
