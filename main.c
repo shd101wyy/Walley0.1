@@ -12,9 +12,10 @@ int main(int argc, char **argv)
 {
     
     /*
-    Token_List *tl=Walley_Lexical_Analyzie("self.address=\"\" self.setFileName=def(file_name) then self.file_name=file_name end self.setFolderName=def(folder_name) then self.folder_name=folder_name end self.setAddress=def(address) then 		self.address=address end");
-        
-    TREE tree=parser(tl);
+    Token_List *tl=Walley_Lexical_Analyzie("x=+1" );
+    
+    TREE tree;
+    tree=parser(tl);
     
     Str_List *sl;
     SL_initSL(&sl);

@@ -227,7 +227,7 @@ char* Walley_Analyze_Token_Class(char *input_str, int i, int *end){
     
     //  2  punctuation
     if (match(input_str,i,",")
-        ||match(input_str,i,";")
+        //||match(input_str,i,";")  // remove support for ;
         ||match(input_str,i,":")
         ) {
         *end=i+1;

@@ -78,6 +78,8 @@
 
 
 bool expr(TREE *tree, Token_List *tl){
+    
+    Token_List *original_tl=tl;
 
     if (INCOMPLETE_STATEMENT) {
         return FALSE;
@@ -113,6 +115,23 @@ bool expr(TREE *tree, Token_List *tl){
             
             tl=temp_tl;
             int index_of_first_sign=i;
+            
+            // solve x=-1 or x=+1 problem
+            if (index_of_first_sign==0) {
+                Token_List *temp_tl;
+                Token token;
+                token.TOKEN_STRING="0";
+                token.TOKEN_CLASS="num";
+                token.TOKEN_START=-1;
+                token.TOKEN_END=-1;
+                TL_initWithToken(&temp_tl,token);
+                temp_tl->next=original_tl;
+                
+                return expr(tree, temp_tl);
+                
+            }
+            
+            
             Token_List *tl1=TL_subtl(tl, 0, index_of_first_sign);
             Token_List *tl2=TL_subtl(tl, index_of_first_sign+1, length_of_tl);
             

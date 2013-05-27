@@ -1,0 +1,43 @@
+#FILE: walley_data.wy
+#token class
+Token=[]
+Token.init=def()then
+	self=[]
+	self.TOKEN_CLASS=""
+	self.TOKEN_STRING=""
+	self.TOKEN_START=-1
+	self.TOKEN_END=-1
+	return self
+end
+
+#print token
+TOKEN_print=def(token)then
+	console.log(token.TOKEN_CLASS+":"+"|"+token.TOKEN_STRING+"|"+token.TOKEN_START+"|"+token.TOKEN_END)
+end
+
+#token list
+#~
+Token_List=[]
+Token_List.init=def(token)then
+	self=[]
+	self.current_token=token||none
+	self.ahead=none
+	self.next=none
+	return self
+end
+~#
+# convert token list to string
+TL_toString=def(tl)then
+	var return_string=""
+	for i,v in tl then
+		return_string=return_string+v.TOKEN_STRING
+	end
+end
+
+
+
+
+
+
+
+

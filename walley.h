@@ -24,9 +24,13 @@ void Walley_Run(){
         
         Token_List *tl;
         tl=Walley_Lexical_Analyzie(input_str);
-        TREE tree=parser(tl);
         
-      
+        // annotation
+        if (tl->current_token.TOKEN_STRING==NULL) {
+            continue;
+        }
+        
+        TREE tree=parser(tl);
         
         if (INCOMPLETE_STATEMENT) {
             char *temp_string=input_str;
@@ -93,6 +97,14 @@ Str_List *Compile_to_JS(char *file_name){
         }
         
         Token_List *tl=Walley_Lexical_Analyzie(sl_in_file->string_content);
+        if (tl->current_token.TOKEN_STRING==NULL) {
+            sl_in_file=sl_in_file->next;
+            continue;
+        }
+        
+        
+                
+        
         TREE tree=parser(tl);
         
         
@@ -113,9 +125,9 @@ Str_List *Compile_to_JS(char *file_name){
                 temp_string=append(temp_string, " ");
                 
                 input_str=temp_string;
-                
-                
+                                
                 Token_List *temp_tl=Walley_Lexical_Analyzie(temp_string);
+                
                 tree=parser(temp_tl);
                 
                 
