@@ -25,12 +25,12 @@ void Walley_Run(){
         Token_List *tl;
         tl=Walley_Lexical_Analyzie(input_str);
         
-        // annotation
-        if (tl->current_token.TOKEN_STRING==NULL) {
-            continue;
-        }
+        TREE tree;
         
-        TREE tree=parser(tl);
+        
+        tree=parser(tl);
+        
+
         
         if (INCOMPLETE_STATEMENT) {
             char *temp_string=input_str;
@@ -45,12 +45,13 @@ void Walley_Run(){
                 temp_string=append(temp_string, input_str);
                 temp_string=append(temp_string, " ");
                 Token_List *temp_tl=Walley_Lexical_Analyzie(temp_string);
+
                 tree=parser(temp_tl);
+                
             }
         }
 
         
-              
         
         Str_List *output_sl;
         SL_initSL(&output_sl);
@@ -97,15 +98,13 @@ Str_List *Compile_to_JS(char *file_name){
         }
         
         Token_List *tl=Walley_Lexical_Analyzie(sl_in_file->string_content);
-        if (tl->current_token.TOKEN_STRING==NULL) {
-            sl_in_file=sl_in_file->next;
-            continue;
-        }
+       
+        TREE tree;
+
+        tree=parser(tl);
         
+
         
-                
-        
-        TREE tree=parser(tl);
         
         
         if (INCOMPLETE_STATEMENT) {
@@ -125,19 +124,18 @@ Str_List *Compile_to_JS(char *file_name){
                 temp_string=append(temp_string, " ");
                 
                 input_str=temp_string;
+                
                                 
                 Token_List *temp_tl=Walley_Lexical_Analyzie(temp_string);
-                
-                tree=parser(temp_tl);
-                
-                
+                tree=parser(temp_tl);                
             }
         }
-                
+        
         
         
         char *output_str=Code_Generation_2_Javascript(&output_sl, tree);
         
+
         
         if (term(output_str, "")==FALSE) {
             if (output_str[(int)strlen(output_str)-1]!=';' && term(substr(output_str, (int)strlen(output_str)-2, (int)strlen(output_str)), ";\n")==FALSE) {

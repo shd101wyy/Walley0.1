@@ -521,9 +521,7 @@ char* Walley_Analyze_Token_Class(char *input_str, int i, int *end){
 }
 
 
-struct TL * Walley_Lexical_Analyzie(char *input_str){
-    //printf("Begin to Analyze %s\n",input_str);
-    
+struct TL * Walley_Lexical_Analyzie(char *input_str){    
     int i=0;
     int length=(int)strlen(input_str);
     Token_List *tl;
