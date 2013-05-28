@@ -233,9 +233,9 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
             return append_str;
         }
         else if (term(nl->node.name, "elif")){
-            SL_addString(sl, "}\n");
+            //SL_addString(sl, "}\n");
             
-            char *append_str="else if (";
+            char *append_str="}\nelse if (";
             char *judge_str=Code_Generation_2_Javascript(sl, nl->next->node);
             
             
@@ -263,8 +263,8 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
             return append_str;
         }
         else if (term(nl->node.name, "else")){
-            SL_addString(sl, "}\n");
-            char *append_str="else{\n";
+            //SL_addString(sl, "}\n");
+            char *append_str="}\nelse{\n";
             //SL_addString(sl, append_str);
             nl=nl->next;
             char *output_str="";

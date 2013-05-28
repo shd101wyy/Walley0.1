@@ -291,8 +291,7 @@ char* Walley_Analyze_Token_Class(char *input_str, int i, int *end){
     // 7 keyword
     // 1) if
     if (i<=length-2&&(input_str[i]=='i'&&input_str[i+1]=='f')) {
-        //COUNT_THEN_END
-        COUNT_THEN_END+=1;
+        
         
         *end=i+2;
         return "keyword";
@@ -300,8 +299,7 @@ char* Walley_Analyze_Token_Class(char *input_str, int i, int *end){
     // 2)for def
     if (match(input_str, i, "for")
         ||match(input_str, i,"def")) {
-        //COUNT_THEN_END
-        COUNT_THEN_END+=1;
+       
         
         *end=i+3;
         return "keyword";
@@ -317,8 +315,7 @@ char* Walley_Analyze_Token_Class(char *input_str, int i, int *end){
     // 4) while class
     if (match(input_str, i, "while")
         ||match(input_str, i, "class")) {
-        //COUNT_THEN_END
-        COUNT_THEN_END+=1;
+       
         
         *end=i+5;
         return "keyword";
@@ -335,9 +332,7 @@ char* Walley_Analyze_Token_Class(char *input_str, int i, int *end){
     // end
     if (match(input_str, i, "end")) {
         *end=i+3;
-        
-        //COUNT_THEN_END
-        COUNT_THEN_END-=1;
+      
         
         return "end";
     }

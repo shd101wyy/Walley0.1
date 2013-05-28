@@ -40,7 +40,6 @@ void Walley_Run(){
                 gets(input_str);
                 
                 INCOMPLETE_STATEMENT=FALSE;
-                COUNT_THEN_END=0;
                 
                 temp_string=append(temp_string, input_str);
                 temp_string=append(temp_string, " ");
@@ -118,7 +117,6 @@ Str_List *Compile_to_JS(char *file_name){
                 }
                 
                 INCOMPLETE_STATEMENT=FALSE;
-                COUNT_THEN_END=0;
                 
                 temp_string=append(temp_string, sl_in_file->string_content);
                 temp_string=append(temp_string, " ");

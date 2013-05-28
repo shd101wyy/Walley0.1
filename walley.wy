@@ -1,3 +1,8 @@
+#= FILE: walley_prefunction.wy
+TRUE=true
+FALSE=false
+INCOMPLETE_STATEMENT=FALSE
+
 #= FILE: walley_data.wy
 #token class
 Token=[]
@@ -20,7 +25,7 @@ end
 Token_List=[]
 Token_List.init=def(token)then
 	self=[]
-	self.current_token=token||none
+	self.current_token=token or none
 	self.ahead=none
 	self.next=none
 	return self
@@ -44,14 +49,433 @@ TL_addToken=def(tl,add_token) then
 	tl.append(temp_token)
 end
 
+#= FILE: walley_lexer.wy
+match=def(input_str, index, match_string) then
+	local length_of_input_str=input_str.length
+    local length_of_match_str=match_string.length
+    if index+length_of_match_str>length_of_input_str then
+        return FALSE
+    end
+    local i=0
+    local match=TRUE
+    for i<length_of_match_str,i=i+1 then
+        if input_str[index+i]!=match_string[i] then
+            match=FALSE
+            break
+        end
+    end
+    if match==TRUE then
+        return TRUE
+    else
+        return FALSE
+    end
+end
 
-tl=[]
-a=Token.init()
-a.TOKEN_STRING="12"
-TL_addToken(tl,a)
-a.TOKEN_STRING="hello"
-TL_addToken(tl,a)
-console.log(TL_toString(tl))
+def LIST_indexOfFinalBracket(input_str, index_of_first_bracket) then
+    local count=0
+    local in_string=FALSE
+    local length_of_input_str=input_str.length
+    local i=index_of_first_bracket
+    for  i<length_of_input_str, i=i+1 then
+        if  in_string==FALSE and input_str[i]=='"' and input_str[i-1]!='\\' then
+            in_string=TRUE
+            continue
+        end
+        if in_string==TRUE and input_str[i]=='"' and input_str[i-1]!='\\' then
+            in_string=FALSE
+            continue
+        end
+        
+        if in_string==FALSE then
+            if input_str[i]=='[' then
+                count=count+1
+                continue
+            end
+            if input_str[i]==']' then
+                count=count-1
+                if count==0 then
+                    return i
+                else
+                    continue
+                end
+            end
+        end
+
+    end
+    
+    return -1
+end
+
+def indexOfFinalDoubleQuote(input_str, first_index) then
+    local first_char=input_str[first_index]
+    local i=first_index+1
+    local length=input_str.length
+    if first_char=='"' then
+        for i<length, i=i+1 then
+            if input_str[i]=='"' and input_str[i-1]!='\\' then
+                return i
+            end
+        end
+    end
+   
+    # did not find
+    return -1
+end
+
+
+
+def Walley_Analyze_Token_Class(input_str, i) then
+	# return obj
+	# 0 --> end_index
+	# 1 --> token class
+	local return_obj=[]
+    local length=input_str.length
+    #  1  m_operator
+    if match(input_str, i, "**") then
+        end_index=i+2
+        return_obj[0]=end_index
+        return_obj[1]="m_operator"
+        return return_obj
+    end
+    if match(input_str, i, "+") 
+         or match(input_str, i, "-")
+         or match(input_str, i, "*")
+         or match(input_str, i, "/")
+         or match(input_str, i, "^")
+         or match(input_str, i, "%")
+        then
+        end_index=i+1
+        return_obj[0]=end_index
+        return_obj[1]="m_operator"
+        return return_obj
+    end
+       
+    #  2  punctuation
+    if match(input_str,i,",")
+        ## or match(input_str,i,";")  # remove support for ;
+         or match(input_str,i,":")
+        then
+        end_index=i+1
+        return_obj[0]=end_index
+        return_obj[1]="punctuation"
+        return return_obj
+    end
+    
+    
+    # 3 judge_sign
+    # 1) i<length-1
+    if match(input_str, i, "==")
+         or match(input_str, i, ">=")
+         or match(input_str, i, "<=")
+         or match(input_str, i, "!=")
+        then
+        end_index=i+2
+        return_obj[0]=end_index
+        return_obj[1]="judge_sign"
+        return return_obj
+    end
+
+    if input_str[i]=='>'
+         or input_str[i]=='<' then
+        end_index=i+1
+        return_obj[0]=end_index
+        return_obj[1]="judge_sign"
+        return return_obj
+    end
+    
+    if match(input_str, i, "true") then
+        end_index=i+4
+        return_obj[0]=end_index
+        return_obj[1]="true_of_false"
+        return return_obj
+    end
+
+    if match(input_str, i, "false") then
+        end_index=i+5
+        return_obj[0]=end_index
+        return_obj[1]="true_of_false"
+        return return_obj
+    end
+    
+    
+    # 4 relation
+    # 1) and | not
+    if match(input_str, i, "and")
+         or match(input_str, i, "not")
+        then
+        end_index=i+3
+        return_obj[0]=end_index
+        return_obj[1]="relation"
+        return return_obj
+    end
+    if match(input_str, i, "or") then
+        end_index=i+2
+        return_obj[0]=end_index
+        return_obj[1]="relation"
+        return return_obj
+    end
+    
+    
+    # 5 left_annotation
+    if i<=length-2  and  input_str[i]=='#'  and  input_str[i+1]=='~' then
+        end_index=i+2
+        return_obj[0]=end_index
+        return_obj[1]="l_annotation"
+        return return_obj
+    end
+    
+    # 6 right_annotation
+    if i<=length-2 and (input_str[i]=='~'  and  input_str[i+1]=='#') then
+        end_index=i+2
+        return_obj[0]=end_index
+        return_obj[1]="r_annotation"
+    end
+    
+    # 7 keyword
+    # 1) if
+    if i<=length-2 and (input_str[i]=='i' and input_str[i+1]=='f') then
+         
+        end_index=i+2
+        return_obj[0]=end_index
+        return_obj[1]="keyword"
+        return return_obj
+    end
+    # 2)for def
+    if match(input_str, i, "for")
+         or match(input_str, i,"def") then
+        #COUNT_THEN_END        
+        end_index=i+3
+        return_obj[0]=end_index
+        return_obj[1]="keyword"
+        return return_obj
+    end
+
+    # 3) elif else case
+    if match(input_str, i, "elif")
+         or match(input_str, i, "else")
+         or match(input_str, i, "case") then
+        end_index=i+4
+        return_obj[0]=end_index
+        return_obj[1]="keyword"
+        return return_obj
+    end
+    
+    # 4) while class
+    if match(input_str, i, "while")
+         or match(input_str, i, "class") then
+     
+        end_index=i+5
+        return_obj[0]=end_index
+        return_obj[1]="keyword"
+        return return_obj
+    end
+    
+    # then
+    if match(input_str, i, "then") then
+        end_index=i+4
+        return_obj[0]=end_index
+        return_obj[1]="then"
+        return return_obj
+    end
+    
+    # end
+    if match(input_str, i, "end") then
+       	end_index=i+3
+       	return_obj[0]=end_index
+       	return_obj[1]="end" 
+       	return return_obj
+    end
+    
+    # return
+    #                                                 solve return_string problem
+    if match(input_str, i, "return")  and  i+6<length  and  input_str[i+6]==' ' then
+        end_index=i+6
+        return_obj[0]=end_index
+        return_obj[1]="return"
+        return return_obj
+    end
+    
+    # local
+    if match(input_str, i, "local") then
+        end_index=i+5
+        return_obj[0]=end_index
+        return_obj[1]="local"
+        return return_obj
+    end
+    
+    # 5) switch
+    if match(input_str, i, "switch") then
+        end_index=i+6
+        return_obj[0]=end_index
+        return_obj[1]="keyword"
+        return return_obj
+    end
+    
+    # 8 assignment
+    if input_str[i]=='=' then
+        end_index=i+1
+        return_obj[0]=end_index
+        return_obj[1]="assignment_operator"
+        return return_obj
+    end
+
+    
+    # 9 annotation
+    if input_str[i]=='#' then
+        end_index=i+1
+        return_obj[0]=end_index
+        return_obj[1]="annotation"
+        return return_obj
+    end
+
+    # 10 ()[]{}
+    if input_str[i]=='('
+        or input_str[i]==')'
+        or input_str[i]=='{'
+        or input_str[i]=='}'
+       then
+        end_index=i+1
+        local output=input_str[i]
+        return_obj[0]=end_index
+        return_obj[1]=output
+        return return_obj
+    end
+    
+    if  input_str[i]=='[' then
+        local index_of_final=LIST_indexOfFinalBracket(input_str, i)
+        if index_of_final==-1 then
+            INCOMPLETE_STATEMENT=TRUE
+        end
+        end_index=index_of_final+1
+        return_obj[0]=end_index
+        return_obj[1]="list_table"
+        return return_obj
+    end
+    
+    # 11 string
+    if input_str[i]=='"' then
+        local index_of_right_dq=indexOfFinalDoubleQuote(input_str, i)
+        
+        if index_of_right_dq==-1 then
+            console.log("incomplete str\n")
+            exit(0)
+        else
+            end_index=index_of_right_dq+1
+            return_obj[0]=end_index
+            return_obj[1]="string"
+            return return_obj
+        end
+    end
+    
+    # 12 digit
+    if isdigit(input_str[i]) then
+        local a=i+1
+        local find_dot=FALSE
+        local index_of_first_dot=-1
+        for a<length, a=a+1 then
+            if input_str[a]=='.'  and  find_dot==FALSE then 
+                find_dot=TRUE
+                index_of_first_dot=a
+                continue
+            end
+            if input_str[a]=='.'  and  find_dot==TRUE then
+                # 1.2.3
+                if isdigit(input_str[a+1]) then
+                    Walley_Print_Error(input_str, "invalide number", a)
+                # 1.2.toString
+                # problem:
+                # 1.2.3ToString()   func_name 3ToString
+                else
+                    end_index=a
+                    return_obj[0]=end_index
+                    return_obj[1]="num"
+                    return return_obj
+                end
+            end
+            if isdigit(input_str[a])==FALSE then
+                break
+            end
+        end
+        if find_dot==TRUE  and  !isdigit(input_str[index_of_first_dot+1]) then
+            end_index=index_of_first_dot
+            return_obj[0]=end_index
+            return_obj[1]="num"
+            return return_obj
+        end
+        if a!=length and isalpha(input_str[a]) then
+            Walley_Print_Error(input_str, "Invalid Syntax", a)
+        end
+        
+        end_index=a
+        return_obj[0]=end_index
+        return_obj[1]="num"
+        return return_obj
+    end
+    
+    # 13 white_space
+    if input_str[i]==' '
+         or input_str[i]=='\n'
+         or input_str[i]=='\t' then
+        local a=i+1
+        for a<length, a=a+1 then
+            if input_str[a]!=' '
+                 and input_str[a]!='\n'
+                 and input_str[a]!='\t' then
+                break
+            end
+        end
+        end_index=a
+        return_obj[0]=end_index
+        return_obj[1]="white_space"
+        return return_obj
+    end
+    
+    # 14 id
+    # the first char can not be digit
+    if isalpha(input_str[i]) or input_str[i]=='_' or input_str[i]=='$' then
+        local a=i+1
+        for a<length,a=a+1 then
+            if isalpha(input_str[a]) or input_str[a]=='_' or input_str[a]=='$' or isdigit(input_str[a]) then
+                continue
+            else
+                break
+            end
+        end
+
+        end_index=a
+        return_obj[0]=end_index
+        return_obj[1]="id"
+        return return_obj
+    end
+  
+    # 15 dot
+    if input_str[i]=='.' then
+        local a=i+1
+        end_index=a
+        return_obj[0]=end_index
+        return_obj[1]="dot"
+        return return_obj
+    end
+    
+    # Error
+    Walley_Print_Error(input_str, "Can not analyze this input", i)
+    exit(0)
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -1,1 +1,7 @@
-console.a.log(hi(b))
+if x>4 or
+   x<5 
+   then
+	x=12
+elif x<5 then
+	x=15
+end
