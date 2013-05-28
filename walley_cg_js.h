@@ -213,7 +213,6 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
             append_str=append(append_str, judge_str);
             append_str=append(append_str,"){\n");
             
-            SL_addString(sl, append_str);
             
             nl=nl->next->next;
             
@@ -230,7 +229,8 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
                     }
                 }
             }
-            SL_addString(sl, output_str);
+            append_str=append(append_str, output_str);
+            return append_str;
         }
         else if (term(nl->node.name, "elif")){
             SL_addString(sl, "}\n");
@@ -242,7 +242,7 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
             append_str=append(append_str, judge_str);
             append_str=append(append_str,"){\n");
             
-            SL_addString(sl, append_str);
+            //SL_addString(sl, append_str);
             
             nl=nl->next->next;
             char *output_str="";
@@ -258,12 +258,14 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
                     }
                 }
             }
-            SL_addString(sl, output_str);
+            //SL_addString(sl, output_str);
+            append_str=append(append_str, output_str);
+            return append_str;
         }
         else if (term(nl->node.name, "else")){
             SL_addString(sl, "}\n");
             char *append_str="else{\n";
-            SL_addString(sl, append_str);
+            //SL_addString(sl, append_str);
             nl=nl->next;
             char *output_str="";
             
@@ -278,7 +280,8 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
                     }
                 }
             }
-            SL_addString(sl, output_str);
+            append_str=append(append_str, output_str);
+            return append_str;
 
         }
         else if(term(nl->node.name, "while")){
@@ -297,18 +300,26 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
             
             
             append_str=append(append_str, judge_str);
-            append_str=append(append_str,"){");
+            append_str=append(append_str,"){\n");
             
-            SL_addString(sl, append_str);
+            //SL_addString(sl, append_str);
             
             nl=nl->next->next;
+            char *output_str="";
+            
             while (nl!=NULL) {
-                char *output_str=Code_Generation_2_Javascript(sl, nl->node);
-                if (term("", output_str)==FALSE) {
-                    SL_addString(sl, output_str);
-                }
+                char *temp_str=Code_Generation_2_Javascript(sl, nl->node);
                 nl=nl->next;
+                
+                if ((int)strlen(temp_str)!=0) {
+                    output_str=append(output_str,temp_str);
+                    if (output_str[(int)strlen(output_str)-1]!='\n') {
+                        output_str=append(output_str, "\n");
+                    }
+                }
             }
+            append_str=append(append_str, output_str);
+            return append_str;
         }
         else if (term(nl->node.name,"for")){
             /*
@@ -336,6 +347,7 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
                 //exit(0);
             }
             else{
+                append_str=append(append_str, ";");
                 nl=nl->next;
             }
             
@@ -344,7 +356,7 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
             
             append_str=append(append_str, judge_str);
             append_str=append(append_str, ";){\n");
-            SL_addString(sl, append_str);
+            //SL_addString(sl, append_str);
             
             nl=nl->next;
             Node_List *temp_nl;
@@ -368,13 +380,15 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
                     }
                 }
             }
-            SL_addString(sl, output_str);
+            append_str=append(append_str, output_str);
+            //SL_addString(sl, output_str);
 
             if (has_assignment_after_judge) {
-                Code_Generation_2_Javascript(sl, temp_nl->node.node_list->node);
+                append_str=append(append_str,Code_Generation_2_Javascript(sl, temp_nl->node.node_list->node));
             }
-            SL_addString(sl, "}\n");
-            
+            append_str=append(append_str, "\n}\n");
+            //SL_addString(sl, "}\n");
+            return append_str;
            
         }
         /*
@@ -417,19 +431,17 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
             append_str=append(append_str,foreach_in_value);
             append_str=append(append_str, "){\n");
             
-            SL_addString(sl, append_str);
             
             if (has_v) {
                 
                 char *value_var_name=foreach_in_nl->ahead->node.name;
-                append_str=append(value_var_name,"=");
+                append_str=append(append_str,append(value_var_name,"="));
                 
                 char *in_value=append("(", append(foreach_in_value, ")"));
                 char *in_value_and_key=append(in_value, append("[", append(foreach_index,"]")));
                 
                 append_str=append(append_str, in_value_and_key);
                 append_str=append(append_str, ";\n");
-                SL_addString(sl, append_str);
             }
             
             nl=foreach_in_nl->next;
@@ -446,9 +458,8 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
                     }
                 }
             }
-            SL_addString(sl, output_str);
-            
-            return "";
+            append_str=append(append_str,output_str);            
+            return append_str;
         }
         else{
             char *output_str="";

@@ -342,11 +342,12 @@ char* Walley_Analyze_Token_Class(char *input_str, int i, int *end){
         return "end";
     }
     
+    /* return_string problem
     // return
     if (match(input_str, i, "return")) {
         *end=i+6;
         return "return";
-    }
+    }*/
     
     // @
     if (match(input_str, i, "@")) {
@@ -529,7 +530,6 @@ struct TL * Walley_Lexical_Analyzie(char *input_str){
     
     int end=0;
     
-    bool now_in_long_annotation=FALSE;
     
     for (; i<length; i++) {
         char *token_class=Walley_Analyze_Token_Class(input_str, i, &end);
@@ -549,21 +549,38 @@ struct TL * Walley_Lexical_Analyzie(char *input_str){
         }
         
         if (strcmp(token_class, "l_annotation")==0) {
-            now_in_long_annotation=TRUE;
-            i=end-1;
+            i=end;
+            printf("l_annotation --> %c\n",input_str[i]);
+            
+            // find r_annotation
+            int count=0; // check whether in string
+            int find_right_annotation=FALSE;
+            for (; i<length-1; i++) {
+                if (input_str[i]=='"') {
+                    count++;
+                    continue;
+                }
+                // find r_annotation
+                if (count%2==0 && input_str[i]=='~' &&input_str[i+1]=='#') {
+                    i=i+1;
+                    find_right_annotation=TRUE;
+                    printf("FIND RIGHT %c\n",input_str[i]);
+                    break;
+                }
+            }
+            
+            // did not find right annotation
+            // incomplete statements
+            if (find_right_annotation==FALSE) {
+                INCOMPLETE_STATEMENT=TRUE;
+                return tl;
+            }
+            
+            
+            
             continue;
         }
-        if (strcmp(token_class, "r_annotation")!=0 && now_in_long_annotation) {
-            // now in long annotation;
-            continue;
-        }
-        
-        if (strcmp(token_class, "r_annotation")==0 && now_in_long_annotation) {
-            now_in_long_annotation=FALSE;
-            i=end-1;
-            continue;
-        }
-        
+              
         struct TOKEN temp_token;        
         temp_token.TOKEN_START=i;
         temp_token.TOKEN_END=end;
@@ -583,10 +600,7 @@ struct TL * Walley_Lexical_Analyzie(char *input_str){
         i=end-1;
     }
     
-    if (now_in_long_annotation) {
-        INCOMPLETE_STATEMENT=TRUE;
-    }
-    
+       
     
     return tl;
 }
@@ -654,7 +668,7 @@ bool sentences_seperation(Token_List *tl, Token_List **output_tl,int *begin){
         // y=2
         if (i<length_of_tl-1&&(term(tl->current_token.TOKEN_CLASS, "num")||term(tl->current_token.TOKEN_CLASS, "string")||term(tl->current_token.TOKEN_CLASS, "id")||term(tl->current_token.TOKEN_CLASS, "list_table")||term(tl->current_token.TOKEN_STRING, ")"))
             && (term(tl->next->current_token.TOKEN_CLASS, "id") ||term(tl->next->current_token.TOKEN_CLASS, "num")
-                ||term(tl->next->current_token.TOKEN_CLASS, "return")||term(tl->next->current_token.TOKEN_STRING, "continue")||term(tl->next->current_token.TOKEN_STRING, "break"))) {
+                /*||term(tl->next->current_token.TOKEN_CLASS, "return")*/||term(tl->next->current_token.TOKEN_STRING, "continue")||term(tl->next->current_token.TOKEN_STRING, "break"))) {
             int end=i+1;
             
             Token_List *ahead_tl=TL_subtl(temp_tl, *begin, end);

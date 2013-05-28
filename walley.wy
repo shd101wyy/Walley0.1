@@ -1,4 +1,4 @@
-#FILE: walley_data.wy
+#= FILE: walley_data.wy
 #token class
 Token=[]
 Token.init=def()then
@@ -26,16 +26,20 @@ Token_List.init=def(token)then
 	return self
 end
 ~#
+
 # convert token list to string
 TL_toString=def(tl)then
-	var return_string=""
+	local return_string=""
 	for i,v in tl then
 		return_string=return_string+v.TOKEN_STRING
 	end
 end
 
-
-
+a=Token.init()
+a.TOKEN_STRING="Hi"
+x=[]
+x.append(a)
+console.log(x)
 
 
 

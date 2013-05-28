@@ -12,7 +12,7 @@ int main(int argc, char **argv)
 {
     
     /*
-    Token_List *tl=Walley_Lexical_Analyzie("x=+1" );
+    Token_List *tl=Walley_Lexical_Analyzie("if x>0 then x=12 elif x<10 then x=15 else x=16 end" );
     
     TREE tree;
     tree=parser(tl);
