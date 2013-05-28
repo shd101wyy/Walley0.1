@@ -1,4 +1,1 @@
-x=[]
-x.append(3)
-console.log(x)
-console.log(x[0])
+console.a.log(hi(b))

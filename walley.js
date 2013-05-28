@@ -1,4 +1,4 @@
-String.prototype.find=function(e,t){if(typeof t=="undefined"){t=0}return this.indexOf(e,t)};String.prototype.tolower=function(){return this.toLowerCase()};String.prototype.toupper=function(){return this.toUpperCase()};String.prototype.reverse=function(){return this.split().reverse().join()};Math["cot"]=function(e){return 1/Math.tan(e)};Math["sec"]=function(e){return 1/Math.cos(e)};Math["csc"]=function(e){return 1/Math.sin(e)};Array.prototype.append=function(e){this.push(e)};Array.prototype.insert=function(e,t){if(typeof t=="undefined"){return this.push(e)}this.splice(e,0,t)};Array.prototype.remove=function(e){this.splice(e,1)}
+none=null;String.prototype.find=function(e,t){if(typeof t=="undefined"){t=0}return this.indexOf(e,t)};String.prototype.tolower=function(){return this.toLowerCase()};String.prototype.toupper=function(){return this.toUpperCase()};String.prototype.reverse=function(){return this.split().reverse().join()};Math["cot"]=function(e){return 1/Math.tan(e)};Math["sec"]=function(e){return 1/Math.cos(e)};Math["csc"]=function(e){return 1/Math.sin(e)};Object.prototype.slice=function(e,t){var n={};var r=0;for(var i=e;i<t;i++){n[r]=this[i];r++}return n};Object.prototype.append=function(e){var t="-1";for(var n in this){if(!isNaN(n)){if(n>t){t=n}}}if(t!="-1"){t=parseInt(t)+1}else{t="0"}this[t]=e}
 Token={};
 Token["init"]=function(){
      self={};
@@ -9,7 +9,7 @@ Token["init"]=function(){
      return self;
  };
 TOKEN_print=function(token){
-     console["log"](token+token["TOKEN_CLASS"]+":"+"|"+token["TOKEN_STRING"]+"|"+token["TOKEN_START"]+"|")
+     console["log"](token+token["TOKEN_CLASS"]+":"+"|"+token["TOKEN_STRING"]+"|"+token["TOKEN_START"]+"|");
  };
 TL_toString=function(tl){
      var return_string="";
@@ -18,10 +18,20 @@ v=(tl)[i];
 return_string=return_string+v["TOKEN_STRING"];
 }
  };
+TL_addToken=function(tl,add_token){
+     var temp_token=Token["init"]();
+     temp_token["TOKEN_CLASS"]=add_token["TOKEN_CLASS"];
+     temp_token["TOKEN_STRING"]=add_token["TOKEN_STRING"];
+     temp_token["TOKEN_START"]=add_token["TOKEN_START"];
+     temp_token["TOKEN_END"]=add_token["TOKEN_END"];
+     tl["append"](temp_token);
+ };
+tl={};
 a=Token["init"]();
-a["TOKEN_STRING"]="Hi";
-x={};
-x["append"](a)
+a["TOKEN_STRING"]="12";
+TL_addToken(tl,a)
 ;
-console["log"](x)
+a["TOKEN_STRING"]="hello";
+TL_addToken(tl,a)
 ;
+console["log"](["TL_toString"](tl));

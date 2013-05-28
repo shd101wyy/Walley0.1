@@ -730,6 +730,7 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
      
      */
     else if (term(tree.name, "func")){
+        bool used_to_be_js_isTableValue=FALSE;
         char *append_str; //=tree.node_list->node.name;
         if (js_isTableValue==FALSE) {
             // i changed parser for func on 05/20/2013
@@ -743,6 +744,11 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
             char *func_name=Code_Generation_2_Javascript(sl,tree.node_list->node.node_list->node);
             // add []
             append_str=append("[",append(func_name, "]"));
+            
+            // solve console.log(a()) -> console["log"](["a"]()) problem
+            // change js_isTableValue to FALSE at first and then restore to TRUE
+            used_to_be_js_isTableValue=TRUE;
+            js_isTableValue=FALSE;
         }
         
         
@@ -759,6 +765,12 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
         }
         
         append_str=append(append_str, ")");
+        
+        
+        if (used_to_be_js_isTableValue) {
+            js_isTableValue=TRUE;
+        }
+        
         return append_str;
     }
     else if (term(tree.name, "value")){

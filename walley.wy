@@ -35,11 +35,26 @@ TL_toString=def(tl)then
 	end
 end
 
+TL_addToken=def(tl,add_token) then
+	local temp_token=Token.init()
+	temp_token.TOKEN_CLASS=add_token.TOKEN_CLASS
+	temp_token.TOKEN_STRING=add_token.TOKEN_STRING
+	temp_token.TOKEN_START=add_token.TOKEN_START
+	temp_token.TOKEN_END=add_token.TOKEN_END
+	tl.append(temp_token)
+end
+
+
+tl=[]
 a=Token.init()
-a.TOKEN_STRING="Hi"
-x=[]
-x.append(a)
-console.log(x)
+a.TOKEN_STRING="12"
+TL_addToken(tl,a)
+a.TOKEN_STRING="hello"
+TL_addToken(tl,a)
+console.log(TL_toString(tl))
+
+
+
 
 
 
