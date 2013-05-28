@@ -550,7 +550,6 @@ struct TL * Walley_Lexical_Analyzie(char *input_str){
         
         if (strcmp(token_class, "l_annotation")==0) {
             i=end;
-            printf("l_annotation --> %c\n",input_str[i]);
             
             // find r_annotation
             int count=0; // check whether in string
@@ -564,7 +563,6 @@ struct TL * Walley_Lexical_Analyzie(char *input_str){
                 if (count%2==0 && input_str[i]=='~' &&input_str[i+1]=='#') {
                     i=i+1;
                     find_right_annotation=TRUE;
-                    printf("FIND RIGHT %c\n",input_str[i]);
                     break;
                 }
             }

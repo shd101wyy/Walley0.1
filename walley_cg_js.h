@@ -470,7 +470,11 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
                 if ((int)strlen(temp_str)!=0) {
                     output_str=append(output_str,temp_str);
                     if (output_str[(int)strlen(output_str)-1]!='\n') {
-                        output_str=append(output_str, "\n");
+                        if (output_str[(int)strlen(output_str)-1]!=';') {
+                            output_str=append(output_str, ";\n");
+                        }else{
+                            output_str=append(output_str, "\n");
+                        }
                     }
                 }
             }

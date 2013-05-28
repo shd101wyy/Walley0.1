@@ -1,4 +1,4 @@
-TL_toString=def(tl)then
-	return_string=""
-	return x
-end
+x=[]
+x.append(3)
+console.log(x)
+console.log(x[0])

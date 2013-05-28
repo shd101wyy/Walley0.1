@@ -6,7 +6,8 @@ Token["init"]=function(){
      self["TOKEN_STRING"]="";
      self["TOKEN_START"]=-1;
      self["TOKEN_END"]=-1;
-     return     self };
+     return self;
+ };
 TOKEN_print=function(token){
      console["log"](token+token["TOKEN_CLASS"]+":"+"|"+token["TOKEN_STRING"]+"|"+token["TOKEN_START"]+"|")
  };
