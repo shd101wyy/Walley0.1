@@ -1,6 +1,4 @@
 TL_toString=def(tl)then
-	local return_string=""
-	for ,i<10, i=i+1 then
-		x=12
-	end
+	return_string=""
+	return x
 end
