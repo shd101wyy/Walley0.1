@@ -95,10 +95,6 @@ bool term(char *token_class_string,char *terminal){
 
 
 
-
-
-
-
 // Generate AST
 TREE parser(Token_List *tl){
     // reset TREE_INDEX value

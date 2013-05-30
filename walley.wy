@@ -490,7 +490,7 @@ end
 def Walley_Lexical_Analyzie(input_str) then
     local i=0
     local length=input_str.length
-    local tl # Token_List
+    local tl=[] # Token_List
     
     local end_index=0
     
@@ -816,7 +816,7 @@ def table_expr(tree,tl,key_index) then
         return value(TREE_getTreeAccordingToIndex(tree, index), TL_subtl(tl, 3, length_of_tl))
     
     # id '=' value
-    elif term(tl->current_token.TOKEN_CLASS, "id") and term(tl->next->current_token.TOKEN_STRING, "=") then
+    elif term(tl[0].TOKEN_CLASS, "id") and term(tl[1].TOKEN_STRING, "=") then
         local index1=TREE_INDEX
         TREE_addNode(tree, "key", "")
         
@@ -1232,9 +1232,6 @@ def expr(tree, tl) then
     local length_of_tl=tl.length
     local count_of_parenthesis=0
         
-    while (tl->next!=NULL) {
-        tl=tl->next;
-    }
     
     local i=length_of_tl-1;
     for i>=0, i=i-1 then
@@ -1282,8 +1279,8 @@ def expr(tree, tl) then
             TREE_addNodeAtIndex(tree, current_index, "expr","")
             
             
-            local index_of_expr1_node=TREE_INDEX-2;
-            local index_of_expr2_node=TREE_INDEX-1;
+            local index_of_expr1_node=TREE_INDEX-2
+            local index_of_expr2_node=TREE_INDEX-1
             
             return
             expr(TREE_getTreeAccordingToIndex(tree,index_of_expr1_node), tl1)
@@ -1319,7 +1316,7 @@ def s_term(tree,tl) then
         if count_of_parenthesis==0 and ("*"==tl[i].TOKEN_STRING or "/"==tl[i].TOKEN_STRING or "%"==tl[i].TOKEN_STRING) then
             local sign=tl[i].TOKEN_STRING
             
-            local index_of_first_sign=i;
+            local index_of_first_sign=i
             local tl1=tl[0:index_of_first_sign]
             local tl2=tl[index_of_first_sign+1:length_of_tl]
             
@@ -1425,10 +1422,10 @@ def assignment(tree,tl) then
     end
     
     
-    local count=0;
-    local count_of_equal=0;
-    local index_of_equal;
-    local i=0;
+    local count=0
+    local count_of_equal=0
+    local index_of_equal
+    local i=0
 
     for i=0,i<tl.length,i=i+1 then
         if term(tl[i].TOKEN_STRING, "(")
@@ -1457,7 +1454,7 @@ def assignment(tree,tl) then
         
         TREE_INDEX=0
         local var_name_tree=TREE_init("var_name")
-        local var_name_list=none
+        local var_name_list=[]
         # exclude local
         if is_local==TRUE
             var_name_list=tl[1:index_of_equal]
@@ -1494,7 +1491,7 @@ def assignment(tree,tl) then
 
             TREE_addTree(TREE_getTreeAccordingToIndex(tree, index), var_name_nl[i])
 
-            if var_value_nl[i]="undefined" then
+            if var_value_nl[i]=="undefined" then
                 local temp_tree=TREE_init()
                 temp_tree.name="none"
                 temp_tree.token_class="id"
@@ -1636,7 +1633,7 @@ def func_assign(tree, tl) then
             local index=TREE_INDEX
             TREE_addNode(tree, "params", "")
             
-            local params_tl=none
+            local params_tl=[]
             # has params
             if index_of_right!=2 then
                 params_tl=tl[2:index_of_right]
@@ -2380,7 +2377,7 @@ def sentences_seperation(tl, output_tl,begin) then
                 return FALSE
             else
                 local end_index=index_of_right+1
-                output_tl.val=temp_tl[begin.val,end_index]
+                output_tl.val=tl[begin.val,end_index]
                 begin.val=i+1
                 return TRUE
             end
@@ -2393,7 +2390,7 @@ def sentences_seperation(tl, output_tl,begin) then
             and (term(tl[1+i].TOKEN_CLASS, "id") ||term(tl[1+i].TOKEN_CLASS, "num")
                 or term(tl[i+1].TOKEN_CLASS, "return")||term(tl[i+1].TOKEN_STRING, "continue")||term(tl[1+i].TOKEN_STRING, "break")) then
             local end_index=i+1
-            local ahead_tl=temp_tl[begin.val:end_index]
+            local ahead_tl=tl[begin.val:end_index]
             output_tl.val=ahead_tl
             begin.val=end_index
             return TRUE
@@ -2412,7 +2409,7 @@ def sentences_seperation(tl, output_tl,begin) then
                    #nothing 
                 else
                     local end_index=i
-                    local ahead_tl=temp_tl[begin.val:end_index]
+                    local ahead_tl=tl[begin.val:end_index]
                 
                     begin.val=end_index
                     output_tl.val=ahead_tl
@@ -2438,7 +2435,7 @@ def sentences_seperation(tl, output_tl,begin) then
             
             if count==0 then
                 local end_index=i+1
-                local ahead_tl=temp_tl[begin.val:end_index]
+                local ahead_tl=tl[begin.val:end_index]
                 output_tl.val=ahead_tl
                 begin.val=end_index
                 return TRUE
@@ -2457,7 +2454,7 @@ def sentences_seperation(tl, output_tl,begin) then
             if begin.val!=i then
                 
                 local end_index=i
-                local ahead_tl=temp_tl[begin.val,end_index]
+                local ahead_tl=tl[begin.val,end_index]
                 begin.val=end_index
                 output_tl.val=ahead_tl
                 return TRUE
@@ -2487,7 +2484,7 @@ def sentences_seperation(tl, output_tl,begin) then
                     then
                     
                     local end_index=i
-                    local ahead_tl=temp_tl[begin.val:end_index]
+                    local ahead_tl=tl[begin.val:end_index]
                     local end_token=Token.init()
                     end_token.TOKEN_STRING="end"
                     end_token.TOKEN_CLASS="end"
@@ -2516,7 +2513,7 @@ def sentences_seperation(tl, output_tl,begin) then
             ~# 
             else
                 local end_index=i+1
-                local ahead_tl=temp_tl[begin.val:end_index]
+                local ahead_tl=tl[begin.val:end_index]
                 
                 begin.val=end_index-1
                 output_tl.val=ahead_tl
@@ -2547,7 +2544,7 @@ def sentences_seperation(tl, output_tl,begin) then
                      )
                     then
                     local end_index=i;
-                    local ahead_tl=temp_tl[begin.val:end_index]
+                    local ahead_tl=tl[begin.val:end_index]
                     
                     local end_token=Token.init()
                     end_token.TOKEN_STRING="end"
@@ -2561,7 +2558,7 @@ def sentences_seperation(tl, output_tl,begin) then
                 # elif then ... end
                 if count_of_end==-1 and count_of_if==-1 then
                     local end_index=i+1
-                    local ahead_tl=temp_tl[begin.val:end_index]
+                    local ahead_tl=tl[begin.val:end_index]
                     
                     begin.val=end_index-1
                     output_tl.val=ahead_tl
@@ -2599,7 +2596,7 @@ def sentences_seperation(tl, output_tl,begin) then
                 # finish else
                 if count_of_end==-1 then
                     local end_index=i+1
-                    local ahead_tl=temp_tl[begin.val:end_index]
+                    local ahead_tl=tl[begin.val:end_index]
                     
                     begin.val=end_index-1
                     output_tl.val=ahead_tl
@@ -2617,7 +2614,7 @@ def sentences_seperation(tl, output_tl,begin) then
         if term(tl[i].TOKEN_STRING, "end") then
             local end_index=i;
             if begin.val<i then
-                local ahead_tl=temp_tl[begin.val:end_index]
+                local ahead_tl=tl[begin.val:end_index]
                 
                 begin.val=end_index
                 output_tl.val=ahead_tl
@@ -2629,7 +2626,7 @@ def sentences_seperation(tl, output_tl,begin) then
             
             
             end_index=i+1
-            local ahead_tl=temp_tl[begin.val:end_index]
+            local ahead_tl=tl[begin.val:end_index]
             
             begin.val=end_index
             output_tl.val=ahead_tl
@@ -2637,7 +2634,7 @@ def sentences_seperation(tl, output_tl,begin) then
         end
     end
     if begin.val<length_of_tl then
-        local ahead_tl=temp_tl[begin.val:length_of_tl]
+        local ahead_tl=tl[begin.val:length_of_tl]
        
         begin.val=length_of_tl
         output_tl.val=ahead_tl
