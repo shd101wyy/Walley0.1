@@ -103,7 +103,7 @@ Str_List *Compile_to_JS(char *file_name){
         tree=parser(tl);
         
 
-        printf("\n\n---> |%s| %d\n",sl_in_file->string_content,INCOMPLETE_STATEMENT);
+        printf("\n\n-----> |%s| %d\n",sl_in_file->string_content,INCOMPLETE_STATEMENT);
         
         
         if (INCOMPLETE_STATEMENT) {
@@ -122,12 +122,14 @@ Str_List *Compile_to_JS(char *file_name){
                 INCOMPLETE_STATEMENT=FALSE;
                 
                 temp_string=append(temp_string, sl_in_file->string_content);
-                temp_string=append(temp_string, " ");
+                temp_string=append(temp_string, "\n ");
                 
                 input_str=temp_string;
                 
                                 
                 Token_List *temp_tl=Walley_Lexical_Analyzie(temp_string);
+                printf("\n=====\n");
+                TL_print(temp_tl);
                 tree=parser(temp_tl);                
             }
         }

@@ -540,7 +540,13 @@ struct TL * Walley_Lexical_Analyzie(char *input_str){
         
         // annotation #
         if(strcmp(token_class, "annotation")==0){
-            break;
+            // find \n or length_of_input_str
+            for (i=end; i<length; i++) {
+                if (input_str[i]=='\n') {
+                    break;
+                }
+            }
+            continue;
         }
         
         if (strcmp(token_class, "l_annotation")==0) {

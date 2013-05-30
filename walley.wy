@@ -144,7 +144,7 @@ def indexOfFinalDoubleQuote(input_str, first_index) then
             
             if input_str[i]=="\"" and input_str[i-1]=="\\" then
                 if input_str[i-2]=="\\" then
-                    return i;
+                    return i
                 end
             end
         end
@@ -501,7 +501,7 @@ def Walley_Lexical_Analyzie(input_str) then
     
     
     for i<length,i=i+1 then
-        local output_data=Walley_Analyze_Token_Class(input_str,i,end)
+        local output_data=Walley_Analyze_Token_Class(input_str,i,end_index)
 
         # set end_index and token_class
         end_index=output_data[0]
@@ -519,7 +519,14 @@ def Walley_Lexical_Analyzie(input_str) then
         
         # annotation #
         if token_class=="annotation" then
-            break
+             #find \n or length_of_input_str
+            for i=end, i<length, i=i+1 then
+                 if input_str[i]=="\n" then
+                     break
+                 end
+            end
+            continue
+
         end
         
         if token_class=="l_annotation" then
@@ -2652,7 +2659,7 @@ end
 #= walley_parser.wy
 
 # Generate AST
-TREE parser(tl) then
+def parser(tl) then
     # reset TREE_INDEX value
     TREE_INDEX=0
     
