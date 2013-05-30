@@ -309,7 +309,7 @@ def Walley_Analyze_Token_Class(input_str, i) then
     end
     
     # end
-    if match(input_str, i, "end") and (i+3>=length or input_str[i+3]==' ') then
+    if match(input_str, i, "end") and (i+3>=length or input_str[i+3]==" ") then
        	end_index=i+3
        	return_obj[0]=end_index
        	return_obj[1]="end" 
@@ -605,7 +605,7 @@ end
 def TREE_addNode(tree, name, token_class) then
     local index=TREE_INDEX
     # initiate node_list
-    if tree.node_list==[]
+    if tree.node_list==[] then
         # empty node_list
         tree.node_list[0].name=name
         tree.node_list[0].token_class=token_class
@@ -670,16 +670,18 @@ def TREE_getTreeAccordingToIndex( tree, index) then
             found_tree=TREE_getTreeAccordingToIndex(nl[i], index)
             if found_tree!=none then
                 return found_tree
+            end
         end    
+    end
     return none
 end
 
-def TREE_print(TREE tree) then
+def TREE_print(tree) then
     console.log("(%s %s",tree.token_class,tree.name)
     local length_of_node_list=tree.node_list.length
     
     
-    if (length_of_node_list!=0) then
+    if length_of_node_list!=0 then
         local i=0
         local nl=tree.node_list
         for i=0,i<length_of_node_list,i=i+1 then
@@ -695,7 +697,7 @@ def TREE_changeNameAccordingToIndex(tree, index, change_to_name) then
 end
 
 # return the layer num of TREE
-def TREE_layer(TREE tree) then
+def TREE_layer(tree) then
     local temp_tree=TREE_getTreeAccordingToIndex(tree, TREE_INDEX)
     return temp_tree.layer
 end

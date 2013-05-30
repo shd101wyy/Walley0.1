@@ -195,7 +195,7 @@ TREE parser(Token_List *tl){
     if(!walley_statements(&output_tree, tl) && INCOMPLETE_STATEMENT==FALSE){
         printf("Fail to parse statements\n");
     }
-    TREE_print(output_tree);
+    //TREE_print(output_tree);
     
     
     // test table_expr

@@ -128,8 +128,8 @@ Str_List *Compile_to_JS(char *file_name){
                 
                                 
                 Token_List *temp_tl=Walley_Lexical_Analyzie(temp_string);
-                printf("\n=====\n");
-                TL_print(temp_tl);
+                //printf("\n=====\n");
+                //TL_print(temp_tl);
                 tree=parser(temp_tl);                
             }
         }

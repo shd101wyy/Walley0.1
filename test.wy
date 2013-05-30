@@ -1,5 +1,11 @@
+def TREE_print(tree) then
+    console.log("(%s %s",tree.token_class,tree.name)
+    local length_of_node_list=tree.node_list.length
 
-    for i=end_index,i<length, i=i+1 then
-        x=12
+    if length_of_node_list!=0 then
+        for i=0,i<length_of_node_list,i=i+1 then
+            TREE_print(nl[i])
+        end
     end
-   
+    console.log(")")
+end
