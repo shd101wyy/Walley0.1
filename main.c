@@ -11,8 +11,13 @@
 int main(int argc, char **argv)
 {
     
+    Compile_to_JS("/Users/shd101wyy/Documents/workspace/xcode/Walley0.1/Walley0.1/walley.wy");
+    printf("\n\n!!!===== SUCCESS =====\n");
+    exit(0);
+    
     /*
-    Token_List *tl=Walley_Lexical_Analyzie("if x>0 then x=12 elif x<10 then x=15 else x=16 end" );
+    Token_List *tl=Walley_Lexical_Analyzie("local i=0 local x=2" );
+    TL_print(tl);
     
     TREE tree;
     tree=parser(tl);

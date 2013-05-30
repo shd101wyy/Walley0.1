@@ -47,6 +47,12 @@ int indexOfFinalDoubleQuote(char *input_str, int first_index){
             if (input_str[i]=='"'&&input_str[i-1]!='\\') {
                 return i;
             }
+            
+            if (input_str[i]=='"'&&input_str[i-1]=='\\') {
+                if (input_str[i-2]=='\\') {
+                    return i;
+                }
+            }
         }
     }
    

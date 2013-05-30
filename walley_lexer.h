@@ -661,7 +661,7 @@ bool sentences_seperation(Token_List *tl, Token_List **output_tl,int *begin){
         // y=2
         if (i<length_of_tl-1&&(term(tl->current_token.TOKEN_CLASS, "num")||term(tl->current_token.TOKEN_CLASS, "string")||term(tl->current_token.TOKEN_CLASS, "id")||term(tl->current_token.TOKEN_CLASS, "list_table")||term(tl->current_token.TOKEN_STRING, ")"))
             && (term(tl->next->current_token.TOKEN_CLASS, "id") ||term(tl->next->current_token.TOKEN_CLASS, "num")
-                ||term(tl->next->current_token.TOKEN_CLASS, "return")||term(tl->next->current_token.TOKEN_STRING, "continue")||term(tl->next->current_token.TOKEN_STRING, "break"))) {
+                ||term(tl->next->current_token.TOKEN_CLASS, "return")||term(tl->next->current_token.TOKEN_STRING, "continue")||term(tl->next->current_token.TOKEN_STRING, "break")||term(tl->next->current_token.TOKEN_CLASS, "local"))) {
             int end=i+1;
             
             Token_List *ahead_tl=TL_subtl(temp_tl, *begin, end);

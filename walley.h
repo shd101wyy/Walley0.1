@@ -103,7 +103,7 @@ Str_List *Compile_to_JS(char *file_name){
         tree=parser(tl);
         
 
-        
+        printf("\n\n---> |%s| %d\n",sl_in_file->string_content,INCOMPLETE_STATEMENT);
         
         
         if (INCOMPLETE_STATEMENT) {
@@ -111,10 +111,13 @@ Str_List *Compile_to_JS(char *file_name){
             while (INCOMPLETE_STATEMENT) {
                 sl_in_file=sl_in_file->next;
                 
+                
                 if (sl_in_file==NULL) {
                     printf("Error.. Incomplete statements %s\n",temp_string);
                     exit(0);
                 }
+                
+                printf("\nINCOMPLETE---> %s\n",sl_in_file->string_content);
                 
                 INCOMPLETE_STATEMENT=FALSE;
                 
