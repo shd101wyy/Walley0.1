@@ -1,18 +1,23 @@
-#= FILE: walley_prefunction.wy
+#= walley_prefunction.wy
+# check -> , current_token , && || , else if , ; , // '' TL_subtl &
+# string trim() should be rewritten like str = str.replace(/^\s+|\s+$/g,'')
 TRUE=true
 FALSE=false
 INCOMPLETE_STATEMENT=FALSE
 
 #= FILE: walley_data.wy
+# Attenttion:
+#   Token_List is just []
 #token class
-Token=[]
-Token.init=def()then
-	self=[]
-	self.TOKEN_CLASS=""
-	self.TOKEN_STRING=""
-	self.TOKEN_START=-1
-	self.TOKEN_END=-1
-	return self
+
+
+def Token_init() then
+    local Token=[]
+    Token.TOKEN_CLASS=""
+    Token.TOKEN_STRING=""
+    Token.TOKEN_START=-1
+    Token.TOKEN_END=-1
+    return Token    
 end
 
 #print token
@@ -21,18 +26,10 @@ TOKEN_print=def(token)then
 end
 
 #token list
-#~
-Token_List=[]
-Token_List.init=def(token)then
-	self=[]
-	self.current_token=token or none
-	self.ahead=none
-	self.next=none
-	return self
-end
-~#
-
+# I remove token_list and its related functions
+# Token_List now is just []
 # convert token list to string
+
 TL_toString=def(tl)then
 	local return_string=""
 	for i,v in tl then
@@ -41,7 +38,7 @@ TL_toString=def(tl)then
 end
 
 TL_addToken=def(tl,add_token) then
-	local temp_token=Token.init()
+	local temp_token=Token_init()
 	temp_token.TOKEN_CLASS=add_token.TOKEN_CLASS
 	temp_token.TOKEN_STRING=add_token.TOKEN_STRING
 	temp_token.TOKEN_START=add_token.TOKEN_START
@@ -49,7 +46,29 @@ TL_addToken=def(tl,add_token) then
 	tl.append(temp_token)
 end
 
-#= FILE: walley_lexer.wy
+def TL_indexOfTokenThatHasTokenString(tl, token_string) then
+    local output=-1
+    local i=0
+    for i=0,i<tl.length,i=i+1 then
+        if tl[i].TOKEN_STRING==token_string then
+            return i
+        end
+    end
+    return -1
+end
+
+def TL_indexOfTokenThatHasTokenClass(tl, token_string) then
+    local output=-1
+    local i=0
+    for i=0,i<tl.length,i=i+1 then
+        if tl[i].TOKEN_CLASS==token_string then
+            return i
+        end
+    end
+    return -1
+end
+
+#= walley_lexer.wy
 match=def(input_str, index, match_string) then
 	local length_of_input_str=input_str.length
     local length_of_match_str=match_string.length
@@ -71,6 +90,14 @@ match=def(input_str, index, match_string) then
     end
 end
 
+def term(input_str1,input_str2) then
+    if input_str1==input_str2 then
+        return TRUE
+    else
+        return FALSE
+    end
+end
+    
 def LIST_indexOfFinalBracket(input_str, index_of_first_bracket) then
     local count=0
     local in_string=FALSE
@@ -121,8 +148,6 @@ def indexOfFinalDoubleQuote(input_str, first_index) then
     # did not find
     return -1
 end
-
-
 
 def Walley_Analyze_Token_Class(input_str, i) then
 	# return obj
@@ -461,6 +486,2195 @@ def Walley_Analyze_Token_Class(input_str, i) then
     Walley_Print_Error(input_str, "Can not analyze this input", i)
     exit(0)
 end
+
+def Walley_Lexical_Analyzie(input_str) then
+    local i=0
+    local length=input_str.length
+    local tl # Token_List
+    
+    local end_index=0
+    
+    
+    for i<length,i=i+1 then
+        local output_data=Walley_Analyze_Token_Class(input_str,i,end)
+
+        # set end_index and token_class
+        end_index=output_data[0]
+        local token_class=output_data[1]
+        
+        if INCOMPLETE_STATEMENT==TRUE then
+            break
+        end
+
+        # delete white_space
+        if token_class=="white_space" then
+            i=end_index-1
+            continue
+        end
+        
+        # annotation #
+        if token_class=="annotation" then
+            break
+        end
+        
+        if token_class=="l_annotation" then
+            i=end_index
+            
+            # find r_annotation
+            local count=0 # check whether in string
+            local find_right_annotation=FALSE
+            for  i<length-1, i=i+1 then
+                if input_str[i]=='"' then
+                    count=count+1
+                    continue
+                end
+                # find r_annotation
+                if count%2==0 and input_str[i]=="~" and input_str[i+1]=="#" then
+                    i=i+1
+                    find_right_annotation=TRUE
+                    break
+                end
+            end
+            
+            # did not find right annotation
+            # incomplete statements
+            if find_right_annotation==FALSE then
+                INCOMPLETE_STATEMENT=TRUE
+                return tl
+            end
+            
+            
+            
+            continue
+        end
+              
+        temp_token=Token_init()
+        temp_token.TOKEN_START=i
+        temp_token.TOKEN_END=end_index
+        temp_token.TOKEN_CLASS=token_class
+        
+        local token_string=""
+        token_string=input_str[i:end_index]
+        
+        temp_token.TOKEN_STRING=token_string
+        
+        tl.append(temp_token)
+     
+        i=end_index-1
+    end
+    
+       
+    
+    return tl
+end
+
+
+
+
+
+
+#= walley_tree.wy
+# I delete all functions relevent with node_list  ***
+# now Node_List is just []
+TREE_INDEX=0
+TREE_OUTPUT
+
+# define TREE object
+def TREE_init(name) then
+    local TREE=[]
+    TREE.name=name or ""
+    TREE.token_class=""
+    TREE.index=0
+    TREE.layer=0
+    TREE.node_list=[]
+    return TREE
+end
+
+def TREE_addNode(tree, name, token_class) then
+    local index=TREE_INDEX;
+    # initiate node_list
+    if tree.node_list==[]
+        # empty node_list
+        tree.node_list[0].name=name
+        tree.node_list[0].token_class=token_class
+        tree.node_list[0].index=index
+        tree.node_list[0].layer=tree.layer+1
+        tree.node_list[0].node_list=[]
+       
+        TREE_INDEX=TREE_INDEX+1
+    
+    #append new node
+    else
+        local length_of_node_list=tree.node_list.length
+        tree.node_list[length_of_node_list].name=name
+        tree.node_list[length_of_node_list].token_class=token_class
+        tree.node_list[length_of_node_list].index=index
+        tree.node_list[length_of_node_list].layer=tree.layer+1
+        tree.node_list[length_of_node_list].node_list=[]  
+    end
+end
+
+def TREE_addTree(tree, add_tree) then
+    local index=TREE_INDEX;
+    # initiate node_list
+    if tree.node_list==[] then    
+        tree.node_list[0]=add_tree
+        tree.node_list[0].index=index
+        tree.node_list[0].layer=tree.layer+1
+        TREE_INDEX=TREE_INDEX+1
+    # append new node
+    else
+        local length_of_node_list=tree.node_list.length
+        tree.node_list[length_of_node_list]=add_tree
+        tree.node_list[length_of_node_list].index=index
+        tree.node_list[length_of_node_list].layer=tree.layer+1
+        TREE_INDEX=TREE_INDEX+1
+    end
+end
+
+
+def TREE_getTreeAccordingToIndex( tree, index) then
+    
+    if index==tree.index then
+        return tree
+    else
+        local nl=tree.node_list # Node_List
+        if nl==[] then
+            return none
+        end
+
+        local i=0
+        local length=nl.length
+        for i<length, i=i+1 then
+            local node=nl[i]
+            if index==node.index then
+                return node
+            end
+        end
+
+        nl=tree.node_list # Node_List
+        i=0
+        for  i<length , i=i+1 then
+            found_tree=TREE_getTreeAccordingToIndex(nl[i], index)
+            if found_tree!=none then
+                return found_tree
+        end    
+    return none
+end
+
+def TREE_print(TREE tree) then
+    console.log("(%s %s",tree.token_class,tree.name)
+    local length_of_node_list=tree.node_list.length
+    
+    
+    if (length_of_node_list!=0) then
+        local i=0;
+        local nl=tree.node_list
+        for i=0,i<length_of_node_list,i=i+1 then
+            TREE_print(nl[i])
+        end
+    end
+    console.log(")")
+end
+
+def TREE_changeNameAccordingToIndex(tree, index, change_to_name) then
+    local temp_tree=TREE_getTreeAccordingToIndex(tree, index)
+    temp_tree.name=change_to_name
+end
+
+# return the layer num of TREE
+def TREE_layer(TREE tree) then
+    local temp_tree=TREE_getTreeAccordingToIndex(tree, TREE_INDEX)
+    return temp_tree.layer
+end
+
+def TREE_addNodeAtIndex(tree, index, add_name, add_token_class) then
+    local temp_tree=TREE_getTreeAccordingToIndex(tree, index)
+    TREE_addNode(temp_tree, add_name, add_token_class)
+end
+
+#= walley.list.h
+def elements(tree, tl) then
+    if INCOMPLETE_STATEMENT==TRUE then
+        return FALSE
+    end
+    local length_of_tl=tl.length
+    local index_of_comma=TL_indexOfTokenThatHasTokenString(tl, ",")
+    # value
+    if index_of_comma==-1 then
+        local index_of_tl=TREE_INDEX
+        TREE_addNode(tree,"value","")
+        return value(TREE_getTreeAccordingToIndex(tree, index_of_tl), tl)
+    # value ',' elements
+    else
+        local tl1=tl[0:index_of_comma]
+        local tl2=tl[index_of_comma+1:length_of_tl]
+        
+        local index_of_tl1=TREE_INDEX
+        TREE_addNode(tree,"value","")
+       
+        
+        return value(TREE_getTreeAccordingToIndex(tree, index_of_tl1), tl1) and elements(tree, tl2)
+    end
+end
+
+
+def value(tree, tl) then
+
+    if INCOMPLETE_STATEMENT then
+        return FALSE
+    end
+    
+    local length_of_tl=tl.length
+
+    # (null)
+    if length_of_tl==0 then
+        tree.name="none";
+        tree.token_class="id";
+        return TRUE
+    elif length_of_tl==1 then
+        #   num
+        #  | id
+        #  | string
+        if "num"==tl[0].TOKEN_CLASS
+            or "string"==tl[0].TOKEN_CLASS
+            or "id"==tl[0].TOKEN_CLASS then
+            tree.name=tl[0].TOKEN_STRING;
+            tree.token_class=tl[0].TOKEN_CLASS
+            return TRUE
+        # | list
+        # | table
+        elif "list_table"==tl[0].TOKEN_CLASS then
+            tree.name=tl[0].TOKEN_STRING;
+            tree.token_class="table";
+
+            # I changed key_index here to object
+            local key_index=[val=0]
+            return table(tree, tl,key_index)
+        else
+            return FALSE
+        end
+    # func_value
+    # table_value
+    # func
+    # relation
+    # expr
+    else 
+        return func_value(tree, tl) or table_value(tree, tl) or func(tree, tl) or relation(tree,tl) or expr(tree, tl);
+    end
+end
+
+
+#= walley.table.wy
+# key_index is object [val=0]
+def table_elements(tree, tl,key_index) then
+    if INCOMPLETE_STATEMENT then
+        return FALSE
+    end
+    local length_of_tl=tl.length
+    local i=0
+    local index_of_comma=-1
+
+    for i=0,i<length_of_tl,i=i+1 then
+        if term(tl[i].TOKEN_STRING,",") then
+            index_of_comma=i
+            break
+        end
+    end
+    #| table_expr ',' table_elements
+    if index_of_comma!=-1 then
+        table_expr_tl=tl[0:index_of_comma]
+        table_elements_tl=tl[index_of_comma+1:length_of_tl]
+        local index1=TREE_INDEX
+        TREE_addNode(tree, "table_expr", "")
+
+        return table_expr(TREE_getTreeAccordingToIndex(tree, index1), table_expr_tl, key_index)
+        and table_elements(tree, table_elements_tl, key_index)
+    else
+        local index=TREE_INDEX
+        TREE_addNode(tree, "table_expr", "")
+        return table_expr(TREE_getTreeAccordingToIndex(tree, index), tl, key_index)
+    end
+end
+
+
+def table_expr(tree,tl,key_index) then
+    if INCOMPLETE_STATEMENT==TRUE then
+        return FALSE
+    end
+
+    local length_of_tl=tl.length
+    # | '@' id '=' value
+    if length_of_tl>3 and term(tl[0].TOKEN_CLASS, "@") and term(tl[1].TOKEN_CLASS, "id") and term(tl[2].TOKEN_STRING, "=") then
+        local append_key=tl[1].TOKEN_STRING
+        local length_of_append_key=append_key.length
+        local new_key="@"+append_key
+        # THIS PLACE HAS PROBLEM WHILE PARSING KEY
+        TREE_addNode(tree, new_key, "key")
+        local index=TREE_INDEX
+        TREE_addNode(tree, "value", "")
+        return value(TREE_getTreeAccordingToIndex(tree, index), TL_subtl(tl, 3, length_of_tl))
+    
+    # id '=' value
+    elif term(tl->current_token.TOKEN_CLASS, "id") and term(tl->next->current_token.TOKEN_STRING, "=") then
+        local index1=TREE_INDEX
+        TREE_addNode(tree, "key", "")
+        
+        local key_tl=Walley_Lexical_Analyzie(toString(tl[0].TOKEN_STRING))
+
+        local key_tree=TREE_init("key")
+        value(key_tree, key_tl)
+        
+        TREE_addTree(TREE_getTreeAccordingToIndex(tree, index1),key_tree);
+
+        local index2=TREE_INDEX
+        TREE_addNode(tree, "value", "");
+        return value(TREE_getTreeAccordingToIndex(tree, index2), TL_subtl(tl, 2, length_of_tl))
+    #              0           1       2
+    #    |'[' (string|int) ']' '=' (value)
+    elif term(tl[0].TOKEN_CLASS, "list_table") and tl->next!=NULL and term(tl[1].TOKEN_STRING, "=") then
+        # THIS PLACE HAS SOME PROBLEM
+        #printf("'[' (string|int) ']' '=' (value)  HAS NOT BEEN IMPLEMENTED\n");
+        
+        local length=tl[0].TOKEN_STRING.length
+        local string_inside= tl[0].TOKEN_STRING[1:length-1]   
+        
+        local index1=TREE_INDEX
+        TREE_addNode(tree, "key", "")
+        
+        local key_tl=Walley_Lexical_Analyzie(string_inside)
+        TREE key_tree=TREE_init("key")
+        value(key_tree, key_tl)
+        
+        TREE_addTree(TREE_getTreeAccordingToIndex(tree, index1),key_tree)
+        
+        local index2=TREE_INDEX
+        TREE_addNode(tree, "value", "")
+        
+        
+        return value(TREE_getTreeAccordingToIndex(tree, index2),tl[2:length_of_tl])
+
+    #value
+    else{
+        local index1=TREE_INDEX
+        TREE_addNode(tree, "key", "")
+        
+        local key_tl=Walley_Lexical_Analyzie(intToCString((*key_index)))
+        local key_tree=TREE_init("key")
+        value(key_tree, key_tl)
+        
+        TREE_addTree(TREE_getTreeAccordingToIndex(tree, index1),key_tree)
+        
+        
+        local index=TREE_INDEX
+        TREE_addNode(tree, "value", "")
+      
+        
+        key_index.val=key_index.val+1
+        
+        return value(TREE_getTreeAccordingToIndex(tree, index),tl)
+    end
+
+    return FALSE
+end
+
+#table    -> '[' table_elements ']'
+def table(tree,tl,key_index) then
+    if INCOMPLETE_STATEMENT then
+        return FALSE
+    end
+    local length_of_tl=tl.length
+    
+    if length_of_tl==1 then
+        local list_string=tl[0].TOKEN_STRING;
+        local length_of_list_string=list_string.length
+        if list_string[0]=="[" and list_string[length_of_list_string-1]=="]"
+            # list_string [1,2]
+            # list_string2 1,2
+            local list_string2=list_string[1:list_string.length-1].trim()
+            
+            # content empty
+            # x=[]
+            if list_string2=="" then
+                return TRUE
+            end
+            
+            
+            local table_tl=Walley_Lexical_Analyzie(list_string2)
+            return table_elements(tree, table_tl, key_index)
+        else
+            return FALSE
+        end
+    
+    else
+        return FALSE;
+    end
+end
+
+
+def table_value(tree, tl) then
+    
+    if INCOMPLETE_STATEMENT==TRUE then
+        return FALSE
+    end
+   
+    local length_of_tl=tl.length
+    #~
+     id table_value_key
+     
+     // new support
+     string table_value_key              // "hello".length()
+     list_table table_value_key          // [1,2,3].length()
+     num table_value_key                 //  13.toString()
+     ~#
+    if length_of_tl>=2 and
+        (term(tl[0].TOKEN_CLASS, "id")
+         or term(tl[0].TOKEN_CLASS, "string")
+         or term(tl[0].TOKEN_CLASS, "list_table")
+         or term(tl[0].TOKEN_CLASS, "num")
+        )
+        and
+        (term(tl[1].TOKEN_STRING, ".") or term(tl[1].TOKEN_CLASS, "list_table"))
+         then
+        local index=TREE_INDEX
+        TREE_addNode(tree, "table_value", "")
+        
+        
+        TREE_addNode(TREE_getTreeAccordingToIndex(tree, index), tl[0].TOKEN_STRING, tl[0].TOKEN_CLASS)
+        return table_value_key(TREE_getTreeAccordingToIndex(tree, index), tl[1:length_of_tl])
+    # new support on 05/24/2013
+    #func table_value_key
+    elif length_of_tl>=3 and term(tl[0].TOKEN_CLASS, "id") and term(tl[1].TOKEN_STRING, "(") then
+        local index=-1 # find index of )
+        
+        local i=0
+        local count=0
+        for i=0,i<tl.length,i=i+1 then
+            if term(tl[i].TOKEN_STRING,"(") then
+                count=count+1
+            elif term(tl[0].TOKEN_STRING,")") then
+                count=count-1
+                if count==0 then
+                    index=i
+                    break
+                end
+            end
+        end
+        
+        # fix 'add(3,4)' bug
+        if index==length_of_tl-1 then
+            return FALSE
+        end
+        
+        local tree_index=TREE_INDEX
+        TREE_addNode(tree, "table_value", "")
+        local tree_index2=TREE_INDEX
+        TREE_addNode(TREE_getTreeAccordingToIndex(tree, tree_index), "func", "")
+        func(TREE_getTreeAccordingToIndex(tree, tree_index2), tl[0:index+1])
+        
+        return table_value_key(TREE_getTreeAccordingToIndex(tree, tree_index),tl[index+1:length_of_tl])
+
+    
+    # expr table_value_key                //  ("He"+"llo").length()   where expr can only be  inside '()'
+    else
+        if term(tl[0].TOKEN_STRING, "(") then
+            
+           
+           
+            local index_of_right=-1
+
+
+
+
+            local i=0
+            local count=0
+            for i=0,i<tl.length,i=i+1 then
+                if term(tl[i].TOKEN_STRING,"(") then
+                    count=count+1
+                elif term(tl[0].TOKEN_STRING,")") then
+                    count=count-1
+                    if count==0 then
+                        index_of_right=i
+                        break
+                    end
+                end
+            end            
+            if index_of_right==-1 then
+                return FALSE
+            else
+                if index_of_right==length_of_tl-1 then
+                    return FALSE
+                end
+                
+                # solve (a+3)^2 like problem
+                if term(tl[index_of_right+1].TOKEN_CLASS, "list_table")==FALSE or term(tl[index_of_right+1].TOKEN_STRING, ".")==FALSE then
+                    return FALSE
+                end
+                local index=TREE_INDEX
+                TREE_addNode(tree, "table_value", "")
+               
+                local index2=TREE_INDEX
+                TREE_addNode(TREE_getTreeAccordingToIndex(tree, index), "expr", "")
+               
+                return expr(TREE_getTreeAccordingToIndex(tree, index2),tl[0:index_of_right+1]) and
+                table_value_key(TREE_getTreeAccordingToIndex(tree, index), tl[index_of_right+1:length_of_tl]);
+            end
+        end
+        return FALSE
+    end
+end
+
+def table_value_key(tree, tl) then
+    if INCOMPLETE_STATEMENT==TRUE then
+        return FALSE
+    end
+    local length_of_tl=tl.length
+    
+    # [(string|num)value|slice]        # slice need ":"    like ':3' ':3' or '0:3'
+    if length_of_tl==1 and term(tl[0].TOKEN_CLASS, "list_table") then
+        # get string inside []
+        local length=tl[0].TOKEN_STRING
+        local string_inside=tl[0].TOKEN_STRING[1:length-1]
+        
+        local key_tl=Walley_Lexical_Analyzie(string_inside)
+        
+        # check whether have :
+        local index_of_colon=-1
+        local i=0
+        for i=0,i<key_tl.length,i=i+1 then
+            if term(key_tl[i].TOKEN_STRING,":") then
+                index_of_colon=i
+                break
+            end
+        end
+        
+        # not slice
+        if index_of_colon==-1 then
+            
+            local index1=TREE_INDEX
+            TREE_addNode(tree, "key", "")
+            
+            local key_tree=TREE_init(key_tree, "key")
+            value(key_tree, key_tl)
+            
+            TREE_addTree(TREE_getTreeAccordingToIndex(tree, index1),key_tree)
+            
+            return TRUE
+        # slice
+        else
+            local length_of_key_tl=key_tl.length
+            local index1=TREE_INDEX
+            TREE_addNode(tree, "key", "")
+            
+            local slice_tree=TREE_init("slice")
+            
+            local left_tl=none
+            local right_tl=none
+            
+            # has no left
+            if index_of_colon==0 then
+                left_tl=none
+            else
+                left_tl=key_tl[0:index_of_colon]
+            end
+            
+            # has no right
+            if index_of_colon==length_of_key_tl-1 then
+                right_tl=NULL
+            else
+                right_tl=key_tl[index_of_colon+1:length_of_key_tl]
+            end
+            # add left
+            local index_left=TREE_INDEX
+            if left_tl==none then
+                TREE_addNode(slice_tree, "0","num")
+            else
+                TREE_addNode(slice_tree, "value", "");
+                value(TREE_getTreeAccordingToIndex(slice_tree, index_left), left_tl)
+            # add right
+            local index_right=TREE_INDEX
+            if right_tl==NULL then
+                TREE_addNode(slice_tree, "its_length","special")
+            else
+                TREE_addNode(slice_tree, "value", "")
+                value(TREE_getTreeAccordingToIndex(slice_tree, index_right), right_tl)
+            end
+
+            TREE_addTree(TREE_getTreeAccordingToIndex(tree, index1),slice_tree)
+            return TRUE
+        end
+        
+    
+    #| '.' id
+    elif length_of_tl==2 and term(tl[0].TOKEN_STRING,".") and term(tl[1].TOKEN_CLASS, "id") then
+        local index1=TREE_INDEX
+        TREE_addNode(tree, "key", "")
+        
+        local key_tl=Walley_Lexical_Analyzie(toString(tl->next->current_token.TOKEN_STRING))
+        local key_tree=TREE_init("key")
+        value(key_tree, key_tl)
+        TREE_addTree(TREE_getTreeAccordingToIndex(tree, index1),key_tree)
+        
+        return TRUE
+    #| '.' func
+    #| '.' func table_value_key                            // behind is [] or '.'
+    elif length_of_tl>=4 and term(tl[0].TOKEN_STRING,".") and term(tl[1].TOKEN_CLASS, "id") and term(tl[2].TOKEN_STRING, "(") then
+        # find index_of_right )
+        local index_of_right=-1
+        local i=0
+        local count=0
+        for i=0,i<tl.length,i=i+1 then
+            if term(tl[i].TOKEN_STRING,"(") then
+                count=count+1
+            elif term(tl[i].TOKEN_STRING,")") then
+                count=count-1
+                if count==0 then
+                    index_of_right=-1
+                    break
+                end
+            end
+        end
+
+        if index_of_right==-1 then
+            INCOMPLETE_STATEMENT=TRUE
+            return FALSE
+        end
+
+        
+        #| '.' func
+        if index_of_right==length_of_tl-1 then
+            local index1=TREE_INDEX
+            TREE_addNode(tree, "key", "")
+            
+            return func(TREE_getTreeAccordingToIndex(tree, index1), tl[1:length_of_tl])
+        #| '.' func table_value_key                            // behind is [] or '.'
+        else
+            return table_value_key(tree, tl[0:index_of_right+1]) and table_value_key(tree, tl[index_of_right+1:length_of_tl])
+        end
+       
+    #| [(string|num)value] table_value_key
+    elif length_of_tl>=2 and term(tl[0].TOKEN_CLASS, "list_table") and
+             (term(tl[1].TOKEN_STRING, ".") or term(tl[1].TOKEN_CLASS, "list_table"))
+             then
+        return table_value_key(tree, tl[0:1]) and table_value_key(tree, tl[1:length_of_tl])
+    #| [(string|num)value] '(' params ')' table_value_key
+    elif (length_of_tl>=3 and term(tl[0].TOKEN_CLASS, "list_table") and term(tl[1].TOKEN_STRING, "(") then       
+        # find index_of_right )
+        local index=-1
+        local i=0
+        local count=0
+        for i=0,i<tl.length,i=i+1 then
+            if term(tl[i].TOKEN_STRING,"(") then
+                count=count+1
+            elif term(tl[i].TOKEN_STRING,")") then
+                count=count-1
+                if count==0 then
+                    index=-1
+                    break
+                end
+            end
+        end
+
+        
+        # index = -1 incomplete
+        if index==-1 then
+            INCOMPLETE_STATEMENT=TRUE
+            return FALSE
+        end
+        
+        
+        local func_tree=TREE_init("func")
+        local tree_index=TREE_INDEX
+        TREE_addNode(func_tree, "", "table_call")
+        TREE_addNode(TREE_getTreeAccordingToIndex(func_tree, tree_index), "", "")
+        tree_index=tree_index+1
+
+        # get string inside []
+        local length=tl[0].TOKEN_STRING.length
+        local string_inside=tl[0].TOKEN_STRING[1:length-1]
+        #====================
+        local string_inside_tl=Walley_Lexical_Analyzie(string_inside)
+        value(TREE_getTreeAccordingToIndex(func_tree, tree_index), string_inside_tl)
+
+        tree_index=TREE_INDEX
+        TREE_addNode(func_tree, "params", "")
+        if 2!=index then
+            params(TREE_getTreeAccordingToIndex(func_tree, tree_index), tl[2:index])
+        end
+
+        TREE_addTree(tree, func_tree)
+
+        if index==length_of_tl-1 then
+            return TRUE
+        end
+        return table_value(tree, tl[index+1:length_of_tl])
+
+    #| '.' id table_value_key                              // behind is [] or '.'
+    elif length_of_tl>=3 and term(tl[0].TOKEN_STRING, ".") and term(tl[1].TOKEN_CLASS, "id")
+             and (term(tl[2].TOKEN_STRING, ".") or term(tl[2].TOKEN_CLASS, "list_table"))
+             then
+        return table_value_key(tree, tl[0:2]) and table_value_key(tree, tl[2:length_of_tl])
+    else
+        return FALSE
+    end
+end
+
+
+#= walley_math_parser.wy
+def expr(tree, tl) then
+    if INCOMPLETE_STATEMENT then
+        return FALSE
+    end
+    
+    # expr-> expr '+' expr
+    # | expr '-' expr
+    # | s_term
+    local length_of_tl=tl.length
+    local count_of_parenthesis=0
+        
+    while (tl->next!=NULL) {
+        tl=tl->next;
+    }
+    
+    local i=length_of_tl-1;
+    for i>=0, i=i-1 then
+        if (tl[i].TOKEN_STRING=="(") then
+            count_of_parenthesis=count_of_parenthesis+1
+            continue
+        end
+        if tl[i].TOKEN_STRING==")" then
+            count_of_parenthesis=count_of_parenthesis-1
+            continue
+        end
+        # expr '+' expr
+        # expr '-' expr
+        if count_of_parenthesis==0 and ("+"==tl[i].TOKEN_STRING or "-"==tl[i].TOKEN_STRING ) then
+            local sign=tl[i].TOKEN_STRING
+            
+            local index_of_first_sign=i
+            
+            # solve x=-1 or x=+1 problem
+            if index_of_first_sign==0 then
+                temp_tl=[]
+                local temp_token=Token_init()
+                temp_token.TOKEN_STRING="0"
+                temp_token.TOKEN_CLASS="num"
+                temp_token.TOKEN_START=-1
+                temp_token.TOKEN_END=-1
+                
+                temp_tl.append(temp_token)
+
+                local a=0
+                for a=0,a<tl.length,a=a+1 then
+                    temp_tl.append[a+1]=tl[a]
+                end
+
+                return expr(tree,temp_tl)
+            end
+            
+            
+            local tl1=tl[0:index_of_first_sign]
+            local tl2=tl[index_of_first_sign+1:length_of_tl]
+            tree.name=sign
+            
+            local current_index=tree.index;
+            TREE_addNode(tree, "expr","")
+            TREE_addNodeAtIndex(tree, current_index, "expr","")
+            
+            
+            local index_of_expr1_node=TREE_INDEX-2;
+            local index_of_expr2_node=TREE_INDEX-1;
+            
+            return
+            expr(TREE_getTreeAccordingToIndex(tree,index_of_expr1_node), tl1)
+            and
+            expr(TREE_getTreeAccordingToIndex(tree,index_of_expr2_node), tl2)
+        end         
+    end
+    # s_term
+    return s_term(tree, tl) 
+end
+
+def s_term(tree,tl) then
+    if INCOMPLETE_STATEMENT then
+        return FALSE
+    end
+    local length_of_tl=tl.length
+    local count_of_parenthesis=0    
+    
+    local i=length_of_tl-1
+    for  i>=0, i=i-1 then
+        if tl[i].TOKEN_STRING=="(" then
+            count_of_parenthesis=count_of_parenthesis+1
+            continue
+        end
+
+        if tl[i].TOKEN_STRING==")" then
+            count_of_parenthesis=count_of_parenthesis-1
+            continue
+        end
+    
+        #    s_term "*" p_term
+        # |  s_term "/" p_term
+        if count_of_parenthesis==0 and ("*"==tl[i].TOKEN_STRING or "/"==tl[i].TOKEN_STRING or "%"==tl[i].TOKEN_STRING) then
+            local sign=tl[i].TOKEN_STRING
+            
+            local index_of_first_sign=i;
+            local tl1=tl[0:index_of_first_sign]
+            local tl2=tl[index_of_first_sign+1:length_of_tl]
+            
+            tree.name=sign
+            
+            local current_index=tree.index
+            TREE_addNode(tree, "s_term","")
+            TREE_addNodeAtIndex(tree, current_index, "p_term","")
+            
+            local index_of_node1=TREE_INDEX-2
+            local index_of_node2=TREE_INDEX-1
+            
+            
+            return
+            s_term(TREE_getTreeAccordingToIndex(tree,index_of_node1), tl1)
+            and
+            p_term(TREE_getTreeAccordingToIndex(tree,index_of_node2), tl2)
+        end        
+    end    
+
+    # p_term
+    return p_term(tree, tl)
+end
+
+def p_term(tree, tl) then
+    if INCOMPLETE_STATEMENT then
+        return FALSE
+    end
+    #p_term -> p_term "^" factor
+    #|  factor
+    local length_of_tl=tl.length
+    local count_of_parenthesis=0
+    
+    local i=length_of_tl-1
+    for  i>=0, i=i-1 then
+        if tl[i].TOKEN_STRING=="(" then
+            count_of_parenthesis=count_of_parenthesis+1
+            continue
+        end
+        if tl[i].TOKEN_STRING==")" then
+            count_of_parenthesis=count_of_parenthesis-1
+            continue
+        end
+        #   p_term "^" factor
+        if (count_of_parenthesis==0 and ("^"==tl[i].TOKEN_STRING) or "**"==tl[i].TOKEN_STRING ) then
+            local sign="^"
+
+            local index_of_first_sign=i
+            local tl1=tl[0:index_of_first_sign]
+            local tl2=tl[index_of_first_sign+1:length_of_tl]
+            
+            tree.name=sign
+            
+            local current_index=tree.index
+            TREE_addNode(tree, "p_term","")
+            TREE_addNodeAtIndex(tree, current_index, "factor","")
+            
+            local index_of_node1=TREE_INDEX-2
+            local index_of_node2=TREE_INDEX-1
+            
+            
+            return
+            p_term(TREE_getTreeAccordingToIndex(tree,index_of_node1), tl1)
+            and
+            factor(TREE_getTreeAccordingToIndex(tree,index_of_node2), tl2);
+        end 
+    end
+    
+    # factor
+    return factor(tree, tl)
+end
+
+#factor -> value
+#| (expr)
+def factor(tree, tl) then
+    if INCOMPLETE_STATEMENT==TRUE then
+        return FALSE
+    end
+    local length_of_tl=tl.length
+    #| (expr)
+    if term(tl[0].TOKEN_STRING,"(") and term(tl[length_of_tl-1].TOKEN_STRING, ")") then
+        tree.name="expr"
+        tree.token_class=""
+        return expr(tree, TL_subtl(tl, 1, length_of_tl-1))
+    # value
+    else
+        return value(tree, tl)
+    end
+end
+
+
+#= walley_assignment.wy
+def assignment(tree,tl) then
+    
+    if INCOMPLETE_STATEMENT==TRUE then
+        return FALSE
+    end
+    
+    # | 'local' var_name '=' var_value
+    local is_local=FALSE
+    if term(tl[0].TOKEN_STRING, "local") then
+        is_local=TRUE
+    end
+    
+    
+    local count=0;
+    local count_of_equal=0;
+    local index_of_equal;
+    local i=0;
+
+    for i=0,i<tl.length,i=i+1 then
+        if term(tl[i].TOKEN_STRING, "(")
+            or term(tl[i].TOKEN_STRING, "if")
+            or term(tl[i].TOKEN_STRING, "def")
+            or term(tl[i].TOKEN_STRING, "for")
+            or term(tl[i].TOKEN_STRING, "while") then
+            count=count+1
+        elif term(tl[i].TOKEN_STRING, ")")
+              or term(tl[i].TOKEN_STRING, "end") then
+            count=count-1
+        end
+        if count==0 and tl[i].TOKEN_STRING=="=" then
+            count_of_equal=count_of_equal+1
+            index_of_equal=i
+        end
+    end
+    # it is not assignment
+    if count_of_equal!=1 then
+        return FALSE
+    else
+        
+        local length_of_tl=tl.length
+
+        local save_TREE_INDEX=TREE_INDEX
+        
+        TREE_INDEX=0
+        local var_name_tree=TREE_init("var_name")
+        local var_name_list=none
+        # exclude local
+        if is_local==TRUE
+            var_name_list=tl[1:index_of_equal]
+        else
+            var_name_list=tl[0:index_of_equal]
+        end
+        var_name(var_name_tree, var_name_list)
+        
+        TREE_INDEX=0
+        local var_value_tree=TREE_initWithName(var_value_tree, "var_value")
+        local var_value_list=tl[index_of_equal+1:length_of_tl]
+        
+        
+        var_value(var_value_tree, var_value_list)
+        
+        TREE_INDEX=save_TREE_INDEX
+        
+      
+
+        
+        local var_name_num=var_name_tree.node_list.length
+              
+        local i=0
+        local var_name_nl=var_name_tree.node_list
+        local var_value_nl=var_value_tree.node_list
+        for i<var_name_num, i=i+1 then
+            local index=TREE_INDEX
+            TREE_addNode(tree, "=", "")
+      
+            #local variable
+            if is_local==TRUE then
+                TREE_addNode(TREE_getTreeAccordingToIndex(tree, index),"local", "")
+            end
+
+            TREE_addTree(TREE_getTreeAccordingToIndex(tree, index), var_name_nl[i])
+
+            if var_value_nl[i]="undefined" then
+                local temp_tree=TREE_init()
+                temp_tree.name="none"
+                temp_tree.token_class="id"
+                temp_tree.node_list=[]
+                TREE_addTree(TREE_getTreeAccordingToIndex(tree, index), temp_tree)
+            else
+                TREE_addTree(TREE_getTreeAccordingToIndex(tree, index), var_value_nl[i])
+            end
+            # eg x,y=12
+            # then x=12
+            #      y=none
+        end
+        
+        
+        return TRUE
+    end
+end
+
+def var_name(tree,tl) then
+    if INCOMPLETE_STATEMENT then
+        return FALSE
+    end
+    local index_of_comma=TL_indexOfTokenThatHasTokenString(tl, ",")
+    #var_name ',' var_name
+    if index_of_comma!=-1 then
+        int length_of_tl=tl.length
+        local tl1=tl[0:index_of_comma]
+        local tl2=tl[index_of_comma+1:length_of_tl]
+     
+        return var_name(tree, tl1)
+        and var_name(tree, tl2)
+    
+    else
+        local length_of_tl=TL_length(tl)
+        # id
+        if length_of_tl==1 then
+            if ("id"==tl[0].TOKEN_CLASS then
+                TREE_addNode(tree, tl[0].TOKEN_STRING,"id")
+                return TRUE    
+            else
+                return FALSE
+            end
+        # table_value
+        else
+            return table_value(tree, tl)
+        end
+    end
+    return FALSE
+end
+
+# where ',' is the , not inside def if elif else for while
+def var_value(tree,tl) then
+   
+    
+    if INCOMPLETE_STATEMENT==TRUE then
+        return FALSE
+    end
+    local length_of_tl=tl.length
+    local index_of_comma=-1
+    
+    local i=0
+    local count=0
+
+    for i<length_of_tl,i=i+1 then
+        if term(tl[i].TOKEN_STRING, "def")
+            or term(tl[i].TOKEN_STRING, "for")
+            or term(tl[i].TOKEN_STRING, "if")
+            or term(tl[i].TOKEN_STRING, "while")
+            or term(tl[i].TOKEN_STRING, "(") then
+            count=count+1
+        end
+        if term(tl[i].TOKEN_STRING, "end")
+            or term(tl[i].TOKEN_STRING, ")") then
+            count=count-1
+        end
+        if count==0 and term(tl[i].TOKEN_STRING, ",") then
+            index_of_comma=i
+            break
+        end
+    end
+    if count!=0 then
+        INCOMPLETE_STATEMENT=TRUE
+        return FALSE
+    end
+        
+    #value,var_value
+    if index_of_comma!=-1 then
+        local tl1=tl[0:index_of_comma]
+        local tl2=tl[index_of_comma+1:length_of_tl]
+        
+        local index_of_tl1=TREE_INDEX
+        TREE_addNode(tree, "value", "")
+        
+        
+        return value(TREE_getTreeAccordingToIndex(tree, index_of_tl1), tl1)
+        and var_value(tree,tl2)
+    
+    #value
+    else
+        
+        local index_of_tl=TREE_INDEX
+        TREE_addNode(tree,"value","")
+
+        return value(TREE_getTreeAccordingToIndex(tree, index_of_tl), tl)
+    end
+end
+
+
+#= walley_assignment_function.wy
+def func_assign(tree, tl) then
+    if INCOMPLETE_STATEMENT==TRUE then
+        return FALSE
+    end
+    local length_of_tl=tl.length
+    if length_of_tl>=4 and term(tl[0].TOKEN_STRING, "def") and term(tl[1].TOKEN_STRING, "(") then
+        # find )
+        local index_of_right=-1
+        local count=0
+        local i=0
+        for i<length_of_tl,i=i+1 then
+            if term(tl[i].TOKEN_STRING,"(") then
+                count=count+1
+            end
+            if term(tl[i].TOKEN_STRING,")") then
+                count=count-1
+                if count==0 then
+                    index_of_right=i
+                    break
+                end
+            end
+        end
+
+        if index_of_right==-1 then
+            INCOMPLETE_STATEMENT=TRUE
+            printf("INCOMPLETE_STATEMENT func_assign\n")
+            exit(0)
+        else
+            TREE_addNode(tree, "def", "")
+            local index=TREE_INDEX
+            TREE_addNode(tree, "params", "")
+            
+            local params_tl=none
+            # has params
+            if index_of_right!=2 then
+                params_tl=tl[2:index_of_right]
+            # does not have params
+            else
+                params_tl=[]
+                local add_token=Token.init()
+                add_token.TOKEN_CLASS="id"
+                add_token.TOKEN_STRING="none"
+                params_tl.append(add_token)
+            end     
+            return params(TREE_getTreeAccordingToIndex(tree, index), params_tl)
+        end
+    end 
+    return FALSE
+end
+
+# return_stm -> 'return' value;
+def return_stm(tree, tl) then
+    if INCOMPLETE_STATEMENT == TRUE
+        return FALSE
+    end
+
+    local length_of_tl=tl.length
+    if length_of_tl>=2 and term(tl[0].TOKEN_STRING, "return") then
+        local index1=TREE_INDEX
+        TREE_addNode(tree, "return", "")
+        local index2=TREE_INDEX
+        TREE_addNode(TREE_getTreeAccordingToIndex(tree, index1), "value", "")
+        
+        return value(TREE_getTreeAccordingToIndex(tree, index2),TL_subtl(tl, 1, length_of_tl))
+    end
+    return FALSE
+end
+
+
+# func_value -> func_assign walley_statements 'end'
+def func_value(TREE *tree, Token_List *tl) then
+    if INCOMPLETE_STATEMENT == TRUE
+        return FALSE
+    end
+    local length_of_tl=tl.length
+    if term(tl[0].TOKEN_STRING, "def") and term(tl[length_of_tl-1].TOKEN_STRING, "end") then
+        tree.name="func_value"
+        tree.token_class=""
+
+        local index_of_then=TL_indexOfTokenThatHasTokenString(tl, "then")
+        if index_of_then==-1 then
+            INCOMPLETE_STATEMENT=TRUE
+            return FALSE
+        end
+        
+               
+       
+        return func_assign(tree, tl[0:index_of_then+1])
+        and walley_statements(tree, tl[index_of_then+1:length_of_tl-1])
+        and end_stm(tree, tl[length_of_tl-1:length_of_tl)]
+    end
+    return FALSE;
+end
+
+#= walley_function.wy
+def params(tree, tl)then
+    if INCOMPLETE_STATEMENT == TRUE
+        return FALSE
+    end
+    # has no params
+    if tl==[] then
+        return TRUE
+    end
+    local length_of_tl=tl.length
+    local index_of_comma=-1
+    local count=0
+    local i=0
+    for i=0,i<length_of_tl,i=i+1 then
+        if term(tl[i].TOKEN_STRING,"(") then
+            count=count+1
+            continue
+        end
+        if term(tl[i].TOKEN_STRING,")") then
+            count=count-1
+            continue
+        end
+        if count==0 and term(tl[i].TOKEN_STRING,",") then
+            index_of_comma=-1
+            break
+        end
+    end        
+    # -> assignment
+    # -> value
+    if index_of_comma==-1 then
+        
+        if assignment(tree, tl)==TRUE then
+            return TRUE
+        else
+                    
+            local index=TREE_INDEX
+            TREE_addNode(tree, "value", "")
+            
+            return value(TREE_getTreeAccordingToIndex(tree, index), tl)
+        end
+    # -> assignment ',' params
+    # -> value ',' params
+    else
+        
+        local tl1=tl[0:index_of_comma]
+        local tl2=tl[index_of_comma+1:length_of_tl]
+        
+        if assignment(tree, tl1)==TRUE then
+            return params(tree, tl2)
+        else
+            local index_of_tl1=TREE_INDEX
+            TREE_addNode(tree, "value","")
+            return value(TREE_getTreeAccordingToIndex(tree, index_of_tl1), tl1)
+             and params(tree,tl2)
+        end
+    end
+end
+
+def func(tree, tl) then
+          
+    if INCOMPLETE_STATEMENT == TRUE
+        return FALSE
+    end
+
+    local length_of_tl=tl.length
+    # id '(' params ')'
+    local index_of_left=TL_indexOfTokenThatHasTokenString(tl, "(")
+    local index_of_right=length_of_tl-1
+    
+    # false
+    if tl[length_of_tl-1].TOKEN_STRING==")" or index_of_left==-1 or index_of_left==0 them
+        return FALSE
+    else
+        local test_id=tl[0:index_of_left]
+        local params_tl=[]
+        # no params
+        if index_of_left+1==index_of_right then   
+            params_tl=[]
+        # has params
+        else
+            params_tl=tl[index_of_left+1:index_of_right]
+        end
+        
+
+        
+        local length_of_test_id=test_id.length
+        if length_of_test_id!=1 or test_id[0].TOKEN_CLASS!="id" then
+            return FALSE
+        end
+
+        
+        tree.name="func"
+        tree.token_class=""
+        TREE_addNode(tree, "", "call")
+        TREE_addNode(TREE_getTreeAccordingToIndex(tree, TREE_INDEX-1),toString(test_id[0].TOKEN_STRING), "string")
+        local index=TREE_INDEX
+        TREE_addNode(tree, "params", "")
+        
+        return params(TREE_getTreeAccordingToIndex(tree, index), params_tl)
+    end
+end
+
+#= walley_judge.wy
+
+def relation(tree, tl) then
+    if INCOMPLETE_STATEMENT == TRUE then
+        return FALSE
+    end
+    
+    local length_of_tl=tl.length
+
+    local i=length_of_tl-1
+    local count=0
+    local index_of_and_or=-1
+    for i>=0, i=i-1 then
+        if term(tl[i].TOKEN_STRING, "(") then
+            count=count+1
+            continue
+        end
+        if term(tl[i].TOKEN_STRING, ")") then
+            count=count-1
+            continue
+        end
+        # |relation 'and' relation
+        # |relation 'or'  relation
+        if count==0 and term(tl[i].TOKEN_CLASS, "relation") and strcmp(tl[i].TOKEN_STRING, "not")!=0 then
+            index_of_and_or=i
+            
+            local and_or_string=tl[i].TOKEN_STRING
+            
+            local tl1=tl[0:index_of_and_or]
+            local tl2=tl[index_of_and_or+1:length_of_tl]
+            
+            local index=TREE_INDEX
+            TREE_addNode(tree, and_or_string,"")
+            local index1=TREE_INDEX
+            TREE_addNodeAtIndex(tree,index, "relation", "")
+            local index2=TREE_INDEX
+            TREE_addNodeAtIndex(tree, index, "relation", "")
+            
+            return relation(TREE_getTreeAccordingToIndex(tree, index1), tl1)
+            and relation(TREE_getTreeAccordingToIndex(tree, index2), tl2)            
+        end
+    end
+    
+    # |not relation
+    if term(tl[0].TOKEN_STRING, "not") then
+        TREE_addNode(tree, "not", "")
+        local index=TREE_INDEX
+        TREE_addNodeAtIndex(tree, index-1, "relation", "")
+        return relation(TREE_getTreeAccordingToIndex(tree, index), tl[1:length_of_tl])
+    end
+    return simple_relation(tree, tl)
+end
+
+
+def simple_relation(tree,tl) then
+    if INCOMPLETE_STATEMENT == TRUE then
+        return FALSE
+    end
+
+    local length_of_tl=tl.length
+    
+    #'(' relation ')'
+    if term("(", tl[0]TOKEN_STRING) and term(")",tl[length_of_tl-1].TOKEN_STRING) then
+        return relation(tree, tl[1:length_of_tl-1])
+    # value judge_sign value
+    # expr
+    else
+        tree.name="simple_relation"
+        
+        local index_of_judge_sign=TL_indexOfTokenThatHasTokenClass(tl, "judge_sign")
+        
+        # expr
+        if index_of_judge_sign==-1 then
+            return expr(tree, tl)
+        end
+        
+        # value judge_sign value
+        local tl1=tl[0:index_of_judge_sign]
+        local tl2=tl[index_of_judge_sign+1:length_of_tl]
+        
+        local judge_sign=tl[index_of_judge_sign].TOKEN_STRING;
+        
+        # swap tl1 and tl2
+        # and change judge sign
+        # for virtual machine
+        if term(">=", judge_sign) or term(">", judge_sign) then
+            local temp_tl=tl1;
+            tl1=tl2
+            tl2=temp_tl
+            if term(">=", judge_sign) then
+                judge_sign="<="
+            else
+                judge_sign="<"
+            end
+        end
+        
+        local index=TREE_INDEX
+        TREE_addNode(tree, judge_sign, "")
+        
+        local temp_tree=TREE_getTreeAccordingToIndex(tree, index)
+        
+        local index1=TREE_INDEX
+        TREE_addNode(temp_tree, "value", "")
+        local index2=TREE_INDEX
+        TREE_addNode(temp_tree, "value", "")
+        return value(TREE_getTreeAccordingToIndex(tree, index1), tl1)
+         and value(TREE_getTreeAccordingToIndex(tree, index2), tl2)
+
+    end    
+    return FALSE
+end
+
+
+
+
+#= walley_statements.wy
+
+def if_stms(tree, tl) then
+    if INCOMPLETE_STATEMENT==TRUE
+        return FALSE
+    end
+
+    local length_of_tl=tl.length
+    
+    #if_stms -> 'if' relation 'then' walley_statements 'end'
+    if term(tl[0].TOKEN_STRING, "if") then
+        int index_of_then=TL_indexOfTokenThatHasTokenString(tl, "then")
+        if index_of_then==-1 then
+            INCOMPLETE_STATEMENT=TRUE
+            return FALSE
+        end
+        
+        if term(tl[length_of_tl-1].TOKEN_STRING, "end") and length_of_tl>2 then
+            local relation_tl=tl[1:index_of_then]
+            TREE_addNode(tree, "if", "")
+            local index=TREE_INDEX
+            TREE_addNode(tree, "relation", "")
+            return relation(TREE_getTreeAccordingToIndex(tree, index), relation_tl) and walley_statements(tree, tl[index_of_then+1:length_of_tl-1])
+        
+        # incomplete
+        else
+            INCOMPLETE_STATEMENT=TRUE
+            return FALSE
+        end
+    end
+    return FALSE
+end
+
+def elif_stms(TREE *tree, Token_List *tl){
+    if INCOMPLETE_STATEMENT==TRUE
+        return FALSE
+    end
+
+    local length_of_tl=tl.length
+    # elif_stms -> 'elif' relation 'then' walley_statements 'end'
+    if term(tl[0].TOKEN_STRING, "elif") then
+        local index_of_then=TL_indexOfTokenThatHasTokenString(tl, "then")
+        if index_of_then==-1 then
+            INCOMPLETE_STATEMENT=TRUE
+            return FALSE
+        end
+        if term(tl[length_of_tl-1].TOKEN_STRING, "end") and length_of_tl>2 then
+            local relation_tl=tl[1:index_of_then]
+            
+            TREE_addNode(tree, "elif", "")
+            local index=TREE_INDEX
+            TREE_addNode(tree, "relation", "")
+            return relation(TREE_getTreeAccordingToIndex(tree, index), relation_tl)
+             and walley_statements(tree, tl[index_of_then+1:length_of_tl-1])
+        # incomplete
+        else
+            INCOMPLETE_STATEMENT=TRUE
+            return FALSE
+        end
+    end
+    return FALSE;
+end
+
+def else_stms(TREE *tree, Token_List *tl) then
+    if INCOMPLETE_STATEMENT==TRUE
+        return FALSE
+    end
+    local length_of_tl=tl.length
+
+    # 'else'
+    if term(tl[0].TOKEN_STRING, "else") then
+        if term(tl[length_of_tl-1].TOKEN_STRING, "end") then
+            TREE_addNode(tree, "else", "")
+            return walley_statements(tree, tl[1:length_of_tl-1])
+        else
+            INCOMPLETE_STATEMENT=TRUE
+            return FALSE
+        end
+    end
+    return FALSE
+end
+
+def while_stms(tree, tl) then
+    if INCOMPLETE_STATEMENT==TRUE then
+        return FALSE
+    end
+    local length_of_tl=tl.length
+    #'while' relation 'then'
+    if term(tl[0].TOKEN_STRING, "while") then
+        local index_of_then=TL_indexOfTokenThatHasTokenString(tl, "then")
+        if index_of_then==-1 then
+            INCOMPLETE_STATEMENT=TRUE
+            return FALSE
+        end
+        
+        if term(TL_tokenAtIndex(tl, length_of_tl-1).TOKEN_STRING, "end") &&length_of_tl>2 then
+            local relation_tl=tl[1:index_of_then]
+
+            TREE_addNode(tree, "while", "")
+            local index=TREE_INDEX
+            TREE_addNode(tree, "relation", "")
+            return relation(TREE_getTreeAccordingToIndex(tree, index), relation_tl)
+                and walley_statements(tree, tl[index_of_then+1:length_of_tl-1])
+                and end_stm(tree, tl[length_of_tl-1:length_of_tl])
+        # incomplete
+        else
+            INCOMPLETE_STATEMENT=TRUE
+            return FALSE
+        end
+    end
+    return FALSE
+end
+
+def for_stms(tree,tl) then
+    if term(tl[0].TOKEN_STRING, "for")==FALSE then
+        return FALSE
+    end
+    if INCOMPLETE_STATEMENT==TRUE then
+        return FALSE
+    end
+    
+    local length_of_tl=tl.length
+    
+    
+     
+    # check 
+    # |  'for' id ',' id 'in' value 'then' walley_statements 'end'
+    # |  'for' id        'in' value 'then' walley_statements 'end'
+    # assume it is correct
+    if term(tl[4].TOKEN_STRING, "in") and term(tl[2].TOKEN_STRING, "in") then
+        local index_of_then=-1
+        # check then index;
+        local i=0
+        for i<length_of_tl,i=i+1 then
+            if term(tl[i].TOKEN_STRING,"then") then
+                index_of_then=i
+                break
+            end
+        end
+        
+        TREE_addNode(tree, "foreach", "")
+        
+        # for i,v in x
+        # check i error
+        if term(tl[1].TOKEN_CLASS, "id")==FALSE then
+            Walley_Print_Error(TL_toString(tl), "for each statements error, for i,v in value, i,v must be id", tl[1].TOKEN_START)
+        end
+        
+        # add i
+        TREE_addNode(tree, tl[1].TOKEN_STRING, "foreach_index")
+        
+        if term(tl[2].TOKEN_STRING, ",") then
+            # check v error
+            if (term(tl[3].TOKEN_CLASS, "id")==FALSE then
+                Walley_Print_Error(TL_toString(tl), "for each statements error, for i,v in value, i,v must be id", tl[3].TOKEN_START)
+            end
+            
+            # add v
+            TREE_addNode(tree, tl[3].TOKEN_STRING, "foreach_value")
+            #tl=tl->next->next->next->next->next # value
+            
+            # add in value
+            int index=TREE_INDEX;
+            TREE_addNode(tree, "", "foreach_in");
+            TREE_addNode(TREE_getTreeAccordingToIndex(tree, index), "value", "");
+            index=index+1
+            value(TREE_getTreeAccordingToIndex(tree, index),tl[5:index_of_then])
+        else
+            # add v
+            TREE_addNode(tree, "", "foreach_value");
+            #tl=tl->next->next->next; // value
+            
+            // add in value
+            local index=TREE_INDEX
+            TREE_addNode(tree, "", "foreach_in")
+            TREE_addNode(TREE_getTreeAccordingToIndex(tree, index), "value", "")
+            index=index+1
+            value(TREE_getTreeAccordingToIndex(tree, index), tl[3:index_of_then])
+        end
+        
+        return walley_statements(tree, tl[index_of_then+1:length_of_tl-1])
+         and end_stm(tree, TL_subtl(temp_tl, length_of_tl-1, length_of_tl))
+    end
+    
+    local num_of_comma=0
+    local count_of_p=0 # count of ()
+
+    local index_of_comma=[-1,-1,-1]
+        
+    local index=0
+    local i=0
+    
+    local index_of_then=-1
+    
+    for i<length_of_tl,i=i+1 then
+        if term(tl[i].TOKEN_STRING,"then") then
+            index_of_then=i
+            break
+        end
+
+        if term(tl[i].TOKEN_STRING,"(") then
+            count_of_p=count_of_p+1
+            continue
+        end
+
+        if term(tl[i].TOKEN_STRING,")") then
+            count_of_p=count_of_p-1
+            continue
+        end
+
+        if count_of_p==0 and term(tl[i].TOKEN_STRING,",") then
+            if index<2 then
+                index_of_comma[index]=i
+                index=index+1
+            end
+            num_of_comma=num_of_comma+1
+        end
+    end
+    
+    # incomplete
+    if index_of_then==-1 or term(tl[length_of_tl-1].TOKEN_STRING, "end")==FALSE then
+        INCOMPLETE_STATEMENT=TRUE
+        return FALSE
+    end
+    
+    if length_of_tl!=2
+        and num_of_semi_colon!=0
+        and num_of_semi_colon<=2
+        then
+        #|  'for' simple_relation ',' assignment 'then' walley_statements 'end'
+        if num_of_semi_colon==1 then
+            local simple_relation_tl=tl[1:index_of_comma[0]]
+            local assignment_tl=tl[index_of_comma[0]+1:index_of_then]
+        
+            TREE_addNode(tree, "for", "")
+            local index_of_sr=TREE_INDEX
+            TREE_addNode(tree, "simple_relation", "")
+            local index_of_a=TREE_INDEX
+            TREE_addNode(tree, "assignment", "")
+            
+            return simple_relation(TREE_getTreeAccordingToIndex(tree, index_of_sr), simple_relation_tl)
+            and assignment(TREE_getTreeAccordingToIndex(tree, index_of_a), assignment_tl)
+            and walley_statements(tree, tl[index_of_then+1:length_of_tl-1])
+            and end_stm(tree, tl[length_of_tl-1:length_of_tl])
+        
+        #|  'for' ',' simple_relation ',' assignment 'then' walley_statements 'end'
+        #|  'for' assignment ',' simple_relation ',' assignment 'then' walley_statements 'end'
+        else{
+            #|  'for' ',' simple_relation ',' assignment 'then' walley_statements 'end'
+            if term(tl[1].TOKEN_STRING, ",") then
+                local simple_relation_tl=tl[2:index_of_comma[1]]
+                local assignment_tl=tl[index_of_comma[1]+1:index_of_then]
+                
+                TREE_addNode(tree, "for", "")
+                local index_of_sr=TREE_INDEX
+                TREE_addNode(tree, "simple_relation", "")
+                local index_of_a=TREE_INDEX
+                TREE_addNode(tree, "assignment", "")
+                
+                return simple_relation(TREE_getTreeAccordingToIndex(tree, index_of_sr), simple_relation_tl)
+                and assignment(TREE_getTreeAccordingToIndex(tree, index_of_a), assignment_tl)
+                and walley_statements(tree, tl[index_of_then+1:length_of_tl-1])
+                and end_stm(tree, tl[length_of_tl-1:length_of_tl])
+            
+            #|  'for' assignment ',' simple_relation ',' assignment 'then' walley_statements 'end'
+
+            else
+                local assignment_tl1=tl[1:index_of_comma[0]]
+                local simple_relation_tl=tl[index_of_comma[0]+1:index_of_comma[1]]
+                local assignment_tl2=tl[index_of_comma[1]+1:index_of_then]
+                
+                TREE_addNode(tree, "for","")
+                local index_of_a_tl1=TREE_INDEX
+                TREE_addNode(tree, "assignment", "")
+                local index_of_sr=TREE_INDEX
+                TREE_addNode(tree, "simple_relation","")
+                local index_of_a_tl2=TREE_INDEX
+                TREE_addNode(tree, "assignment","")
+                
+                return assignment(TREE_getTreeAccordingToIndex(tree, index_of_a_tl1), assignment_tl1)
+                    and simple_relation(TREE_getTreeAccordingToIndex(tree, index_of_sr),simple_relation_tl)
+                    and assignment(TREE_getTreeAccordingToIndex(tree, index_of_a_tl2),assignment_tl2)
+                    and walley_statements(tree, tl[index_of_then+1:length_of_tl-1])
+                    and end_stm(tree, tl[length_of_tl-1:length_of_tl])
+            end
+        end
+    end
+    return FALSE
+emd
+
+def func_stms(tree, tl) then
+    if INCOMPLETE_STATEMENT==TRUE then
+        return FALSE
+    end
+    local length_of_tl=tl.length
+    #'def' func 'then'
+    if term(tl[0].TOKEN_STRING, "def") then
+        if length_of_tl>2 and term(tl[length_of_tl-1].TOKEN_STRING, "then") then
+            TREE_addNode(tree, "def", "")
+            
+            local func_tl=tl[1:length_of_tl-1]
+            
+            local index=TREE_INDEX
+            TREE_addNode(tree, "func","")
+            return func(TREE_getTreeAccordingToIndex(tree, index), func_tl)
+             and end_stm(tree, tl[length_of_tl-1:length_of_tl])
+        # incomplete 
+        else
+            INCOMPLETE_STATEMENT=TRUE
+            return FALSE
+        end
+    end
+    return FALSE
+end
+
+
+
+def end_stm(tree, tl) then
+    
+    if INCOMPLETE_STATEMENT==TRUE then
+        return FALSE
+    end
+
+    if tl.length==1 and term(tl[0].TOKEN_CLASS, "end") then
+        TREE_addNode(tree, "end","")
+        return TRUE
+    end
+    return FALSE
+end
+
+# def_stms -> 'def' func_name_stm '(' params ')' 'then' walley_statements 'end'
+def def_stms(TREE *tree, Token_List *tl) then
+    if INCOMPLETE_STATEMENT==TRUE then
+        return FALSE
+    end
+    local length_of_tl=tl.length
+
+    if term(tl[0].TOKEN_STRING, "def") && term(tl[1].TOKEN_STRING, "(")==FALSE then
+        local index_of_then=TL_indexOfTokenThatHasTokenString(tl, "then")
+        local index_of_left_bracket=TL_indexOfTokenThatHasTokenString(tl, "(")
+        if index_of_then==-1 then
+            INCOMPLETE_STATEMENT=TRUE
+            return FALSE
+        end
+        
+        if term(tl[length_of_tl-1].TOKEN_STRING, "end")==FALSE then
+            INCOMPLETE_STATEMENT=TRUE
+            return FALSE
+        end
+        
+        local new_tl=[]
+        local begin=1
+
+        local i=0
+        for i<index_of_left_bracket,i=i+1 then
+            if i>=begin then
+                new_tl.append(tl[i])
+            end
+        end
+
+        local add_token=Token.init()
+        add_token.TOKEN_STRING="="
+        add_token.TOKEN_CLASS="assignment_operator"
+        new_tl.append(add_token)
+       
+        
+        Token_List *new_tl;
+        TL_init(&new_tl);
+        
+        i=0;
+        for i=0, i<length_of_tl, i=i+1 then
+            if i>=begin and i<index_of_left_bracket then
+                continue
+            end
+            new_tl.append(tl[i])
+        end
+        
+        return assignment(tree, new_tl)
+    else
+        return FALSE
+    end
+end
+
+def statements(tree, tl) then
+    if INCOMPLETE_STATEMENT==TRUE then
+        return FALSE
+    end
+    return return_stm(tree, tl)
+        or if_stms(tree, tl)
+        or elif_stms(tree, tl)
+        or else_stms(tree, tl)
+        or while_stms(tree, tl)
+        or for_stms(tree, tl)
+        or def_stms(tree, tl)
+        or end_stm(tree, tl)
+        or assignment(tree, tl)
+        or value(tree, tl);
+end
+
+#walley_statements ->
+#| statements, statements        // use sentences_seperation
+def walley_statements(TREE *tree, Token_List *tl) then
+    if INCOMPLETE_STATEMENT==TRUE then
+        return FALSE
+    end
+   
+    local temp_tl=[val=[]]
+    local begin=[val=0]
+    
+    while sentences_seperation(tl, temp_tl, begin)==TRUE then
+        if INCOMPLETE_STATEMENT==TRUE then
+            return FALSE
+        end
+        
+        local index=TREE_INDEX
+        TREE_addNode(tree, "statements", "")
+        
+        if statements(TREE_getTreeAccordingToIndex(tree, index), temp_tl.val)==FALSE then
+            printf("Walley Statements Parse Error\n")
+            return FALSE
+        end
+    end
+    if INCOMPLETE_STATEMENT==TRUE then
+            return FALSE
+    end
+    return TRUE
+end
+
+# output_tl=[val=[]] 
+# begin=[val=0]
+# need to use .val
+def sentences_seperation(tl, output_tl,begin) then
+    local length_of_tl=tl.length
+    
+    if begin.val>=length_of_tl then
+        return FALSE
+    end
+    
+    i=begin.val
+
+    for  i<length_of_tl, i=i+1 then
+       
+        # from ( find )
+        if term(tl[i].TOKEN_STRING, "(") then
+            local index_of_right=-1
+            local count=0
+
+            for i<length_of_tl,i=i+1 then
+                if term(tl[i].TOKEN_STRING,"(") then
+                    count=count+1
+                elif term(tl[i].TOKEN_STRING,")") then
+                    count=count-1
+                    if count==0 then
+                        index_of_right=i
+                        break
+                    end
+                end
+            end
+                        
+            # did not find right
+            if index_of_right==-1 then
+                INCOMPLETE_STATEMENT=TRUE
+                return FALSE
+            else
+                local end_index=index_of_right+1
+                output_tl.val=temp_tl[begin.val,end_index]
+                begin.val=i+1
+                return TRUE
+            end
+        end
+        
+        # x=1 y=2 ->
+        # x=1
+        # y=2
+        if i<length_of_tl-1 and (term(tl[i].TOKEN_CLASS, "num") or term(tl[i].TOKEN_CLASS, "string") or term(tl[i].TOKEN_CLASS, "id") or term(tl[i].TOKEN_CLASS, "list_table") or term(tl[i].TOKEN_STRING, ")"))
+            and (term(tl[1+i].TOKEN_CLASS, "id") ||term(tl[1+i].TOKEN_CLASS, "num")
+                or term(tl[i+1].TOKEN_CLASS, "return")||term(tl[i+1].TOKEN_STRING, "continue")||term(tl[1+i].TOKEN_STRING, "break")) then
+            local end_index=i+1
+            local ahead_tl=temp_tl[begin.val:end_index]
+            output_tl.val=ahead_tl
+            begin.val=end_index
+            return TRUE
+        end
+        
+        # find end corresponding to that def
+        # def (num1,num2) return num1+num2 end
+        # then set i to that end
+        if term(tl[i].TOKEN_STRING, "def") or
+            term(tl[i].TOKEN_STRING, "for") or 
+            term(tl[i].TOKEN_STRING, "while") then
+            
+            # return ahead Token_List
+            if begin.val!=i then
+                if term(tl[i].TOKEN_STRING, "def") and term(tl[1].TOKEN_STRING, "(") then
+                   #nothing 
+                else
+                    local end_index=i
+                    local ahead_tl=temp_tl[begin.val:end_index]
+                
+                    begin.val=end_index
+                    output_tl.val=ahead_tl
+                    return TRUE
+                end
+            end
+            
+            local count=0
+            for i<length_of_tl, i=i+1 then
+                if term(tl[i].TOKEN_STRING, "def")
+                    or term(tl[i].TOKEN_STRING, "for")
+                    or term(tl[i].TOKEN_STRING, "if")
+                    or term(tl[i].TOKEN_STRING, "while") then
+                    count=count+1
+                end
+                if term(tl[i].TOKEN_STRING, "end") then
+                    count=count-1
+                end
+                if count==0 then
+                    break
+                end
+            end
+            
+            if count==0 then
+                local end_index=i+1
+                local ahead_tl=temp_tl[begin.val:end_index]
+                output_tl.val=ahead_tl
+                begin.val=end_index
+                return TRUE
+            else
+                INCOMPLETE_STATEMENT=TRUE
+                return FALSE
+            end
+        end
+        
+        
+        # find 'end' or 'elif' or 'else'
+        # if no 'end' found--- incomplete
+        # if find 'elif' or 'else', add 'end' manually
+        if term(tl[i].TOKEN_STRING, "if") then 
+            # return ahead Token_List
+            if begin.val!=i then
+                
+                local end_index=i
+                local ahead_tl=temp_tl[begin.val,end_index]
+                begin.val=end_index
+                output_tl.val=ahead_tl
+                return TRUE
+            end
+            
+            
+            local count_of_if=0
+            local count_of_end=0
+            for  i<length_of_tl,i=i+1 then
+                if term(tl[i].TOKEN_STRING, "if") then
+                    count_of_if=count_of_if+1
+                    count_of_end=count_of_end+1
+                end
+                
+                if term(tl[i].TOKEN_STRING, "end") then
+                    count_of_if=count_of_if-1
+                    count_of_end=count_of_end-1
+                end
+                
+                if count_of_end==0 then
+                    break
+                end
+                
+                if count_of_if==1 &&
+                    (term(tl[i].TOKEN_STRING, "elif")
+                     or term(tl[i].TOKEN_STRING, "else"))
+                    then
+                    
+                    local end_index=i
+                    local ahead_tl=temp_tl[begin.val:end_index]
+                    local end_token=Token.init()
+                    end_token.TOKEN_STRING="end"
+                    end_token.TOKEN_CLASS="end"
+                    ahead_tl.append(end_token)
+                    
+                    begin.val=end_index
+                    output_tl.val=ahead_tl
+                    
+                    return TRUE
+                end
+            end
+            
+            # incomplete
+            if count_of_if!=count_of_end or count_of_if!=0 then
+                INCOMPLETE_STATEMENT=TRUE
+                return FALSE
+            # complete
+            #~
+             eg: 
+             if x>0 then
+                if x>3 then
+                    x=12
+                end
+             end
+             
+            ~# 
+            else
+                local end_index=i+1
+                local ahead_tl=temp_tl[begin.val:end_index]
+                
+                begin.val=end_index-1
+                output_tl.val=ahead_tl
+                return TRUE
+            end
+        end
+        
+        # elif
+        if term(tl[i].TOKEN_STRING, "elif") then
+            local count_of_if=0
+            local count_of_end=0
+            local temp_i=i
+            for  i<length_of_tl, i=i+1 then
+                if term(tl[i].TOKEN_STRING, "if") then
+                    count_of_if=count_of_if+1
+                    count_of_end=count_of_end+1
+                end
+                
+                if term(tl[i].TOKEN_STRING, "end") then
+                    count_of_end=count_of_end-1
+                    count_of_if=count_of_if-1
+                end
+                
+                # find elif or else
+                if count_of_if==0 and i!=temp_i and
+                    ( term(tl[i].TOKEN_STRING, "elif")||
+                     term(tl[i].TOKEN_STRING, "else")
+                     )
+                    then
+                    local end_index=i;
+                    local ahead_tl=temp_tl[begin.val:end_index]
+                    
+                    local end_token=Token.init()
+                    end_token.TOKEN_STRING="end"
+                    end_token.TOKEN_CLASS="end"
+                    ahead_tl.append(end_token)
+                    
+                    begin.val=end_index
+                    output_tl.val=ahead_tl
+                    return TRUE
+                end
+                # elif then ... end
+                if count_of_end==-1 and count_of_if==-1 then
+                    local end_index=i+1
+                    local ahead_tl=temp_tl[begin.val:end_index]
+                    
+                    begin.val=end_index-1
+                    output_tl.val=ahead_tl
+                    return TRUE
+                end
+            end
+            
+            # incomplete
+            INCOMPLETE_STATEMENT=TRUE
+            return FALSE
+    
+            
+        end
+        
+        # else
+        if term(tl[i].TOKEN_STRING, "else") then
+            local count_of_if=0
+            local count_of_end=0
+            local temp_i=i
+            for i<length_of_tl,i=i+1 then
+                if term(tl[i].TOKEN_STRING, "if") then
+                    count_of_if=count_of_if+1
+                    count_of_end=count_of_end+1
+                end
+                if term(tl[i].TOKEN_STRING, "end") then
+                    count_of_if=count_of_if-1
+                    count_of_end=count_of_end-1
+                end
+                
+                #error
+                if count_of_if==0 and i!=temp_i and(term(tl[i].TOKEN_STRING, "elif") or term(tl[i].TOKEN_STRING, "else")) then
+                    Walley_Print_Error(TL_toString(temp_tl), "elif or else statements error", tl[i].TOKEN_START)
+                end
+                
+                # finish else
+                if count_of_end==-1 then
+                    local end_index=i+1
+                    local ahead_tl=temp_tl[begin.val:end_index]
+                    
+                    begin.val=end_index-1
+                    output_tl.val=ahead_tl
+                    return TRUE
+
+                end
+            end
+            
+            INCOMPLETE_STATEMENT=TRUE
+            return FALSE
+        end
+    
+        # end->
+        # end
+        if term(tl[i].TOKEN_STRING, "end") then
+            local end_index=i;
+            if begin.val<i then
+                local ahead_tl=temp_tl[begin.val:end_index]
+                
+                begin.val=end_index
+                output_tl.val=ahead_tl
+                return TRUE
+            
+            else
+                begin.val=end_index
+            end
+            
+            
+            end_index=i+1
+            local ahead_tl=temp_tl[begin.val:end_index]
+            
+            begin.val=end_index
+            output_tl.val=ahead_tl
+            return TRUE
+        end
+    end
+    if begin.val<length_of_tl then
+        local ahead_tl=temp_tl[begin.val:length_of_tl]
+       
+        begin.val=length_of_tl
+        output_tl.val=ahead_tl
+        return TRUE
+    end
+    
+    return FALSE
+end
+
+#= walley_parser.wy
+
+# Generate AST
+TREE parser(tl) then
+    # reset TREE_INDEX value
+    TREE_INDEX=0
+    
+    local output_tree=TREE.init("walley_statements")
+    
+    if tl==[] then
+        return output_tree
+    end
+
+    if walley_statements(output_tree, tl)==FALSE && INCOMPLETE_STATEMENT==FALSE then
+        console.log("Fail to parse statements\n")
+    end
+
+    TREE_print(output_tree)
+    
+     
+    return output_tree
+end
+
+
+
+
+
+
 
 
 
