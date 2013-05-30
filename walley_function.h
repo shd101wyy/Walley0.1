@@ -111,17 +111,40 @@ bool params(TREE *tree, Token_List *tl){
 }
 
 bool func(TREE *tree, Token_List *tl){
-          
+       
     if (INCOMPLETE_STATEMENT) {
         return FALSE;
     }
     int length_of_tl=TL_length(tl);
     // id '(' params ')'
     int index_of_left=TL_indexOfTokenThatHasTokenString(tl, "(");
-    int index_of_right=length_of_tl-1;
+    int index_of_right=-1; // get right )
+    
+    Token_List *temp_tl=tl;
+    int i=0;
+    int count=0;
+    while (temp_tl!=NULL) {
+        if (term(temp_tl->current_token.TOKEN_STRING, "(")) {
+            count++;
+        }
+        else if (term(temp_tl->current_token.TOKEN_STRING, ")")){
+            count--;
+            if (count==0) {
+                index_of_right=i;
+                break;
+            }
+        }
+        i=i+1;
+        temp_tl=temp_tl->next;
+    }
+    
+    if (index_of_right==-1) {
+        INCOMPLETE_STATEMENT=TRUE;
+        return FALSE;
+    }
     
     // false
-    if (strcmp(TL_tokenAtIndex(tl, length_of_tl-1).TOKEN_STRING,")")!=0||index_of_left==-1||index_of_left==0) {
+    if (index_of_right+1!=length_of_tl||index_of_left==-1||index_of_left==0) {
         return FALSE;
     }
     else{        

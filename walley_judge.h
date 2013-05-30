@@ -80,7 +80,6 @@ if x==1 and x==2:
                y  z  x  z
 */
 bool relation(TREE *tree, Token_List *tl){
-
     
     if (INCOMPLETE_STATEMENT) {
         return FALSE;
@@ -146,6 +145,7 @@ bool relation(TREE *tree, Token_List *tl){
 
 
 bool simple_relation(TREE *tree, Token_List *tl){
+    
     if (INCOMPLETE_STATEMENT) {
         return FALSE;
     }
@@ -168,8 +168,11 @@ bool simple_relation(TREE *tree, Token_List *tl){
         
         // expr
         if (index_of_judge_sign==-1) {
-            //int index=TREE_INDEX;
-            //TREE_addNode(tree, "value", "");
+            
+            //printf("1=====\n");
+            //TL_print(tl);
+            //exit(0);
+            
             return expr(tree, tl);
         }
         

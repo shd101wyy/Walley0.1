@@ -1,11 +1,2 @@
-def TREE_print(tree) then
-    console.log("(%s %s",tree.token_class,tree.name)
-    local length_of_node_list=tree.node_list.length
-
-    if length_of_node_list!=0 then
-        for i=0,i<length_of_node_list,i=i+1 then
-            TREE_print(nl[i])
-        end
-    end
-    console.log(")")
-end
+return value(TREE_getTreeAccordingToIndex(tree, index_of_tl1), tl1) and elements(tree, tl2)
+    

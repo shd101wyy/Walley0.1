@@ -979,6 +979,11 @@ def table_value(tree, tl) then
         if index==length_of_tl-1 then
             return FALSE
         end
+
+        # fix 'a() and b()' bug
+        if term(tl[i+1].TOKEN_CLASS, "relation") then
+            return FALSE
+        end
         
         local tree_index=TREE_INDEX
         TREE_addNode(tree, "table_value", "")
@@ -1776,10 +1781,29 @@ def func(tree, tl) then
     local length_of_tl=tl.length
     # id '(' params ')'
     local index_of_left=TL_indexOfTokenThatHasTokenString(tl, "(")
-    local index_of_right=length_of_tl-1
+    local index_of_right=-1 # find )
+
+    local i=0
+    local count=0
+    for i<length_of_tl,i=i+1 then
+        if term(tl[i].TOKEN_STRING,"(") then
+            count=count+1
+        elif term(tl[i].TOKEN_STRING,")") then
+            count=count-1
+            if count==0 then
+                index_of_right=i
+                break
+            end
+        end
+    end
+
+    if index_of_right==-1 then
+        INCOMPLETE_STATEMENT=TRUE
+        return FALSE
+    end
     
     # false
-    if tl[length_of_tl-1].TOKEN_STRING==")" or index_of_left==-1 or index_of_left==0 them
+    if index_of_right+1!=length_of_tl or index_of_left==-1 or index_of_left==0 them
         return FALSE
     else
         local test_id=tl[0:index_of_left]
@@ -2385,6 +2409,9 @@ def sentences_seperation(tl, output_tl,begin) then
             if index_of_right==-1 then
                 INCOMPLETE_STATEMENT=TRUE
                 return FALSE
+            # solve return a() and b() problem
+           elif i+1<tl.length and (term(tl[i+1].TOKEN_STRING, "and") or term(tl[i+1].TOKEN_STRING, "or")) then
+                 continue
             else
                 local end_index=index_of_right+1
                 output_tl.val=tl[begin.val,end_index]

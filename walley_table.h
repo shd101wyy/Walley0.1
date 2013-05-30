@@ -378,8 +378,14 @@ bool table_value(TREE *tree, Token_List *tl){
             i++;
         }
         
+        
         // fix 'add(3,4)' bug
         if (index==length_of_tl-1) {
+            return FALSE;
+        }
+        
+        // fix 'a() and b()' bug
+        if (term(temp_tl->next->current_token.TOKEN_CLASS, "relation")) {
             return FALSE;
         }
         
