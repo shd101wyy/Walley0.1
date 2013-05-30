@@ -122,7 +122,7 @@ Str_List *Compile_to_JS(char *file_name){
                 INCOMPLETE_STATEMENT=FALSE;
                 
                 temp_string=append(temp_string, sl_in_file->string_content);
-                temp_string=append(temp_string, "\n ");
+                temp_string=append(temp_string, " \n ");
                 
                 input_str=temp_string;
                 

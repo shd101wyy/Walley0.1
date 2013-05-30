@@ -309,7 +309,7 @@ def Walley_Analyze_Token_Class(input_str, i) then
     end
     
     # end
-    if match(input_str, i, "end") then
+    if match(input_str, i, "end") and (i+3>=length or input_str[i+3]==' ') then
        	end_index=i+3
        	return_obj[0]=end_index
        	return_obj[1]="end" 
@@ -398,7 +398,7 @@ def Walley_Analyze_Token_Class(input_str, i) then
     end
     
     # 12 digit
-    if isdigit(input_str[i]) then
+    if isdigit(input_str[i])==TRUE then
         local a=i+1
         local find_dot=FALSE
         local index_of_first_dot=-1
@@ -426,7 +426,7 @@ def Walley_Analyze_Token_Class(input_str, i) then
                 break
             end
         end
-        if find_dot==TRUE  and  !isdigit(input_str[index_of_first_dot+1]) then
+        if find_dot==TRUE  and  isdigit(input_str[index_of_first_dot+1])==FALSE then
             end_index=index_of_first_dot
             return_obj[0]=end_index
             return_obj[1]="num"
@@ -520,7 +520,7 @@ def Walley_Lexical_Analyzie(input_str) then
         # annotation #
         if token_class=="annotation" then
              #find \n or length_of_input_str
-            for i=end, i<length, i=i+1 then
+            for i=end_index, i<length, i=i+1 then
                  if input_str[i]=="\n" then
                      break
                  end
@@ -603,7 +603,7 @@ def TREE_init(name) then
 end
 
 def TREE_addNode(tree, name, token_class) then
-    local index=TREE_INDEX;
+    local index=TREE_INDEX
     # initiate node_list
     if tree.node_list==[]
         # empty node_list
@@ -627,7 +627,7 @@ def TREE_addNode(tree, name, token_class) then
 end
 
 def TREE_addTree(tree, add_tree) then
-    local index=TREE_INDEX;
+    local index=TREE_INDEX
     # initiate node_list
     if tree.node_list==[] then    
         tree.node_list[0]=add_tree
@@ -680,7 +680,7 @@ def TREE_print(TREE tree) then
     
     
     if (length_of_node_list!=0) then
-        local i=0;
+        local i=0
         local nl=tree.node_list
         for i=0,i<length_of_node_list,i=i+1 then
             TREE_print(nl[i])
@@ -741,8 +741,8 @@ def value(tree, tl) then
 
     # (null)
     if length_of_tl==0 then
-        tree.name="none";
-        tree.token_class="id";
+        tree.name="none"
+        tree.token_class="id"
         return TRUE
     elif length_of_tl==1 then
         #   num
@@ -751,14 +751,14 @@ def value(tree, tl) then
         if "num"==tl[0].TOKEN_CLASS
             or "string"==tl[0].TOKEN_CLASS
             or "id"==tl[0].TOKEN_CLASS then
-            tree.name=tl[0].TOKEN_STRING;
+            tree.name=tl[0].TOKEN_STRING
             tree.token_class=tl[0].TOKEN_CLASS
             return TRUE
         # | list
         # | table
         elif "list_table"==tl[0].TOKEN_CLASS then
-            tree.name=tl[0].TOKEN_STRING;
-            tree.token_class="table";
+            tree.name=tl[0].TOKEN_STRING
+            tree.token_class="table"
 
             # I changed key_index here to object
             local key_index=[val=0]
@@ -772,7 +772,7 @@ def value(tree, tl) then
     # relation
     # expr
     else 
-        return func_value(tree, tl) or table_value(tree, tl) or func(tree, tl) or relation(tree,tl) or expr(tree, tl);
+        return func_value(tree, tl) or table_value(tree, tl) or func(tree, tl) or relation(tree,tl) or expr(tree, tl)
     end
 end
 
@@ -837,16 +837,16 @@ def table_expr(tree,tl,key_index) then
         local key_tree=TREE_init("key")
         value(key_tree, key_tl)
         
-        TREE_addTree(TREE_getTreeAccordingToIndex(tree, index1),key_tree);
+        TREE_addTree(TREE_getTreeAccordingToIndex(tree, index1),key_tree)
 
         local index2=TREE_INDEX
-        TREE_addNode(tree, "value", "");
+        TREE_addNode(tree, "value", "")
         return value(TREE_getTreeAccordingToIndex(tree, index2), TL_subtl(tl, 2, length_of_tl))
     #              0           1       2
     #    |'[' (string|int) ']' '=' (value)
     elif term(tl[0].TOKEN_CLASS, "list_table") and tl->next!=NULL and term(tl[1].TOKEN_STRING, "=") then
         # THIS PLACE HAS SOME PROBLEM
-        #printf("'[' (string|int) ']' '=' (value)  HAS NOT BEEN IMPLEMENTED\n");
+        #printf("'[' (string|int) ']' '=' (value)  HAS NOT BEEN IMPLEMENTED\n")
         
         local length=tl[0].TOKEN_STRING.length
         local string_inside= tl[0].TOKEN_STRING[1:length-1]   
@@ -898,7 +898,7 @@ def table(tree,tl,key_index) then
     local length_of_tl=tl.length
     
     if length_of_tl==1 then
-        local list_string=tl[0].TOKEN_STRING;
+        local list_string=tl[0].TOKEN_STRING
         local length_of_list_string=list_string.length
         if list_string[0]=="[" and list_string[length_of_list_string-1]=="]"
             # list_string [1,2]
@@ -919,7 +919,7 @@ def table(tree,tl,key_index) then
         end
     
     else
-        return FALSE;
+        return FALSE
     end
 end
 
@@ -1029,7 +1029,7 @@ def table_value(tree, tl) then
                 TREE_addNode(TREE_getTreeAccordingToIndex(tree, index), "expr", "")
                
                 return expr(TREE_getTreeAccordingToIndex(tree, index2),tl[0:index_of_right+1]) and
-                table_value_key(TREE_getTreeAccordingToIndex(tree, index), tl[index_of_right+1:length_of_tl]);
+                table_value_key(TREE_getTreeAccordingToIndex(tree, index), tl[index_of_right+1:length_of_tl])
             end
         end
         return FALSE
@@ -1101,7 +1101,7 @@ def table_value_key(tree, tl) then
             if left_tl==none then
                 TREE_addNode(slice_tree, "0","num")
             else
-                TREE_addNode(slice_tree, "value", "");
+                TREE_addNode(slice_tree, "value", "")
                 value(TREE_getTreeAccordingToIndex(slice_tree, index_left), left_tl)
             # add right
             local index_right=TREE_INDEX
@@ -1245,7 +1245,7 @@ def expr(tree, tl) then
     local count_of_parenthesis=0
         
     
-    local i=length_of_tl-1;
+    local i=length_of_tl-1
     for i>=0, i=i-1 then
         if (tl[i].TOKEN_STRING=="(") then
             count_of_parenthesis=count_of_parenthesis+1
@@ -1286,7 +1286,7 @@ def expr(tree, tl) then
             local tl2=tl[index_of_first_sign+1:length_of_tl]
             tree.name=sign
             
-            local current_index=tree.index;
+            local current_index=tree.index
             TREE_addNode(tree, "expr","")
             TREE_addNodeAtIndex(tree, current_index, "expr","")
             
@@ -1393,7 +1393,7 @@ def p_term(tree, tl) then
             return
             p_term(TREE_getTreeAccordingToIndex(tree,index_of_node1), tl1)
             and
-            factor(TREE_getTreeAccordingToIndex(tree,index_of_node2), tl2);
+            factor(TREE_getTreeAccordingToIndex(tree,index_of_node2), tl2)
         end 
     end
     
@@ -1529,7 +1529,7 @@ def var_name(tree,tl) then
     local index_of_comma=TL_indexOfTokenThatHasTokenString(tl, ",")
     #var_name ',' var_name
     if index_of_comma!=-1 then
-        int length_of_tl=tl.length
+        local length_of_tl=tl.length
         local tl1=tl[0:index_of_comma]
         local tl2=tl[index_of_comma+1:length_of_tl]
      
@@ -1663,7 +1663,7 @@ def func_assign(tree, tl) then
     return FALSE
 end
 
-# return_stm -> 'return' value;
+# return_stm -> 'return' value
 def return_stm(tree, tl) then
     if INCOMPLETE_STATEMENT == TRUE
         return FALSE
@@ -1704,7 +1704,7 @@ def func_value(TREE *tree, Token_List *tl) then
         and walley_statements(tree, tl[index_of_then+1:length_of_tl-1])
         and end_stm(tree, tl[length_of_tl-1:length_of_tl)]
     end
-    return FALSE;
+    return FALSE
 end
 
 #= walley_function.wy
@@ -1889,13 +1889,13 @@ def simple_relation(tree,tl) then
         local tl1=tl[0:index_of_judge_sign]
         local tl2=tl[index_of_judge_sign+1:length_of_tl]
         
-        local judge_sign=tl[index_of_judge_sign].TOKEN_STRING;
+        local judge_sign=tl[index_of_judge_sign].TOKEN_STRING
         
         # swap tl1 and tl2
         # and change judge sign
         # for virtual machine
         if term(">=", judge_sign) or term(">", judge_sign) then
-            local temp_tl=tl1;
+            local temp_tl=tl1
             tl1=tl2
             tl2=temp_tl
             if term(">=", judge_sign) then
@@ -1935,7 +1935,7 @@ def if_stms(tree, tl) then
     
     #if_stms -> 'if' relation 'then' walley_statements 'end'
     if term(tl[0].TOKEN_STRING, "if") then
-        int index_of_then=TL_indexOfTokenThatHasTokenString(tl, "then")
+        local index_of_then=TL_indexOfTokenThatHasTokenString(tl, "then")
         if index_of_then==-1 then
             INCOMPLETE_STATEMENT=TRUE
             return FALSE
@@ -1984,7 +1984,7 @@ def elif_stms(TREE *tree, Token_List *tl){
             return FALSE
         end
     end
-    return FALSE;
+    return FALSE
 end
 
 def else_stms(TREE *tree, Token_List *tl) then
@@ -2086,14 +2086,14 @@ def for_stms(tree,tl) then
             #tl=tl->next->next->next->next->next # value
             
             # add in value
-            int index=TREE_INDEX;
-            TREE_addNode(tree, "", "foreach_in");
-            TREE_addNode(TREE_getTreeAccordingToIndex(tree, index), "value", "");
+            local index=TREE_INDEX
+            TREE_addNode(tree, "", "foreach_in")
+            TREE_addNode(TREE_getTreeAccordingToIndex(tree, index), "value", "")
             index=index+1
             value(TREE_getTreeAccordingToIndex(tree, index),tl[5:index_of_then])
         else
             # add v
-            TREE_addNode(tree, "", "foreach_value");
+            TREE_addNode(tree, "", "foreach_value")
             #tl=tl->next->next->next; // value
             
             // add in value
@@ -2288,12 +2288,8 @@ def def_stms(TREE *tree, Token_List *tl) then
         add_token.TOKEN_STRING="="
         add_token.TOKEN_CLASS="assignment_operator"
         new_tl.append(add_token)
-       
         
-        Token_List *new_tl;
-        TL_init(&new_tl);
-        
-        i=0;
+        i=0
         for i=0, i<length_of_tl, i=i+1 then
             if i>=begin and i<index_of_left_bracket then
                 continue
@@ -2320,7 +2316,7 @@ def statements(tree, tl) then
         or def_stms(tree, tl)
         or end_stm(tree, tl)
         or assignment(tree, tl)
-        or value(tree, tl);
+        or value(tree, tl)
 end
 
 #walley_statements ->
@@ -2561,7 +2557,7 @@ def sentences_seperation(tl, output_tl,begin) then
                      term(tl[i].TOKEN_STRING, "else")
                      )
                     then
-                    local end_index=i;
+                    local end_index=i
                     local ahead_tl=tl[begin.val:end_index]
                     
                     local end_token=Token.init()
@@ -2633,7 +2629,7 @@ def sentences_seperation(tl, output_tl,begin) then
         # end->
         # end
         if term(tl[i].TOKEN_STRING, "end") then
-            local end_index=i;
+            local end_index=i
             if begin.val<i then
                 local ahead_tl=tl[begin.val:end_index]
                 

@@ -11,7 +11,8 @@
 int main(int argc, char **argv)
 {
     
-    Compile_to_JS("/Users/shd101wyy/Documents/workspace/xcode/Walley0.1/Walley0.1/test.wy");
+    
+    Compile_to_JS("/Users/shd101wyy/Documents/workspace/xcode/Walley0.1/Walley0.1/walley.wy");
     printf("\n\n!!!===== SUCCESS =====\n");
     exit(0);
     
