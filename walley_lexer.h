@@ -760,7 +760,10 @@ bool sentences_seperation(Token_List *tl, Token_List **output_tl,int *begin){
             int count_of_if=0;
             int count_of_end=0;
             for (; i<length_of_tl; i++) {
-                if (term(tl->current_token.TOKEN_STRING, "if")) {
+                if (term(tl->current_token.TOKEN_STRING, "if")
+                    ||term(tl->current_token.TOKEN_STRING, "def")
+                    ||term(tl->current_token.TOKEN_STRING, "while")
+                    ||term(tl->current_token.TOKEN_STRING, "for")) {
                     count_of_if+=1;
                     count_of_end+=1;
                 }
@@ -827,7 +830,10 @@ bool sentences_seperation(Token_List *tl, Token_List **output_tl,int *begin){
             int count_of_end=0;
             int temp_i=i;
             for (; i<length_of_tl; i++) {
-                if (term(tl->current_token.TOKEN_STRING, "if")) {
+                if (term(tl->current_token.TOKEN_STRING, "if")
+                    ||term(tl->current_token.TOKEN_STRING, "def")
+                    ||term(tl->current_token.TOKEN_STRING, "while")
+                    ||term(tl->current_token.TOKEN_STRING, "for")) {
                     count_of_if+=1;
                     count_of_end+=1;
                 }
@@ -886,7 +892,10 @@ bool sentences_seperation(Token_List *tl, Token_List **output_tl,int *begin){
             int count_of_end=0;
             int temp_i=i;
             for(;i<length_of_tl;i++){
-                if(term(tl->current_token.TOKEN_STRING, "if")){
+                if(term(tl->current_token.TOKEN_STRING, "if")
+                   ||term(tl->current_token.TOKEN_STRING, "def")
+                   ||term(tl->current_token.TOKEN_STRING, "while")
+                   ||term(tl->current_token.TOKEN_STRING, "for")){
                     count_of_if+=1;
                     count_of_end+=1;
                 }

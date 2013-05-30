@@ -149,6 +149,7 @@ bool if_stms(TREE *tree, Token_List *tl){
             TREE_addNode(tree, "if", "");
             int index=TREE_INDEX;
             TREE_addNode(tree, "relation", "");
+                       
             return relation(TREE_getTreeAccordingToIndex(tree, index), relation_tl) && walley_statements(tree, TL_subtl(tl, index_of_then+1, length_of_tl-1));
         }
         // incomplete
@@ -757,9 +758,6 @@ bool statements(TREE *tree, Token_List *tl){
 //walley_statements ->
 //| statements, statements        // use sentences_seperation
 bool walley_statements(TREE *tree, Token_List *tl){
-    
-  
-    
     if (INCOMPLETE_STATEMENT) {
         return FALSE;
     }
@@ -771,11 +769,10 @@ bool walley_statements(TREE *tree, Token_List *tl){
         if (INCOMPLETE_STATEMENT) {
             return FALSE;
         }
-        
                
         int index=TREE_INDEX;
         TREE_addNode(tree, "statements", "");
-        
+                
         if (!statements(TREE_getTreeAccordingToIndex(tree, index), temp_tl)) {
             printf("Walley Statements Parse Error\n");
             return FALSE;

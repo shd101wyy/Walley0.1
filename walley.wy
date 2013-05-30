@@ -2476,7 +2476,10 @@ def sentences_seperation(tl, output_tl,begin) then
             local count_of_if=0
             local count_of_end=0
             for  i<length_of_tl,i=i+1 then
-                if term(tl[i].TOKEN_STRING, "if") then
+                if term(tl[i].TOKEN_STRING, "if")
+                or term(tl->current_token.TOKEN_STRING, "def")
+                or term(tl->current_token.TOKEN_STRING, "while")
+                or term(tl->current_token.TOKEN_STRING, "for") then
                     count_of_if=count_of_if+1
                     count_of_end=count_of_end+1
                 end
@@ -2539,7 +2542,10 @@ def sentences_seperation(tl, output_tl,begin) then
             local count_of_end=0
             local temp_i=i
             for  i<length_of_tl, i=i+1 then
-                if term(tl[i].TOKEN_STRING, "if") then
+                if term(tl[i].TOKEN_STRING, "if")
+                or term(tl->current_token.TOKEN_STRING, "def")
+                or term(tl->current_token.TOKEN_STRING, "while")
+                or term(tl->current_token.TOKEN_STRING, "for") then
                     count_of_if=count_of_if+1
                     count_of_end=count_of_end+1
                 end
@@ -2591,7 +2597,10 @@ def sentences_seperation(tl, output_tl,begin) then
             local count_of_end=0
             local temp_i=i
             for i<length_of_tl,i=i+1 then
-                if term(tl[i].TOKEN_STRING, "if") then
+                if term(tl[i].TOKEN_STRING, "if")
+                or term(tl->current_token.TOKEN_STRING, "def")
+                or term(tl->current_token.TOKEN_STRING, "while")
+                or term(tl->current_token.TOKEN_STRING, "for") then
                     count_of_if=count_of_if+1
                     count_of_end=count_of_end+1
                 end

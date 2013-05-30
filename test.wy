@@ -1,21 +1,5 @@
-def indexOfFinalDoubleQuote(input_str, first_index) then
-    local first_char=input_str[first_index]
-    local i=first_index+1
-    local length=input_str.length
-    if first_char=="\"" then
-        for i<length, i=i+1 then
-            if input_str[i]=="\"" and input_str[i-1]!="\\" then
-                return i
-            end
-            
-            if input_str[i]=="\"" and input_str[i-1]=="\\" then
-                if input_str[i-2]=="\\" then
-                    return i
-                end
-            end
-        end
+if first_char=="\"" then
+    for i<length, i=i+1 then
+         x=2
     end
-   
-    # did not find
-    return -1
 end
