@@ -252,6 +252,7 @@ char* Walley_Analyze_Token_Class(char *input_str, int i, int *end){
         return "judge_sign";
     }
     
+    /*
     if (match(input_str, i, "true")) {
         *end=i+4;
         return "true_of_false";
@@ -260,6 +261,7 @@ char* Walley_Analyze_Token_Class(char *input_str, int i, int *end){
         *end=i+5;
         return "true_of_false";
     }
+     */
     
     
     // 4 relation

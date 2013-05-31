@@ -1,5 +1,5 @@
 function isalpha(e){return/^[ a-z]+$/i.test(e)}function isdigit(e){return!isNaN(e-0)}none=null;String.prototype.find=function(e,t){if(typeof t=="undefined"){t=0}return this.indexOf(e,t)};String.prototype.tolower=function(){return this.toLowerCase()};String.prototype.toupper=function(){return this.toUpperCase()};String.prototype.reverse=function(){return this.split("").reverse().join()};Math["cot"]=function(e){return 1/Math.tan(e)};Math["sec"]=function(e){return 1/Math.cos(e)};Math["csc"]=function(e){return 1/Math.sin(e)};Object.prototype.slice=function(e,t){var n={};var r=0;for(var i=e;i<t;i++){n[r]=this[i];r++}return n};Object.prototype.append=function(e){var t="-1";for(var n in this){if(!isNaN(n)){if(n>t){t=n}}}if(t!="-1"){t=parseInt(t)+1}else{t="0"}this[t]=e}
-INCOMPLETE_STATEMENT=FALSE;
+INCOMPLETE_STATEMENT=false;
 Token_init=function(){
      var Token={};
      Token["TOKEN_CLASS"]="";
@@ -52,47 +52,47 @@ match=function(input_str,index,match_string){
      var length_of_input_str=input_str["length"];
      var length_of_match_str=match_string["length"];
      if (length_of_input_str<index+length_of_match_str){
-return FALSE;
+return false;
      }
      var i=0;
-     var match=TRUE;
+     var match=true;
      for (;i<length_of_match_str;){
 if (input_str[index+i]!==match_string[i]){
-match=FALSE;
+match=false;
 break;
 }
 i=i+1;
 }
-     if (match===TRUE){
-return TRUE;
+     if (match===true){
+return true;
      }
 else{
-return FALSE;
+return false;
      }
  };
 term=function(input_str1,input_str2){
      if (input_str1===input_str2){
-return TRUE;
+return true;
      }
 else{
-return FALSE;
+return false;
      }
  };
 LIST_indexOfFinalBracket=function(input_str,index_of_first_bracket){
      var count=0;
-     var in_string=FALSE;
+     var in_string=false;
      var length_of_input_str=input_str["length"];
      var i=index_of_first_bracket;
      for (;i<length_of_input_str;){
-if (in_string===FALSE && input_str[i]==="\"" && input_str[i-1]!=="\\"){
-in_string=TRUE;
+if (in_string===false && input_str[i]==="\"" && input_str[i-1]!=="\\"){
+in_string=true;
 continue;
 }
-if (in_string===TRUE && input_str[i]==="\"" && input_str[i-1]!=="\\"){
-in_string=FALSE;
+if (in_string===true && input_str[i]==="\"" && input_str[i-1]!=="\\"){
+in_string=false;
 continue;
 }
-if (in_string===FALSE){
+if (in_string===false){
 if (input_str[i]==="["){
 count=count+1;
 continue;
@@ -161,18 +161,6 @@ return return_obj;
 end_index=i+1;
 return_obj[0]=end_index;
 return_obj[1]="judge_sign";
-return return_obj;
-     }
-     if (match(input_str,i,"true")){
-end_index=i+4;
-return_obj[0]=end_index;
-return_obj[1]="true_of_false";
-return return_obj;
-     }
-     if (match(input_str,i,"false")){
-end_index=i+5;
-return_obj[0]=end_index;
-return_obj[1]="true_of_false";
 return return_obj;
      }
      if (match(input_str,i,"and") || match(input_str,i,"not") && length<=i+3 || input_str[i+3]===" " || input_str[i+3]==="\n"){
@@ -274,7 +262,7 @@ return return_obj;
      if (input_str[i]==="["){
 var index_of_final=LIST_indexOfFinalBracket(input_str,i);
 if (index_of_final===-1){
-INCOMPLETE_STATEMENT=TRUE;
+INCOMPLETE_STATEMENT=true;
 }
 end_index=index_of_final+1;
 return_obj[0]=end_index;
@@ -294,17 +282,17 @@ return_obj[1]="string";
 return return_obj;
 }
      }
-     if (isdigit(input_str[i])===TRUE){
+     if (isdigit(input_str[i])===true){
 var a=i+1;
-var find_dot=FALSE;
+var find_dot=false;
 var index_of_first_dot=-1;
 for (;a<length;){
-if (input_str[a]==="." && find_dot===FALSE){
-find_dot=TRUE;
+if (input_str[a]==="." && find_dot===false){
+find_dot=true;
 index_of_first_dot=a;
 continue;
 }
-if (input_str[a]==="." && find_dot===TRUE){
+if (input_str[a]==="." && find_dot===true){
 if (isdigit(input_str[a+1])){
 Walley_Print_Error(input_str,"invalide number",a)
 }
@@ -315,12 +303,12 @@ return_obj[1]="num";
 return return_obj;
 }
 }
-if (isdigit(input_str[a])===FALSE){
+if (isdigit(input_str[a])===false){
 break;
 }
 a=a+1;
 }
-if (find_dot===TRUE && isdigit(input_str[index_of_first_dot+1])===FALSE){
+if (find_dot===true && isdigit(input_str[index_of_first_dot+1])===false){
 end_index=index_of_first_dot;
 return_obj[0]=end_index;
 return_obj[1]="num";
@@ -382,7 +370,7 @@ Walley_Lexical_Analyzie=function(input_str){
 var output_data=Walley_Analyze_Token_Class(input_str,i,end_index);
 end_index=output_data[0];
 var token_class=output_data[1];
-if (INCOMPLETE_STATEMENT===TRUE){
+if (INCOMPLETE_STATEMENT===true){
 break;
 }
 if (token_class==="white_space"){
@@ -401,7 +389,7 @@ continue;
 if (token_class==="l_annotation"){
 i=end_index;
 var count=0;
-var find_right_annotation=FALSE;
+var find_right_annotation=false;
 for (;i<length-1;){
 if (input_str[i]==="\""){
 count=count+1;
@@ -409,13 +397,13 @@ continue;
 }
 if (count%2===0 && input_str[i]==="~" && input_str[i+1]==="#"){
 i=i+1;
-find_right_annotation=TRUE;
+find_right_annotation=true;
 break;
 }
 i=i+1;
 }
-if (find_right_annotation===FALSE){
-INCOMPLETE_STATEMENT=TRUE;
+if (find_right_annotation===false){
+INCOMPLETE_STATEMENT=true;
 return tl;
 }
 continue;
@@ -434,7 +422,6 @@ i=i+1;
      return tl;
  };
 TREE_INDEX=0;
-TREE_OUTPUT;
 TREE_init=function(name){
      var TREE={};
      TREE["name"]=name||"";
@@ -535,8 +522,8 @@ TREE_addNodeAtIndex=function(tree,index,add_name,add_token_class){
      TREE_addNode(temp_tree,add_name,add_token_class);
  };
 elements=function(tree,tl){
-     if (INCOMPLETE_STATEMENT===TRUE){
-return FALSE;
+     if (INCOMPLETE_STATEMENT===true){
+return false;
      }
      var length_of_tl=tl["length"];
      var index_of_comma=TL_indexOfTokenThatHasTokenString(tl,",");
@@ -555,19 +542,19 @@ return value(TREE_getTreeAccordingToIndex(tree,index_of_tl1),tl1)&&elements(tree
  };
 value=function(tree,tl){
      if (INCOMPLETE_STATEMENT){
-return FALSE;
+return false;
      }
      var length_of_tl=tl["length"];
      if (length_of_tl===0){
 tree["name"]="none";
 tree["token_class"]="id";
-return TRUE;
+return true;
      }
 else if (length_of_tl===1){
 if ("num"===tl[0]["TOKEN_CLASS"] || "string"===tl[0]["TOKEN_CLASS"] || "id"===tl[0]["TOKEN_CLASS"]){
 tree["name"]=tl[0]["TOKEN_STRING"];
 tree["token_class"]=tl[0]["TOKEN_CLASS"];
-return TRUE;
+return true;
 }
 else if ("list_table"===tl[0]["TOKEN_CLASS"]){
 tree["name"]=tl[0]["TOKEN_STRING"];
@@ -576,7 +563,7 @@ var key_index={val:0};
 return table(tree,tl,key_index);
 }
 else{
-return FALSE;
+return false;
 }
      }
 else{
@@ -585,7 +572,7 @@ return func_value(tree,tl) || table_value(tree,tl) || func(tree,tl) || relation(
  };
 table_elements=function(tree,tl,key_index){
      if (INCOMPLETE_STATEMENT){
-return FALSE;
+return false;
      }
      var length_of_tl=tl["length"];
      var i=0;
@@ -611,8 +598,8 @@ return table_expr(TREE_getTreeAccordingToIndex(tree,index),tl,key_index);
      }
  };
 table_expr=function(tree,tl,key_index){
-     if (INCOMPLETE_STATEMENT===TRUE){
-return FALSE;
+     if (INCOMPLETE_STATEMENT===true){
+return false;
      }
      var length_of_tl=tl["length"];
      if (3<length_of_tl && term(tl[0]["TOKEN_CLASS"],"@") && term(tl[1]["TOKEN_CLASS"],"id") && term(tl[2]["TOKEN_STRING"],"=")){
@@ -661,11 +648,11 @@ TREE_addNode(tree,"value","")
 key_index["val"]=key_index["val"]+1;
 return value(TREE_getTreeAccordingToIndex(tree,index),tl);
      }
-     return FALSE;
+     return false;
  };
 table=function(tree,tl,key_index){
-     if (INCOMPLETE_STATEMENT===TRUE){
-return FALSE;
+     if (INCOMPLETE_STATEMENT===true){
+return false;
      }
      var length_of_tl=tl["length"];
      if (length_of_tl===1){
@@ -674,22 +661,22 @@ var length_of_list_string=list_string["length"];
 if (list_string[0]==="[" && list_string[length_of_list_string-1]==="]"){
 var list_string2=list_string.slice(1,list_string["length"]-1)["trim"]();
 if (list_string2===""){
-return TRUE;
+return true;
 }
 var table_tl=Walley_Lexical_Analyzie(list_string2);
 return table_elements(tree,table_tl,key_index);
 }
 else{
-return FALSE;
+return false;
 }
      }
 else{
-return FALSE;
+return false;
      }
  };
 table_value=function(tree,tl){
-     if (INCOMPLETE_STATEMENT===TRUE){
-return FALSE;
+     if (INCOMPLETE_STATEMENT===true){
+return false;
      }
      var length_of_tl=tl["length"];
      var i=0;
@@ -702,7 +689,7 @@ else if (term(tl[i]["TOKEN_STRING"],")")){
 count=count-1;
 }
 if (count===0 && term(tl[i]["TOKEN_CLASS"],"m_operator")){
-return FALSE;
+return false;
 }
 i=i+1;
 }
@@ -730,10 +717,10 @@ break;
 i=i+1;
 }
 if (index===length_of_tl-1){
-return FALSE;
+return false;
 }
 if (term(tl[i+1]["TOKEN_CLASS"],"relation")){
-return FALSE;
+return false;
 }
 var tree_index=TREE_INDEX;
 TREE_addNode(tree,"table_value","")
@@ -761,14 +748,14 @@ break;
 i=i+1;
 }
 if (index_of_right===-1){
-return FALSE;
+return false;
 }
 else{
 if (index_of_right===length_of_tl-1){
-return FALSE;
+return false;
 }
-if (term(tl[index_of_right+1]["TOKEN_CLASS"],"list_table")===FALSE || term(tl[index_of_right+1]["TOKEN_STRING"],".")===FALSE){
-return FALSE;
+if (term(tl[index_of_right+1]["TOKEN_CLASS"],"list_table")===false || term(tl[index_of_right+1]["TOKEN_STRING"],".")===false){
+return false;
 }
 var index=TREE_INDEX;
 TREE_addNode(tree,"table_value","")
@@ -777,12 +764,12 @@ TREE_addNode(TREE_getTreeAccordingToIndex(tree,index),"expr","")
 return expr(TREE_getTreeAccordingToIndex(tree,index2),tl.slice(0,index_of_right+1))&&table_value_key(TREE_getTreeAccordingToIndex(tree,index),tl.slice(index_of_right+1,length_of_tl));
 }
 }
-return FALSE;
+return false;
      }
  };
 table_value_key=function(tree,tl){
-     if (INCOMPLETE_STATEMENT===TRUE){
-return FALSE;
+     if (INCOMPLETE_STATEMENT===true){
+return false;
      }
      var length_of_tl=tl["length"];
      if (length_of_tl===1 && term(tl[0]["TOKEN_CLASS"],"list_table")){
@@ -804,7 +791,7 @@ TREE_addNode(tree,"key","")
 var key_tree=TREE_init(key_tree,"key");
 value(key_tree,key_tl)
 TREE_addTree(TREE_getTreeAccordingToIndex(tree,index1),key_tree)
-return TRUE;
+return true;
 }
 else{
 var length_of_key_tl=key_tl["length"];
@@ -842,7 +829,7 @@ TREE_addNode(slice_tree,"value","")
 value(TREE_getTreeAccordingToIndex(slice_tree,index_right),right_tl)
 }
 TREE_addTree(TREE_getTreeAccordingToIndex(tree,index1),slice_tree)
-return TRUE;
+return true;
 }
      }
 else if (length_of_tl===2 && term(tl[0]["TOKEN_STRING"],".") && term(tl[1]["TOKEN_CLASS"],"id")){
@@ -852,7 +839,7 @@ var key_tl=Walley_Lexical_Analyzie(toString(tl[1]["TOKEN_STRING"]));
 var key_tree=TREE_init("key");
 value(key_tree,key_tl)
 TREE_addTree(TREE_getTreeAccordingToIndex(tree,index1),key_tree)
-return TRUE;
+return true;
      }
 else if (4<=length_of_tl && term(tl[0]["TOKEN_STRING"],".") && term(tl[1]["TOKEN_CLASS"],"id") && term(tl[2]["TOKEN_STRING"],"(")){
 var index_of_right=-1;
@@ -872,8 +859,8 @@ break;
 i=i+1;
 }
 if (index_of_right===-1){
-INCOMPLETE_STATEMENT=TRUE;
-return FALSE;
+INCOMPLETE_STATEMENT=true;
+return false;
 }
 if (index_of_right===length_of_tl-1){
 var index1=TREE_INDEX;
@@ -905,8 +892,8 @@ break;
 i=i+1;
 }
 if (index===-1){
-INCOMPLETE_STATEMENT=TRUE;
-return FALSE;
+INCOMPLETE_STATEMENT=true;
+return false;
 }
 var func_tree=TREE_init("func");
 var tree_index=TREE_INDEX;
@@ -924,7 +911,7 @@ params(TREE_getTreeAccordingToIndex(func_tree,tree_index),tl.slice(2,index))
 }
 TREE_addTree(tree,func_tree)
 if (index===length_of_tl-1){
-return TRUE;
+return true;
 }
 return table_value(tree,tl.slice(index+1,length_of_tl));
      }
@@ -932,12 +919,12 @@ else if (3<=length_of_tl && term(tl[0]["TOKEN_STRING"],".") && term(tl[1]["TOKEN
 return table_value_key(tree,tl.slice(0,2))&&table_value_key(tree,tl.slice(2,length_of_tl));
      }
 else{
-return FALSE;
+return false;
      }
  };
 expr=function(tree,tl){
      if (INCOMPLETE_STATEMENT){
-return FALSE;
+return false;
      }
      var length_of_tl=tl["length"];
      var count_of_parenthesis=0;
@@ -985,7 +972,7 @@ i=i-1;
  };
 s_term=function(tree,tl){
      if (INCOMPLETE_STATEMENT){
-return FALSE;
+return false;
      }
      var length_of_tl=tl["length"];
      var count_of_parenthesis=0;
@@ -1019,7 +1006,7 @@ i=i-1;
  };
 p_term=function(tree,tl){
      if (INCOMPLETE_STATEMENT){
-return FALSE;
+return false;
      }
      var length_of_tl=tl["length"];
      var count_of_parenthesis=0;
@@ -1052,8 +1039,8 @@ i=i-1;
      return factor(tree,tl);
  };
 factor=function(tree,tl){
-     if (INCOMPLETE_STATEMENT===TRUE){
-return FALSE;
+     if (INCOMPLETE_STATEMENT===true){
+return false;
      }
      var length_of_tl=tl["length"];
      if (term(tl[0]["TOKEN_STRING"],"(") && term(tl[length_of_tl-1]["TOKEN_STRING"],")")){
@@ -1066,12 +1053,12 @@ return value(tree,tl);
      }
  };
 assignment=function(tree,tl){
-     if (INCOMPLETE_STATEMENT===TRUE){
-return FALSE;
+     if (INCOMPLETE_STATEMENT===true){
+return false;
      }
-     var is_local=FALSE;
+     var is_local=false;
      if (term(tl[0]["TOKEN_STRING"],"local")){
-is_local=TRUE;
+is_local=true;
      }
      var count=0;
      var count_of_equal=0;
@@ -1091,7 +1078,7 @@ index_of_equal=i;
 i=i+1;
 }
      if (count_of_equal!==1){
-return FALSE;
+return false;
      }
 else{
 var length_of_tl=tl["length"];
@@ -1099,7 +1086,7 @@ var save_TREE_INDEX=TREE_INDEX;
 TREE_INDEX=0;
 var var_name_tree=TREE_init("var_name");
 var var_name_list={};
-if (is_local===TRUE){
+if (is_local===true){
 var_name_list=tl.slice(1,index_of_equal);
 }
 else{
@@ -1118,7 +1105,7 @@ var var_value_nl=var_value_tree["node_list"];
 for (;i<var_name_num;){
 var index=TREE_INDEX;
 TREE_addNode(tree,"=","")
-if (is_local===TRUE){
+if (is_local===true){
 TREE_addNode(TREE_getTreeAccordingToIndex(tree,index),"local","")
 }
 TREE_addTree(TREE_getTreeAccordingToIndex(tree,index),var_name_nl[i])
@@ -1134,12 +1121,12 @@ TREE_addTree(TREE_getTreeAccordingToIndex(tree,index),var_value_nl[i])
 }
 i=i+1;
 }
-return TRUE;
+return true;
      }
  };
 var_name=function(tree,tl){
-     if (INCOMPLETE_STATEMENT===TRUE){
-return FALSE;
+     if (INCOMPLETE_STATEMENT===true){
+return false;
      }
      var index_of_comma=TL_indexOfTokenThatHasTokenString(tl,",");
      if (index_of_comma!==-1){
@@ -1153,21 +1140,21 @@ var length_of_tl=tl["length"];
 if (length_of_tl===1){
 if ("id"===tl[0]["TOKEN_CLASS"]){
 TREE_addNode(tree,tl[0]["TOKEN_STRING"],"id")
-return TRUE;
+return true;
 }
 else{
-return FALSE;
+return false;
 }
 }
 else{
 return table_value(tree,tl);
 }
      }
-     return FALSE;
+     return false;
  };
 var_value=function(tree,tl){
-     if (INCOMPLETE_STATEMENT===TRUE){
-return FALSE;
+     if (INCOMPLETE_STATEMENT===true){
+return false;
      }
      var length_of_tl=tl["length"];
      var index_of_comma=-1;
@@ -1187,8 +1174,8 @@ break;
 i=i+1;
 }
      if (count!==0){
-INCOMPLETE_STATEMENT=TRUE;
-return FALSE;
+INCOMPLETE_STATEMENT=true;
+return false;
      }
      if (index_of_comma!==-1){
 var tl1=tl.slice(0,index_of_comma);
@@ -1204,8 +1191,8 @@ return value(TREE_getTreeAccordingToIndex(tree,index_of_tl),tl);
      }
  };
 func_assign=function(tree,tl){
-     if (INCOMPLETE_STATEMENT===TRUE){
-return FALSE;
+     if (INCOMPLETE_STATEMENT===true){
+return false;
      }
      var length_of_tl=tl["length"];
      if (4<=length_of_tl && term(tl[0]["TOKEN_STRING"],"def") && term(tl[1]["TOKEN_STRING"],"(")){
@@ -1226,7 +1213,7 @@ break;
 i=i+1;
 }
 if (index_of_right===-1){
-INCOMPLETE_STATEMENT=TRUE;
+INCOMPLETE_STATEMENT=true;
 printf("INCOMPLETE_STATEMENT func_assign\n")
 exit(0)
 }
@@ -1248,11 +1235,11 @@ params_tl["append"](add_token);
 return params(TREE_getTreeAccordingToIndex(tree,index),params_tl);
 }
      }
-     return FALSE;
+     return false;
  };
 return_stm=function(tree,tl){
-     if (INCOMPLETE_STATEMENT===TRUE){
-return FALSE;
+     if (INCOMPLETE_STATEMENT===true){
+return false;
      }
      var length_of_tl=tl["length"];
      if (2<=length_of_tl && term(tl[0]["TOKEN_STRING"],"return")){
@@ -1262,11 +1249,11 @@ var index2=TREE_INDEX;
 TREE_addNode(TREE_getTreeAccordingToIndex(tree,index1),"value","")
 return value(TREE_getTreeAccordingToIndex(tree,index2),tl.slice(1,length_of_tl));
      }
-     return FALSE;
+     return false;
  };
 func_value=function(tree,tl){
-     if (INCOMPLETE_STATEMENT===TRUE){
-return FALSE;
+     if (INCOMPLETE_STATEMENT===true){
+return false;
      }
      var length_of_tl=tl["length"];
      if (term(tl[0]["TOKEN_STRING"],"def") && term(tl[length_of_tl-1]["TOKEN_STRING"],"end")){
@@ -1274,19 +1261,19 @@ tree["name"]="func_value";
 tree["token_class"]="";
 var index_of_then=TL_indexOfTokenThatHasTokenString(tl,"then");
 if (index_of_then===-1){
-INCOMPLETE_STATEMENT=TRUE;
-return FALSE;
+INCOMPLETE_STATEMENT=true;
+return false;
 }
 return func_assign(tree,tl.slice(0,index_of_then+1)) && walley_statements(tree,tl.slice(index_of_then+1,length_of_tl-1))&&end_stm(tree,tl.slice(length_of_tl-1,length_of_tl));
      }
-     return FALSE;
+     return false;
  };
 params=function(tree,tl){
-     if (INCOMPLETE_STATEMENT===TRUE){
-return FALSE;
+     if (INCOMPLETE_STATEMENT===true){
+return false;
      }
      if (tl==={}){
-return TRUE;
+return true;
      }
      var length_of_tl=tl["length"];
      var index_of_comma=-1;
@@ -1308,8 +1295,8 @@ break;
 i=i+1;
 }
      if (index_of_comma===-1){
-if (assignment(tree,tl)===TRUE){
-return TRUE;
+if (assignment(tree,tl)===true){
+return true;
 }
 else{
 var index=TREE_INDEX;
@@ -1320,7 +1307,7 @@ return value(TREE_getTreeAccordingToIndex(tree,index),tl);
 else{
 var tl1=tl.slice(0,index_of_comma);
 var tl2=tl.slice(index_of_comma+1,length_of_tl);
-if (assignment(tree,tl1)===TRUE){
+if (assignment(tree,tl1)===true){
 return params(tree,tl2);
 }
 else{
@@ -1331,14 +1318,14 @@ return value(TREE_getTreeAccordingToIndex(tree,index_of_tl1),tl1)&&params(tree,t
      }
  };
 func=function(tree,tl){
-     if (INCOMPLETE_STATEMENT===TRUE){
-return FALSE;
+     if (INCOMPLETE_STATEMENT===true){
+return false;
      }
      var length_of_tl=tl["length"];
      var index_of_left=TL_indexOfTokenThatHasTokenString(tl,"(");
      var index_of_right=-1;
      if (index_of_left===-1){
-return FALSE;
+return false;
      }
      var i=0;
      var count=0;
@@ -1356,11 +1343,11 @@ break;
 i=i+1;
 }
      if (index_of_right===-1){
-INCOMPLETE_STATEMENT=TRUE;
-return FALSE;
+INCOMPLETE_STATEMENT=true;
+return false;
      }
      if (index_of_right+1!==length_of_tl || index_of_left===-1 || index_of_left===0){
-return FALSE;
+return false;
      }
 else{
 var test_id=tl.slice(0,index_of_left);
@@ -1373,7 +1360,7 @@ params_tl=tl.slice(index_of_left+1,index_of_right);
 }
 var length_of_test_id=test_id["length"];
 if (length_of_test_id!==1 || test_id[0]["TOKEN_CLASS"]!=="id"){
-return FALSE;
+return false;
 }
 tree["name"]="func";
 tree["token_class"]="";
@@ -1385,8 +1372,8 @@ return params(TREE_getTreeAccordingToIndex(tree,index),params_tl);
      }
  };
 relation=function(tree,tl){
-     if (INCOMPLETE_STATEMENT===TRUE){
-return FALSE;
+     if (INCOMPLETE_STATEMENT===true){
+return false;
      }
      var length_of_tl=tl["length"];
      var i=length_of_tl-1;
@@ -1425,8 +1412,8 @@ return relation(TREE_getTreeAccordingToIndex(tree,index),tl.slice(1,length_of_tl
      return simple_relation(tree,tl);
  };
 simple_relation=function(tree,tl){
-     if (INCOMPLETE_STATEMENT===TRUE){
-return FALSE;
+     if (INCOMPLETE_STATEMENT===true){
+return false;
      }
      var length_of_tl=tl["length"];
      if (term("(",tl[0]["TOKEN_STRING"]) && term(")",tl[length_of_tl-1]["TOKEN_STRING"])){
@@ -1461,18 +1448,18 @@ var index2=TREE_INDEX;
 TREE_addNode(temp_tree,"value","")
 return value(TREE_getTreeAccordingToIndex(tree,index1),tl1)&&value(TREE_getTreeAccordingToIndex(tree,index2),tl2);
      }
-     return FALSE;
+     return false;
  };
 if_stms=function(tree,tl){
-     if (INCOMPLETE_STATEMENT===TRUE){
-return FALSE;
+     if (INCOMPLETE_STATEMENT===true){
+return false;
      }
      var length_of_tl=tl["length"];
      if (term(tl[0]["TOKEN_STRING"],"if")){
 var index_of_then=TL_indexOfTokenThatHasTokenString(tl,"then");
 if (index_of_then===-1){
-INCOMPLETE_STATEMENT=TRUE;
-return FALSE;
+INCOMPLETE_STATEMENT=true;
+return false;
 }
 if (term(tl[length_of_tl-1]["TOKEN_STRING"],"end") && 2<length_of_tl){
 var relation_tl=tl.slice(1,index_of_then);
@@ -1482,22 +1469,22 @@ TREE_addNode(tree,"relation","")
 return relation(TREE_getTreeAccordingToIndex(tree,index),relation_tl)&&walley_statements(tree,tl.slice(index_of_then+1,length_of_tl-1));
 }
 else{
-INCOMPLETE_STATEMENT=TRUE;
-return FALSE;
+INCOMPLETE_STATEMENT=true;
+return false;
 }
      }
-     return FALSE;
+     return false;
  };
 elif_stms=function(tree,tl){
-     if (INCOMPLETE_STATEMENT===TRUE){
-return FALSE;
+     if (INCOMPLETE_STATEMENT===true){
+return false;
      }
      var length_of_tl=tl["length"];
      if (term(tl[0]["TOKEN_STRING"],"elif")){
 var index_of_then=TL_indexOfTokenThatHasTokenString(tl,"then");
 if (index_of_then===-1){
-INCOMPLETE_STATEMENT=TRUE;
-return FALSE;
+INCOMPLETE_STATEMENT=true;
+return false;
 }
 if (term(tl[length_of_tl-1]["TOKEN_STRING"],"end") && 2<length_of_tl){
 var relation_tl=tl.slice(1,index_of_then);
@@ -1507,15 +1494,15 @@ TREE_addNode(tree,"relation","")
 return relation(TREE_getTreeAccordingToIndex(tree,index),relation_tl)&&walley_statements(tree,tl.slice(index_of_then+1,length_of_tl-1));
 }
 else{
-INCOMPLETE_STATEMENT=TRUE;
-return FALSE;
+INCOMPLETE_STATEMENT=true;
+return false;
 }
      }
-     return FALSE;
+     return false;
  };
 else_stms=function(tree,tl){
-     if (INCOMPLETE_STATEMENT===TRUE){
-return FALSE;
+     if (INCOMPLETE_STATEMENT===true){
+return false;
      }
      var length_of_tl=tl["length"];
      if (term(tl[0]["TOKEN_STRING"],"else")){
@@ -1524,22 +1511,22 @@ TREE_addNode(tree,"else","")
 return walley_statements(tree,tl.slice(1,length_of_tl-1));
 }
 else{
-INCOMPLETE_STATEMENT=TRUE;
-return FALSE;
+INCOMPLETE_STATEMENT=true;
+return false;
 }
      }
-     return FALSE;
+     return false;
  };
 while_stms=function(tree,tl){
-     if (INCOMPLETE_STATEMENT===TRUE){
-return FALSE;
+     if (INCOMPLETE_STATEMENT===true){
+return false;
      }
      var length_of_tl=tl["length"];
      if (term(tl[0]["TOKEN_STRING"],"while")){
 var index_of_then=TL_indexOfTokenThatHasTokenString(tl,"then");
 if (index_of_then===-1){
-INCOMPLETE_STATEMENT=TRUE;
-return FALSE;
+INCOMPLETE_STATEMENT=true;
+return false;
 }
 if (term(TL_tokenAtIndex(tl,length_of_tl-1)["TOKEN_STRING"],"end") && 2<length_of_tl){
 var relation_tl=tl.slice(1,index_of_then);
@@ -1549,18 +1536,18 @@ TREE_addNode(tree,"relation","")
 return relation(TREE_getTreeAccordingToIndex(tree,index),relation_tl) && walley_statements(tree,tl.slice(index_of_then+1,length_of_tl-1))&&end_stm(tree,tl.slice(length_of_tl-1,length_of_tl));
 }
 else{
-INCOMPLETE_STATEMENT=TRUE;
-return FALSE;
+INCOMPLETE_STATEMENT=true;
+return false;
 }
      }
-     return FALSE;
+     return false;
  };
 for_stms=function(tree,tl){
-     if (term(tl[0]["TOKEN_STRING"],"for")===FALSE){
-return FALSE;
+     if (term(tl[0]["TOKEN_STRING"],"for")===false){
+return false;
      }
-     if (INCOMPLETE_STATEMENT===TRUE){
-return FALSE;
+     if (INCOMPLETE_STATEMENT===true){
+return false;
      }
      var length_of_tl=tl["length"];
      if (term(tl[4]["TOKEN_STRING"],"in") && term(tl[2]["TOKEN_STRING"],"in")){
@@ -1574,12 +1561,12 @@ break;
 i=i+1;
 }
 TREE_addNode(tree,"foreach","")
-if (term(tl[1]["TOKEN_CLASS"],"id")===FALSE){
+if (term(tl[1]["TOKEN_CLASS"],"id")===false){
 Walley_Print_Error(TL_toString(tl),"for each statements error, for i,v in value, i,v must be id",tl[1]["TOKEN_START"])
 }
 TREE_addNode(tree,tl[1]["TOKEN_STRING"],"foreach_index")
 if (term(tl[2]["TOKEN_STRING"],",")){
-if (term(tl[3]["TOKEN_CLASS"],"id")===FALSE){
+if (term(tl[3]["TOKEN_CLASS"],"id")===false){
 Walley_Print_Error(TL_toString(tl),"for each statements error, for i,v in value, i,v must be id",tl[3]["TOKEN_START"])
 }
 TREE_addNode(tree,tl[3]["TOKEN_STRING"],"foreach_value")
@@ -1627,9 +1614,9 @@ num_of_comma=num_of_comma+1;
 }
 i=i+1;
 }
-     if (index_of_then===-1 || term(tl[length_of_tl-1]["TOKEN_STRING"],"end")===FALSE){
-INCOMPLETE_STATEMENT=TRUE;
-return FALSE;
+     if (index_of_then===-1 || term(tl[length_of_tl-1]["TOKEN_STRING"],"end")===false){
+INCOMPLETE_STATEMENT=true;
+return false;
      }
      if (length_of_tl!==2 && num_of_semi_colon!==0 && num_of_semi_colon<=2){
 if (num_of_semi_colon===1){
@@ -1668,11 +1655,11 @@ return assignment(TREE_getTreeAccordingToIndex(tree,index_of_a_tl1),assignment_t
 }
 }
      }
-     return FALSE;
+     return false;
  };
 func_stms=function(tree,tl){
-     if (INCOMPLETE_STATEMENT===TRUE){
-return FALSE;
+     if (INCOMPLETE_STATEMENT===true){
+return false;
      }
      var length_of_tl=tl["length"];
      if (term(tl[0]["TOKEN_STRING"],"def")){
@@ -1684,37 +1671,37 @@ TREE_addNode(tree,"func","")
 return func(TREE_getTreeAccordingToIndex(tree,index),func_tl)&&end_stm(tree,tl.slice(length_of_tl-1,length_of_tl));
 }
 else{
-INCOMPLETE_STATEMENT=TRUE;
-return FALSE;
+INCOMPLETE_STATEMENT=true;
+return false;
 }
      }
-     return FALSE;
+     return false;
  };
 end_stm=function(tree,tl){
-     if (INCOMPLETE_STATEMENT===TRUE){
-return FALSE;
+     if (INCOMPLETE_STATEMENT===true){
+return false;
      }
      if (tl["length"]===1 && term(tl[0]["TOKEN_CLASS"],"end")){
 TREE_addNode(tree,"end","")
-return TRUE;
+return true;
      }
-     return FALSE;
+     return false;
  };
 def_stms=function(tree,tl){
-     if (INCOMPLETE_STATEMENT===TRUE){
-return FALSE;
+     if (INCOMPLETE_STATEMENT===true){
+return false;
      }
      var length_of_tl=tl["length"];
-     if (term(tl[0]["TOKEN_STRING"],"def") && term(tl[1]["TOKEN_STRING"],"(")===FALSE){
+     if (term(tl[0]["TOKEN_STRING"],"def") && term(tl[1]["TOKEN_STRING"],"(")===false){
 var index_of_then=TL_indexOfTokenThatHasTokenString(tl,"then");
 var index_of_left_bracket=TL_indexOfTokenThatHasTokenString(tl,"(");
 if (index_of_then===-1){
-INCOMPLETE_STATEMENT=TRUE;
-return FALSE;
+INCOMPLETE_STATEMENT=true;
+return false;
 }
-if (term(tl[length_of_tl-1]["TOKEN_STRING"],"end")===FALSE){
-INCOMPLETE_STATEMENT=TRUE;
-return FALSE;
+if (term(tl[length_of_tl-1]["TOKEN_STRING"],"end")===false){
+INCOMPLETE_STATEMENT=true;
+return false;
 }
 var new_tl={};
 var begin=1;
@@ -1740,41 +1727,41 @@ i=i+1;
 return assignment(tree,new_tl);
      }
 else{
-return FALSE;
+return false;
      }
  };
 statements=function(tree,tl){
-     if (INCOMPLETE_STATEMENT===TRUE){
-return FALSE;
+     if (INCOMPLETE_STATEMENT===true){
+return false;
      }
      return return_stm(tree,tl) || if_stms(tree,tl) || elif_stms(tree,tl) || else_stms(tree,tl) || while_stms(tree,tl) || for_stms(tree,tl) || def_stms(tree,tl) || end_stm(tree,tl) || assignment(tree,tl)||value(tree,tl);
  };
 walley_statements=function(tree,tl){
-     if (INCOMPLETE_STATEMENT===TRUE){
-return FALSE;
+     if (INCOMPLETE_STATEMENT===true){
+return false;
      }
      var temp_tl={val:{}};
      var begin={val:0};
-     while (sentences_seperation(tl,temp_tl,begin)===TRUE){
-if (INCOMPLETE_STATEMENT===TRUE){
-return FALSE;
+     while (sentences_seperation(tl,temp_tl,begin)===true){
+if (INCOMPLETE_STATEMENT===true){
+return false;
 }
 var index=TREE_INDEX;
 TREE_addNode(tree,"statements","")
-if (statements(TREE_getTreeAccordingToIndex(tree,index),temp_tl["val"])===FALSE){
+if (statements(TREE_getTreeAccordingToIndex(tree,index),temp_tl["val"])===false){
 printf("Walley Statements Parse Error\n")
-return FALSE;
+return false;
 }
 }
-     if (INCOMPLETE_STATEMENT===TRUE){
-return FALSE;
+     if (INCOMPLETE_STATEMENT===true){
+return false;
      }
-     return TRUE;
+     return true;
  };
 sentences_seperation=function(tl,output_tl,begin){
      var length_of_tl=tl["length"];
      if (length_of_tl<=begin["val"]){
-return FALSE;
+return false;
      }
      i=begin["val"];
      for (;i<length_of_tl;){
@@ -1795,8 +1782,8 @@ break;
 i=i+1;
 }
 if (index_of_right===-1){
-INCOMPLETE_STATEMENT=TRUE;
-return FALSE;
+INCOMPLETE_STATEMENT=true;
+return false;
 }
 else if (i+1<tl["length"] && term(tl[i+1]["TOKEN_STRING"],"and") || term(tl[i+1]["TOKEN_STRING"],"or")){
 continue;
@@ -1805,7 +1792,7 @@ else{
 var end_index=index_of_right+1;
 output_tl["val"]=tl.slice(begin["val"],end_index);
 begin["val"]=i+1;
-return TRUE;
+return true;
 }
 }
 if (i<length_of_tl-1 && term(tl[i]["TOKEN_CLASS"],"num") || term(tl[i]["TOKEN_CLASS"],"string") || term(tl[i]["TOKEN_CLASS"],"id") || term(tl[i]["TOKEN_CLASS"],"list_table") || term(tl[i]["TOKEN_STRING"],")") && term(tl[1+i]["TOKEN_CLASS"],"id") || term(tl[1+i]["TOKEN_CLASS"],"num") || term(tl[i+1]["TOKEN_CLASS"],"return") || term(tl[i+1]["TOKEN_STRING"],"continue") || term(tl[1+i]["TOKEN_STRING"],"break") || term(tl[1+i]["TOKEN_CLASS"],"local")){
@@ -1813,7 +1800,7 @@ var end_index=i+1;
 var ahead_tl=tl.slice(begin["val"],end_index);
 output_tl["val"]=ahead_tl;
 begin["val"]=end_index;
-return TRUE;
+return true;
 }
 if (term(tl[i]["TOKEN_STRING"],"def") || term(tl[i]["TOKEN_STRING"],"for") || term(tl[i]["TOKEN_STRING"],"while")){
 if (begin["val"]!==i){
@@ -1825,7 +1812,7 @@ var end_index=i;
 var ahead_tl=tl.slice(begin["val"],end_index);
 begin["val"]=end_index;
 output_tl["val"]=ahead_tl;
-return TRUE;
+return true;
 }
 }
 var count=0;
@@ -1846,11 +1833,11 @@ var end_index=i+1;
 var ahead_tl=tl.slice(begin["val"],end_index);
 output_tl["val"]=ahead_tl;
 begin["val"]=end_index;
-return TRUE;
+return true;
 }
 else{
-INCOMPLETE_STATEMENT=TRUE;
-return FALSE;
+INCOMPLETE_STATEMENT=true;
+return false;
 }
 }
 if (term(tl[i]["TOKEN_STRING"],"if")){
@@ -1859,7 +1846,7 @@ var end_index=i;
 var ahead_tl=tl.slice(begin["val"],end_index);
 begin["val"]=end_index;
 output_tl["val"]=ahead_tl;
-return TRUE;
+return true;
 }
 var count_of_if=0;
 var count_of_end=0;
@@ -1884,20 +1871,20 @@ end_token["TOKEN_CLASS"]="end";
 ahead_tl["append"](end_token);
 begin["val"]=end_index;
 output_tl["val"]=ahead_tl;
-return TRUE;
+return true;
 }
 i=i+1;
 }
 if (count_of_if!==count_of_end || count_of_if!==0){
-INCOMPLETE_STATEMENT=TRUE;
-return FALSE;
+INCOMPLETE_STATEMENT=true;
+return false;
 }
 else{
 var end_index=i+1;
 var ahead_tl=tl.slice(begin["val"],end_index);
 begin["val"]=end_index-1;
 output_tl["val"]=ahead_tl;
-return TRUE;
+return true;
 }
 }
 if (term(tl[i]["TOKEN_STRING"],"elif")){
@@ -1922,19 +1909,19 @@ end_token["TOKEN_CLASS"]="end";
 ahead_tl["append"](end_token);
 begin["val"]=end_index;
 output_tl["val"]=ahead_tl;
-return TRUE;
+return true;
 }
 if (count_of_end===-1 && count_of_if===-1){
 var end_index=i+1;
 var ahead_tl=tl.slice(begin["val"],end_index);
 begin["val"]=end_index-1;
 output_tl["val"]=ahead_tl;
-return TRUE;
+return true;
 }
 i=i+1;
 }
-INCOMPLETE_STATEMENT=TRUE;
-return FALSE;
+INCOMPLETE_STATEMENT=true;
+return false;
 }
 if (term(tl[i]["TOKEN_STRING"],"else")){
 var count_of_if=0;
@@ -1957,12 +1944,12 @@ var end_index=i+1;
 var ahead_tl=tl.slice(begin["val"],end_index);
 begin["val"]=end_index-1;
 output_tl["val"]=ahead_tl;
-return TRUE;
+return true;
 }
 i=i+1;
 }
-INCOMPLETE_STATEMENT=TRUE;
-return FALSE;
+INCOMPLETE_STATEMENT=true;
+return false;
 }
 if (term(tl[i]["TOKEN_STRING"],"end")){
 var end_index=i;
@@ -1970,7 +1957,7 @@ if (begin["val"]<i){
 var ahead_tl=tl.slice(begin["val"],end_index);
 begin["val"]=end_index;
 output_tl["val"]=ahead_tl;
-return TRUE;
+return true;
 }
 else{
 begin["val"]=end_index;
@@ -1979,7 +1966,7 @@ end_index=i+1;
 var ahead_tl=tl.slice(begin["val"],end_index);
 begin["val"]=end_index;
 output_tl["val"]=ahead_tl;
-return TRUE;
+return true;
 }
 i=i+1;
 }
@@ -1987,9 +1974,9 @@ i=i+1;
 var ahead_tl=tl.slice(begin["val"],length_of_tl);
 begin["val"]=length_of_tl;
 output_tl["val"]=ahead_tl;
-return TRUE;
+return true;
      }
-     return FALSE;
+     return false;
  };
 parser=function(tl){
      TREE_INDEX=0;
@@ -1997,7 +1984,7 @@ parser=function(tl){
      if (tl==={}){
 return output_tree;
      }
-     if (walley_statements(output_tree,tl)===FALSE && INCOMPLETE_STATEMENT===FALSE){
+     if (walley_statements(output_tree,tl)===false && INCOMPLETE_STATEMENT===false){
 console["log"]("Fail to parse statements\n");
      }
      TREE_print(output_tree);
