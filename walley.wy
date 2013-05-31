@@ -944,6 +944,15 @@ def table_value(tree, tl) then
     end
    
     local length_of_tl=tl.length
+
+    # check whether have m_operator to solve a.length-1 parser error
+    local i=0
+    for i=0,i<length_of_tl,i=i+1 then
+        if term(tl[i].TOKEN_CLASS,"m_operator") then
+            return FALSE
+        end
+    end
+
     #~
      id table_value_key
      
@@ -1305,13 +1314,10 @@ def expr(tree, tl) then
             local tl2=tl[index_of_first_sign+1:length_of_tl]
             tree.name=sign
             
-            local current_index=tree.index
+            local index_of_expr1_node=TREE_INDEX
             TREE_addNode(tree, "expr","")
-            TREE_addNodeAtIndex(tree, current_index, "expr","")
-            
-            
-            local index_of_expr1_node=TREE_INDEX-2
-            local index_of_expr2_node=TREE_INDEX-1
+            local index_of_expr2_node=TREE_INDEX
+            TREE_addNode(tree, "expr","")
             
             return
             expr(TREE_getTreeAccordingToIndex(tree,index_of_expr1_node), tl1)

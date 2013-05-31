@@ -326,11 +326,23 @@ table_value ->
  */
 bool table_value(TREE *tree, Token_List *tl){
     
+    
     if (INCOMPLETE_STATEMENT) {
         return FALSE;
     }
    
     int length_of_tl=TL_length(tl);
+    
+    
+    // check whether have m_operator to solve a.length-1 parser error
+    Token_List *temp_tl=tl;
+    while (temp_tl!=NULL) {
+        if (term(temp_tl->current_token.TOKEN_CLASS, "m_operator")) {
+            return FALSE;
+        }
+        temp_tl=temp_tl->next;
+    }
+    
     /*
      id table_value_key
      
@@ -351,8 +363,10 @@ bool table_value(TREE *tree, Token_List *tl){
         int index=TREE_INDEX;
         TREE_addNode(tree, "table_value", "");
         
+
         
         TREE_addNode(TREE_getTreeAccordingToIndex(tree, index), tl->current_token.TOKEN_STRING, tl->current_token.TOKEN_CLASS);
+        
         return table_value_key(TREE_getTreeAccordingToIndex(tree, index), TL_subtl(tl, 1, length_of_tl));
     }
     // new support on 05/24/2013
@@ -476,6 +490,8 @@ bool table_value_key(TREE *tree, Token_List *tl){
     if (INCOMPLETE_STATEMENT) {
         return FALSE;
     }
+    
+    
     int length_of_tl=TL_length(tl);
     
     // [(string|num)value|slice]        # slice need ":"    like ':3' ':3' or '0:3'
@@ -592,8 +608,9 @@ bool table_value_key(TREE *tree, Token_List *tl){
         TREE_initWithName(&key_tree, "key");
         value(&key_tree, key_tl);
         
-        TREE_addTree(TREE_getTreeAccordingToIndex(tree, index1),key_tree);
         
+        TREE_addTree(TREE_getTreeAccordingToIndex(tree, index1),key_tree);
+
         return TRUE;
     }
     //| '.' func

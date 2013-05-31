@@ -79,6 +79,7 @@
 
 bool expr(TREE *tree, Token_List *tl){
     
+    
     Token_List *original_tl=tl;
 
     if (INCOMPLETE_STATEMENT) {
@@ -115,6 +116,7 @@ bool expr(TREE *tree, Token_List *tl){
             
             tl=temp_tl;
             int index_of_first_sign=i;
+            
                         
             // solve x=-1 or x=+1 problem
             if (index_of_first_sign==0) {
@@ -135,16 +137,16 @@ bool expr(TREE *tree, Token_List *tl){
             Token_List *tl1=TL_subtl(tl, 0, index_of_first_sign);
             Token_List *tl2=TL_subtl(tl, index_of_first_sign+1, length_of_tl);
             
+                        
             tree->name=sign;
-            //TREE_addNode(tree, sign);
             
-            int current_index=tree->index;
+            int index_of_expr1_node=TREE_INDEX;
             TREE_addNode(tree, "expr","");
-            TREE_addNodeAtIndex(tree, current_index, "expr","");
+            int index_of_expr2_node=TREE_INDEX;
+            TREE_addNode(tree, "expr", "");
             
+          
             
-            int index_of_expr1_node=TREE_INDEX-2;
-            int index_of_expr2_node=TREE_INDEX-1;
             
             return
             expr(TREE_getTreeAccordingToIndex(tree,index_of_expr1_node), tl1)

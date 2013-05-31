@@ -161,13 +161,11 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
     if (term(tree.token_class,"id")){
         // continue
         if (term(tree.name, "continue")) {
-            SL_addString(sl, "continue;");
-            return "";
+            return "continue;";
         }
         
         if (term(tree.name, "break")) {
-            SL_addString(sl, "break;");
-            return "";
+            return "break;";
         }
         
         
@@ -191,7 +189,11 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
             if ((int)strlen(temp_str)!=0) {
                 output_str=append(output_str,temp_str);
                 if (output_str[(int)strlen(output_str)-1]!='\n') {
-                    output_str=append(output_str, "\n");
+                    if (output_str[(int)strlen(output_str)-1]!=';') {
+                        output_str=append(output_str, ";\n");
+                    }else{
+                        output_str=append(output_str, "\n");
+                    }
                 }
             }
         }
@@ -625,6 +627,17 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
         Node_List *nl=tree.node_list->next->next;
         while (nl->next!=NULL) {
             char *output_str=Code_Generation_2_Javascript(sl, nl->node);
+            
+            // add ; or \n
+            if (output_str[(int)strlen(output_str)-1]!='\n') {
+                if (output_str[(int)strlen(output_str)-1]!=';') {
+                    output_str=append(output_str, ";\n");
+                }else{
+                    output_str=append(output_str, "\n");
+                }
+            }
+
+            
             append_string=append(append_string, append("     ",output_str));
             nl=nl->next;
         }

@@ -11,19 +11,20 @@
 int main(int argc, char **argv)
 {
     
-    
+    /*
     Str_List *output_sl=Compile_to_JS("/Users/shd101wyy/Documents/workspace/xcode/Walley0.1/Walley0.1/walley.wy");
     printf("\n\n!!!===== SUCCESS =====\n");
     //SL_print(output_sl);
     exit(0);
-    
+    */
     
     /*
-    Token_List *tl=Walley_Lexical_Analyzie("def value(tree, tl) then x=2 end" );
+    Token_List *tl=Walley_Lexical_Analyzie("a.length-1" );
     TL_print(tl);
     
     TREE tree;
     tree=parser(tl);
+    
     
     TREE_print(tree);
     
