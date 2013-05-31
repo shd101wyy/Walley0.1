@@ -421,47 +421,16 @@ def Walley_Analyze_Token_Class(input_str, i) then
     end
     
     # 12 digit
-    if isdigit(input_str[i])==true then
-        local a=i+1
-        local find_dot=false
-        local index_of_first_dot=-1
-        for a<length, a=a+1 then
-            if input_str[a]=="."  and  find_dot==false then
-                find_dot=true
-                index_of_first_dot=a
-                continue
-            end
-            if input_str[a]=="."  and  find_dot==true then
-                # 1.2.3
-                if isdigit(input_str[a+1]) then
-                    Walley_Print_Error(input_str, "invalide number", a)
-                # 1.2.toString
-                # problem:
-                # 1.2.3ToString()   func_name 3ToString
-                else
-                    end_index=a
-                    return_obj[0]=end_index
-                    return_obj[1]="num"
-                    return return_obj
-                end
-            end
-            if isdigit(input_str[a])==false then
-                break
-            end
+    if isdigit(input_str[i]) == true then
+        local a=i
+        local temp_str=input_str[i]
+        while isdigit(temp_str) then
+            a=a+1
+            temp_str=temp_str+input_str[a]
         end
-        if find_dot==true  and  isdigit(input_str[index_of_first_dot+1])==false then
-            end_index=index_of_first_dot
-            return_obj[0]=end_index
-            return_obj[1]="num"
-            return return_obj
-        end
-        if a!=length and isalpha(input_str[a]) then
-            Walley_Print_Error(input_str, "Invalid Syntax", a)
-        end
-        
-        end_index=a
-        return_obj[0]=end_index
-        return_obj[1]="num"
+        end_index = a
+        return_obj[0] = end_index
+        return_obj[1] = "num"
         return return_obj
     end
     
