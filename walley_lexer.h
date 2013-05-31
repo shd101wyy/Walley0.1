@@ -329,8 +329,9 @@ char* Walley_Analyze_Token_Class(char *input_str, int i, int *end){
         return "then";
     }
     
+    
     // end
-    if (match(input_str, i, "end") && (i+3>=length || input_str[i+3]==' ')) {
+    if (match(input_str, i, "end") && (i+3>=length || input_str[i+3]==' ' ||input_str[i+3]=='\n')) {
         *end=i+3;
       
         

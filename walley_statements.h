@@ -643,6 +643,7 @@ bool end_stm(TREE *tree, Token_List *tl){
 
 // def_stms -> 'def' func_name_stm '(' params ')' 'then' walley_statements 'end'
 bool def_stms(TREE *tree, Token_List *tl){
+    
     if (INCOMPLETE_STATEMENT) {
         return FALSE;
     }
@@ -650,6 +651,7 @@ bool def_stms(TREE *tree, Token_List *tl){
     if (term(tl->current_token.TOKEN_STRING, "def") && term(tl->next->current_token.TOKEN_STRING, "(")==FALSE) {
         int index_of_then=TL_indexOfTokenThatHasTokenString(tl, "then");
         int index_of_left_bracket=TL_indexOfTokenThatHasTokenString(tl, "(");
+       
         if(index_of_then==-1){
             INCOMPLETE_STATEMENT=TRUE;
             return FALSE;
@@ -659,8 +661,6 @@ bool def_stms(TREE *tree, Token_List *tl){
             INCOMPLETE_STATEMENT=TRUE;
             return FALSE;
         }
-        
-        
        
         
         Token_List *new_tl;
@@ -692,7 +692,6 @@ bool def_stms(TREE *tree, Token_List *tl){
             TL_addToken(&new_tl, temp_tl->current_token);
             temp_tl=temp_tl->next;
         }
-        
         return assignment(tree, new_tl);
     }
     else{
@@ -746,7 +745,6 @@ bool statements(TREE *tree, Token_List *tl){
         ||else_stms(tree, tl)
         ||while_stms(tree, tl)
         ||for_stms(tree, tl)
-        // ||func_stms(tree, tl)        removed
         ||def_stms(tree, tl)
         ||end_stm(tree, tl)
         ||assignment(tree, tl)
@@ -770,6 +768,7 @@ bool walley_statements(TREE *tree, Token_List *tl){
             return FALSE;
         }
         
+                
         int index=TREE_INDEX;
         TREE_addNode(tree, "statements", "");
                 
@@ -777,6 +776,7 @@ bool walley_statements(TREE *tree, Token_List *tl){
             printf("Walley Statements Parse Error\n");
             return FALSE;
         }
+        
     }
     if (INCOMPLETE_STATEMENT) {
         return FALSE;

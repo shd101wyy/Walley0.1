@@ -16,8 +16,9 @@ int main(int argc, char **argv)
     printf("\n\n!!!===== SUCCESS =====\n");
     exit(0);
     
+    
     /*
-    Token_List *tl=Walley_Lexical_Analyzie("local i=0 local x=2" );
+    Token_List *tl=Walley_Lexical_Analyzie("def Token_init() then\n x=12\nend" );
     TL_print(tl);
     
     TREE tree;

@@ -1,2 +1,3 @@
-return value(TREE_getTreeAccordingToIndex(tree, index_of_tl1), tl1) and elements(tree, tl2)
-    
+def Token_init() then
+    x=12
+end

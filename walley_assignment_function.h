@@ -125,7 +125,6 @@ bool return_stm(TREE *tree, Token_List *tl){
 
 // func_value -> func_assign walley_statements 'end'
 bool func_value(TREE *tree, Token_List *tl){
-   
     
     if (INCOMPLETE_STATEMENT) {
         return FALSE;
@@ -142,8 +141,6 @@ bool func_value(TREE *tree, Token_List *tl){
             INCOMPLETE_STATEMENT=TRUE;
             return FALSE;
         }
-        
-               
        
         return func_assign(tree, TL_subtl(tl, 0, index_of_then+1))
         && walley_statements(tree, TL_subtl(tl, index_of_then+1, length_of_tl-1)) && end_stm(tree, TL_subtl(tl, length_of_tl-1, length_of_tl));
