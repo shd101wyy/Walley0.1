@@ -212,7 +212,6 @@ bool value(TREE *tree, Token_List *tl){
     // relation
     // expr
     else{
-        
         return  func_value(tree, tl)||table_value(tree, tl)||func(tree, tl)||relation(tree,tl)||expr(tree, tl);
     }
 }

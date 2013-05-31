@@ -117,7 +117,7 @@ Str_List *Compile_to_JS(char *file_name){
                     exit(0);
                 }
                 
-                printf("\nINCOMPLETE---> %s\n",sl_in_file->string_content);
+                //printf("\nINCOMPLETE---> %s\n",sl_in_file->string_content);
                 
                 INCOMPLETE_STATEMENT=FALSE;
                 
@@ -128,6 +128,7 @@ Str_List *Compile_to_JS(char *file_name){
                 
                                 
                 Token_List *temp_tl=Walley_Lexical_Analyzie(temp_string);
+               
                 tree=parser(temp_tl);
             }
         }

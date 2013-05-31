@@ -238,7 +238,6 @@ bool var_name(TREE *tree, Token_List *tl){
 //# where ',' is the , not inside def if elif else for while
 bool var_value(TREE *tree, Token_List *tl){
    
-    
     if (INCOMPLETE_STATEMENT) {
         return FALSE;
     }

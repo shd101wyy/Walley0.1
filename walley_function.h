@@ -111,7 +111,7 @@ bool params(TREE *tree, Token_List *tl){
 }
 
 bool func(TREE *tree, Token_List *tl){
-       
+    
     if (INCOMPLETE_STATEMENT) {
         return FALSE;
     }
@@ -119,6 +119,10 @@ bool func(TREE *tree, Token_List *tl){
     // id '(' params ')'
     int index_of_left=TL_indexOfTokenThatHasTokenString(tl, "(");
     int index_of_right=-1; // get right )
+    
+    if (index_of_left==-1) {
+        return FALSE;
+    }
     
     Token_List *temp_tl=tl;
     int i=0;

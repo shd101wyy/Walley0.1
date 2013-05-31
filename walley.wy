@@ -230,15 +230,16 @@ def Walley_Analyze_Token_Class(input_str, i) then
     
     # 4 relation
     # 1) and | not
-    if match(input_str, i, "and")
-         or match(input_str, i, "not")
+    if (match(input_str, i, "and")
+         or match(input_str, i, "not")) and
+         (i+3>=length or input_str[i+3]==" " or input_str[i+3]=="\n")
         then
         end_index=i+3
         return_obj[0]=end_index
         return_obj[1]="relation"
         return return_obj
     end
-    if match(input_str, i, "or") then
+    if match(input_str, i, "or") and (i+2>=length or input_str[i+2]==" " or input_str[i+2]=="\n") then
         end_index=i+2
         return_obj[0]=end_index
         return_obj[1]="relation"
@@ -263,7 +264,7 @@ def Walley_Analyze_Token_Class(input_str, i) then
     
     # 7 keyword
     # 1) if
-    if i<=length-2 and (input_str[i]=="i" and input_str[i+1]=="f") then
+    if i<=length-2 and match(input_str,i,"if") and (i+2>=length or input_str[i+2]==" " or input_str[i+2]=="\n") then
          
         end_index=i+2
         return_obj[0]=end_index
@@ -271,8 +272,10 @@ def Walley_Analyze_Token_Class(input_str, i) then
         return return_obj
     end
     # 2)for def
-    if match(input_str, i, "for")
-         or match(input_str, i,"def") then
+    if (match(input_str, i, "for")
+         or match(input_str, i,"def")) and
+        (i+3>=length or input_str[i+3]==" " or input_str[i+3]=="\n")
+          then
         #COUNT_THEN_END        
         end_index=i+3
         return_obj[0]=end_index
@@ -281,9 +284,11 @@ def Walley_Analyze_Token_Class(input_str, i) then
     end
 
     # 3) elif else case
-    if match(input_str, i, "elif")
+    if (match(input_str, i, "elif")
          or match(input_str, i, "else")
-         or match(input_str, i, "case") then
+         or match(input_str, i, "case")) and
+        (i+4>=length or input_str[i+4]==" " or input_str[i+4]=="\n")
+          then
         end_index=i+4
         return_obj[0]=end_index
         return_obj[1]="keyword"
@@ -291,8 +296,10 @@ def Walley_Analyze_Token_Class(input_str, i) then
     end
     
     # 4) while class
-    if match(input_str, i, "while")
-         or match(input_str, i, "class") then
+    if (match(input_str, i, "while")
+         or match(input_str, i, "class"))
+         and (i+5>=length or input_str[i+5]==" " or input_str[i+5]=="\n")
+          then
      
         end_index=i+5
         return_obj[0]=end_index
@@ -301,7 +308,9 @@ def Walley_Analyze_Token_Class(input_str, i) then
     end
     
     # then
-    if match(input_str, i, "then") then
+    if match(input_str, i, "then")
+        and (i+4>=length or input_str[i+4]==" " or input_str[i+4]=="\n")
+        then
         end_index=i+4
         return_obj[0]=end_index
         return_obj[1]="then"
@@ -326,7 +335,9 @@ def Walley_Analyze_Token_Class(input_str, i) then
     end
     
     # local
-    if match(input_str, i, "local") then
+    if match(input_str, i, "local")
+       and (i+5>=length or input_str[i+5]==" " or input_str[i+5]=="\n")
+     then
         end_index=i+5
         return_obj[0]=end_index
         return_obj[1]="local"
@@ -827,7 +838,7 @@ def table_expr(tree,tl,key_index) then
         TREE_addNode(tree, new_key, "key")
         local index=TREE_INDEX
         TREE_addNode(tree, "value", "")
-        return value(TREE_getTreeAccordingToIndex(tree, index), TL_subtl(tl, 3, length_of_tl))
+        return value(TREE_getTreeAccordingToIndex(tree, index), tl[3:length_of_tl])
     
     # id '=' value
     elif term(tl[0].TOKEN_CLASS, "id") and term(tl[1].TOKEN_STRING, "=") then
@@ -846,7 +857,7 @@ def table_expr(tree,tl,key_index) then
         return value(TREE_getTreeAccordingToIndex(tree, index2), TL_subtl(tl, 2, length_of_tl))
     #              0           1       2
     #    |'[' (string|int) ']' '=' (value)
-    elif term(tl[0].TOKEN_CLASS, "list_table") and tl->next!=NULL and term(tl[1].TOKEN_STRING, "=") then
+    elif term(tl[0].TOKEN_CLASS, "list_table") and tl[1]!="undefined" and term(tl[1].TOKEN_STRING, "=") then
         # THIS PLACE HAS SOME PROBLEM
         #printf("'[' (string|int) ']' '=' (value)  HAS NOT BEEN IMPLEMENTED\n")
         
@@ -869,11 +880,11 @@ def table_expr(tree,tl,key_index) then
         return value(TREE_getTreeAccordingToIndex(tree, index2),tl[2:length_of_tl])
 
     #value
-    else{
+    else
         local index1=TREE_INDEX
         TREE_addNode(tree, "key", "")
         
-        local key_tl=Walley_Lexical_Analyzie(intToCString((*key_index)))
+        local key_tl=Walley_Lexical_Analyzie(intToCString(key_index.val))
         local key_tree=TREE_init("key")
         value(key_tree, key_tl)
         
@@ -894,7 +905,7 @@ end
 
 #table    -> '[' table_elements ']'
 def table(tree,tl,key_index) then
-    if INCOMPLETE_STATEMENT then
+    if INCOMPLETE_STATEMENT==TRUE then
         return FALSE
     end
     local length_of_tl=tl.length
@@ -902,7 +913,7 @@ def table(tree,tl,key_index) then
     if length_of_tl==1 then
         local list_string=tl[0].TOKEN_STRING
         local length_of_list_string=list_string.length
-        if list_string[0]=="[" and list_string[length_of_list_string-1]=="]"
+        if list_string[0]=="[" and list_string[length_of_list_string-1]=="]" then
             # list_string [1,2]
             # list_string2 1,2
             local list_string2=list_string[1:list_string.length-1].trim()
@@ -1110,6 +1121,7 @@ def table_value_key(tree, tl) then
             else
                 TREE_addNode(slice_tree, "value", "")
                 value(TREE_getTreeAccordingToIndex(slice_tree, index_left), left_tl)
+            end
             # add right
             local index_right=TREE_INDEX
             if right_tl==NULL then
@@ -1129,7 +1141,7 @@ def table_value_key(tree, tl) then
         local index1=TREE_INDEX
         TREE_addNode(tree, "key", "")
         
-        local key_tl=Walley_Lexical_Analyzie(toString(tl->next->current_token.TOKEN_STRING))
+        local key_tl=Walley_Lexical_Analyzie(toString(tl[1].TOKEN_STRING))
         local key_tree=TREE_init("key")
         value(key_tree, key_tl)
         TREE_addTree(TREE_getTreeAccordingToIndex(tree, index1),key_tree)
@@ -1177,7 +1189,7 @@ def table_value_key(tree, tl) then
              then
         return table_value_key(tree, tl[0:1]) and table_value_key(tree, tl[1:length_of_tl])
     #| [(string|num)value] '(' params ')' table_value_key
-    elif (length_of_tl>=3 and term(tl[0].TOKEN_CLASS, "list_table") and term(tl[1].TOKEN_STRING, "(") then       
+    elif length_of_tl>=3 and term(tl[0].TOKEN_CLASS, "list_table") and term(tl[1].TOKEN_STRING, "(") then       
         # find index_of_right )
         local index=-1
         local i=0
@@ -1254,7 +1266,7 @@ def expr(tree, tl) then
     
     local i=length_of_tl-1
     for i>=0, i=i-1 then
-        if (tl[i].TOKEN_STRING=="(") then
+        if tl[i].TOKEN_STRING=="(" then
             count_of_parenthesis=count_of_parenthesis+1
             continue
         end
@@ -1380,7 +1392,7 @@ def p_term(tree, tl) then
             continue
         end
         #   p_term "^" factor
-        if (count_of_parenthesis==0 and ("^"==tl[i].TOKEN_STRING) or "**"==tl[i].TOKEN_STRING ) then
+        if count_of_parenthesis==0 and ("^"==tl[i].TOKEN_STRING or "**"==tl[i].TOKEN_STRING ) then
             local sign="^"
 
             local index_of_first_sign=i
@@ -1443,7 +1455,7 @@ def assignment(tree,tl) then
     
     local count=0
     local count_of_equal=0
-    local index_of_equal
+    local index_of_equal=-1
     local i=0
 
     for i=0,i<tl.length,i=i+1 then
@@ -1475,7 +1487,7 @@ def assignment(tree,tl) then
         local var_name_tree=TREE_init("var_name")
         local var_name_list=[]
         # exclude local
-        if is_local==TRUE
+        if is_local==TRUE then
             var_name_list=tl[1:index_of_equal]
         else
             var_name_list=tl[0:index_of_equal]
@@ -1530,7 +1542,7 @@ def assignment(tree,tl) then
 end
 
 def var_name(tree,tl) then
-    if INCOMPLETE_STATEMENT then
+    if INCOMPLETE_STATEMENT==TRUE then
         return FALSE
     end
     local index_of_comma=TL_indexOfTokenThatHasTokenString(tl, ",")
@@ -1544,10 +1556,10 @@ def var_name(tree,tl) then
         and var_name(tree, tl2)
     
     else
-        local length_of_tl=TL_length(tl)
+        local length_of_tl=tl.length
         # id
         if length_of_tl==1 then
-            if ("id"==tl[0].TOKEN_CLASS then
+            if "id"==tl[0].TOKEN_CLASS then
                 TREE_addNode(tree, tl[0].TOKEN_STRING,"id")
                 return TRUE    
             else
@@ -1659,7 +1671,7 @@ def func_assign(tree, tl) then
             # does not have params
             else
                 params_tl=[]
-                local add_token=Token.init()
+                local add_token=Token_init()
                 add_token.TOKEN_CLASS="id"
                 add_token.TOKEN_STRING="none"
                 params_tl.append(add_token)
@@ -1672,7 +1684,7 @@ end
 
 # return_stm -> 'return' value
 def return_stm(tree, tl) then
-    if INCOMPLETE_STATEMENT == TRUE
+    if INCOMPLETE_STATEMENT == TRUE then
         return FALSE
     end
 
@@ -1683,15 +1695,15 @@ def return_stm(tree, tl) then
         local index2=TREE_INDEX
         TREE_addNode(TREE_getTreeAccordingToIndex(tree, index1), "value", "")
         
-        return value(TREE_getTreeAccordingToIndex(tree, index2),TL_subtl(tl, 1, length_of_tl))
+        return value(TREE_getTreeAccordingToIndex(tree, index2),tl[1:length_of_tl])
     end
     return FALSE
 end
 
 
 # func_value -> func_assign walley_statements 'end'
-def func_value(TREE *tree, Token_List *tl) then
-    if INCOMPLETE_STATEMENT == TRUE
+def func_value(tree, tl) then
+    if INCOMPLETE_STATEMENT == TRUE then
         return FALSE
     end
     local length_of_tl=tl.length
@@ -1709,14 +1721,14 @@ def func_value(TREE *tree, Token_List *tl) then
        
         return func_assign(tree, tl[0:index_of_then+1])
         and walley_statements(tree, tl[index_of_then+1:length_of_tl-1])
-        and end_stm(tree, tl[length_of_tl-1:length_of_tl)]
+        and end_stm(tree, tl[length_of_tl-1:length_of_tl])
     end
     return FALSE
 end
 
 #= walley_function.wy
 def params(tree, tl)then
-    if INCOMPLETE_STATEMENT == TRUE
+    if INCOMPLETE_STATEMENT == TRUE then
         return FALSE
     end
     # has no params
@@ -1774,7 +1786,7 @@ end
 
 def func(tree, tl) then
           
-    if INCOMPLETE_STATEMENT == TRUE
+    if INCOMPLETE_STATEMENT == TRUE then
         return FALSE
     end
 
@@ -1782,6 +1794,10 @@ def func(tree, tl) then
     # id '(' params ')'
     local index_of_left=TL_indexOfTokenThatHasTokenString(tl, "(")
     local index_of_right=-1 # find )
+
+    if index_of_left==-1 then
+        return FALSE
+    end
 
     local i=0
     local count=0
@@ -1803,7 +1819,7 @@ def func(tree, tl) then
     end
     
     # false
-    if index_of_right+1!=length_of_tl or index_of_left==-1 or index_of_left==0 them
+    if index_of_right+1!=length_of_tl or index_of_left==-1 or index_of_left==0 then
         return FALSE
     else
         local test_id=tl[0:index_of_left]
@@ -1858,7 +1874,7 @@ def relation(tree, tl) then
         end
         # |relation 'and' relation
         # |relation 'or'  relation
-        if count==0 and term(tl[i].TOKEN_CLASS, "relation") and strcmp(tl[i].TOKEN_STRING, "not")!=0 then
+        if count==0 and term(tl[i].TOKEN_CLASS, "relation") and tl[i].TOKEN_STRING!="not" then
             index_of_and_or=i
             
             local and_or_string=tl[i].TOKEN_STRING
@@ -1897,7 +1913,7 @@ def simple_relation(tree,tl) then
     local length_of_tl=tl.length
     
     #'(' relation ')'
-    if term("(", tl[0]TOKEN_STRING) and term(")",tl[length_of_tl-1].TOKEN_STRING) then
+    if term("(", tl[0].TOKEN_STRING) and term(")",tl[length_of_tl-1].TOKEN_STRING) then
         return relation(tree, tl[1:length_of_tl-1])
     # value judge_sign value
     # expr
@@ -1953,7 +1969,7 @@ end
 #= walley_statements.wy
 
 def if_stms(tree, tl) then
-    if INCOMPLETE_STATEMENT==TRUE
+    if INCOMPLETE_STATEMENT==TRUE then
         return FALSE
     end
 
@@ -1983,8 +1999,8 @@ def if_stms(tree, tl) then
     return FALSE
 end
 
-def elif_stms(TREE *tree, Token_List *tl){
-    if INCOMPLETE_STATEMENT==TRUE
+def elif_stms(tree, tl) then
+    if INCOMPLETE_STATEMENT==TRUE then
         return FALSE
     end
 
@@ -2014,7 +2030,7 @@ def elif_stms(TREE *tree, Token_List *tl){
 end
 
 def else_stms(TREE *tree, Token_List *tl) then
-    if INCOMPLETE_STATEMENT==TRUE
+    if INCOMPLETE_STATEMENT==TRUE then
         return FALSE
     end
     local length_of_tl=tl.length
@@ -2103,7 +2119,7 @@ def for_stms(tree,tl) then
         
         if term(tl[2].TOKEN_STRING, ",") then
             # check v error
-            if (term(tl[3].TOKEN_CLASS, "id")==FALSE then
+            if term(tl[3].TOKEN_CLASS, "id")==FALSE then
                 Walley_Print_Error(TL_toString(tl), "for each statements error, for i,v in value, i,v must be id", tl[3].TOKEN_START)
             end
             
@@ -2122,7 +2138,7 @@ def for_stms(tree,tl) then
             TREE_addNode(tree, "", "foreach_value")
             #tl=tl->next->next->next; // value
             
-            // add in value
+            # add in value
             local index=TREE_INDEX
             TREE_addNode(tree, "", "foreach_in")
             TREE_addNode(TREE_getTreeAccordingToIndex(tree, index), "value", "")
@@ -2197,7 +2213,7 @@ def for_stms(tree,tl) then
         
         #|  'for' ',' simple_relation ',' assignment 'then' walley_statements 'end'
         #|  'for' assignment ',' simple_relation ',' assignment 'then' walley_statements 'end'
-        else{
+        else
             #|  'for' ',' simple_relation ',' assignment 'then' walley_statements 'end'
             if term(tl[1].TOKEN_STRING, ",") then
                 local simple_relation_tl=tl[2:index_of_comma[1]]
@@ -2238,7 +2254,7 @@ def for_stms(tree,tl) then
         end
     end
     return FALSE
-emd
+end
 
 def func_stms(tree, tl) then
     if INCOMPLETE_STATEMENT==TRUE then
@@ -2310,7 +2326,7 @@ def def_stms(TREE *tree, Token_List *tl) then
             end
         end
 
-        local add_token=Token.init()
+        local add_token=Token_init()
         add_token.TOKEN_STRING="="
         add_token.TOKEN_CLASS="assignment_operator"
         new_tl.append(add_token)
@@ -2414,7 +2430,7 @@ def sentences_seperation(tl, output_tl,begin) then
                  continue
             else
                 local end_index=index_of_right+1
-                output_tl.val=tl[begin.val,end_index]
+                output_tl.val=tl[begin.val:end_index]
                 begin.val=i+1
                 return TRUE
             end
@@ -2444,6 +2460,7 @@ def sentences_seperation(tl, output_tl,begin) then
             if begin.val!=i then
                 if term(tl[i].TOKEN_STRING, "def") and term(tl[1].TOKEN_STRING, "(") then
                    #nothing 
+                   console.log("")
                 else
                     local end_index=i
                     local ahead_tl=tl[begin.val:end_index]
@@ -2491,7 +2508,7 @@ def sentences_seperation(tl, output_tl,begin) then
             if begin.val!=i then
                 
                 local end_index=i
-                local ahead_tl=tl[begin.val,end_index]
+                local ahead_tl=tl[begin.val:end_index]
                 begin.val=end_index
                 output_tl.val=ahead_tl
                 return TRUE
@@ -2502,9 +2519,9 @@ def sentences_seperation(tl, output_tl,begin) then
             local count_of_end=0
             for  i<length_of_tl,i=i+1 then
                 if term(tl[i].TOKEN_STRING, "if")
-                or term(tl->current_token.TOKEN_STRING, "def")
-                or term(tl->current_token.TOKEN_STRING, "while")
-                or term(tl->current_token.TOKEN_STRING, "for") then
+                or term(tl[i].TOKEN_STRING, "def")
+                or term(tl[i].TOKEN_STRING, "while")
+                or term(tl[i].TOKEN_STRING, "for") then
                     count_of_if=count_of_if+1
                     count_of_end=count_of_end+1
                 end
@@ -2525,7 +2542,7 @@ def sentences_seperation(tl, output_tl,begin) then
                     
                     local end_index=i
                     local ahead_tl=tl[begin.val:end_index]
-                    local end_token=Token.init()
+                    local end_token=Token_init()
                     end_token.TOKEN_STRING="end"
                     end_token.TOKEN_CLASS="end"
                     ahead_tl.append(end_token)
@@ -2568,9 +2585,9 @@ def sentences_seperation(tl, output_tl,begin) then
             local temp_i=i
             for  i<length_of_tl, i=i+1 then
                 if term(tl[i].TOKEN_STRING, "if")
-                or term(tl->current_token.TOKEN_STRING, "def")
-                or term(tl->current_token.TOKEN_STRING, "while")
-                or term(tl->current_token.TOKEN_STRING, "for") then
+                or term(tl[i].TOKEN_STRING, "def")
+                or term(tl[i].TOKEN_STRING, "while")
+                or term(tl[i].TOKEN_STRING, "for") then
                     count_of_if=count_of_if+1
                     count_of_end=count_of_end+1
                 end
@@ -2589,7 +2606,7 @@ def sentences_seperation(tl, output_tl,begin) then
                     local end_index=i
                     local ahead_tl=tl[begin.val:end_index]
                     
-                    local end_token=Token.init()
+                    local end_token=Token_init()
                     end_token.TOKEN_STRING="end"
                     end_token.TOKEN_CLASS="end"
                     ahead_tl.append(end_token)
@@ -2623,9 +2640,9 @@ def sentences_seperation(tl, output_tl,begin) then
             local temp_i=i
             for i<length_of_tl,i=i+1 then
                 if term(tl[i].TOKEN_STRING, "if")
-                or term(tl->current_token.TOKEN_STRING, "def")
-                or term(tl->current_token.TOKEN_STRING, "while")
-                or term(tl->current_token.TOKEN_STRING, "for") then
+                or term(tl[i].TOKEN_STRING, "def")
+                or term(tl[i].TOKEN_STRING, "while")
+                or term(tl[i].TOKEN_STRING, "for") then
                     count_of_if=count_of_if+1
                     count_of_end=count_of_end+1
                 end
@@ -2635,7 +2652,7 @@ def sentences_seperation(tl, output_tl,begin) then
                 end
                 
                 #error
-                if count_of_if==0 and i!=temp_i and(term(tl[i].TOKEN_STRING, "elif") or term(tl[i].TOKEN_STRING, "else")) then
+                if count_of_if==0 and i!=temp_i and (term(tl[i].TOKEN_STRING, "elif") or term(tl[i].TOKEN_STRING, "else")) then
                     Walley_Print_Error(TL_toString(temp_tl), "elif or else statements error", tl[i].TOKEN_START)
                 end
                 
@@ -2697,7 +2714,7 @@ def parser(tl) then
     # reset TREE_INDEX value
     TREE_INDEX=0
     
-    local output_tree=TREE.init("walley_statements")
+    local output_tree=TREE_init("walley_statements")
     
     if tl==[] then
         return output_tree

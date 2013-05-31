@@ -158,7 +158,27 @@ char *JS_min(Str_List *sl){
 
 // compile to javascript
 char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
-    if (term(tree.name, "walley_statements")) {
+    if (term(tree.token_class,"id")){
+        // continue
+        if (term(tree.name, "continue")) {
+            SL_addString(sl, "continue;");
+            return "";
+        }
+        
+        if (term(tree.name, "break")) {
+            SL_addString(sl, "break;");
+            return "";
+        }
+        
+        
+        // change 'none' to 'null'
+        if (term(tree.name, "none")) {
+            return "null";
+        }
+        return tree.name;
+    }
+
+    else if (term(tree.name, "walley_statements")) {
         
         Node_List *nl=tree.node_list;
         
@@ -483,7 +503,7 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
         
         return "";
     }
-    
+
     // this place has problem
     else if (term(tree.name, "relation")){
         TREE judge_tree=tree.node_list->node;
@@ -554,6 +574,7 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
         }
         
         char *var_name=Code_Generation_2_Javascript(sl, var_name_tree);
+        
         append_string=var_name;
         if (is_local) {
             append_string=append("var ", append_string);
@@ -773,10 +794,6 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
         
         return append_str;
     }
-    else if (term(tree.name, "value")){
-        Node_List *nl=tree.node_list;
-        return Code_Generation_2_Javascript(sl, nl->node);
-    }
     // and( +(num 3)(num 4))(id a)
     else if (term(tree.name, "and")||term(tree.name, "or")){
         char *left_str=Code_Generation_2_Javascript(sl, tree.node_list->node);
@@ -817,33 +834,18 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
     else if (term(tree.name, "end")){
         return "}\n";
     }
-    
-    else if (term(tree.token_class,"id")){
-        // continue
-        if (term(tree.name, "continue")) {
-            SL_addString(sl, "continue;");
-            return "";
-        }
         
-        if (term(tree.name, "break")) {
-            SL_addString(sl, "break;");
-            return "";
-        }
-        
-        
-        // change 'none' to 'null'
-        if (term(tree.name, "none")) {
-            return "null";
-        }
-        return tree.name;
-    }
-    
     else if (term(tree.token_class, "num")){
         return tree.name;
     }
     
     else if (term(tree.token_class, "string")){
         return tree.name;
+    }
+    // if must be behind 'id' to solve ' def value ()' problem
+    else if (term(tree.name, "value")){
+        Node_List *nl=tree.node_list;
+        return Code_Generation_2_Javascript(sl, nl->node);
     }
     
     else if(ism_operator(tree.name)){

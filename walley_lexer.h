@@ -264,13 +264,16 @@ char* Walley_Analyze_Token_Class(char *input_str, int i, int *end){
     
     // 4 relation
     // 1) and | not
-    if (match(input_str, i, "and")
-        ||match(input_str, i, "not")
+    if ((match(input_str, i, "and")
+        ||match(input_str, i, "not"))
+        && (i+3>=length||input_str[i+3]=='\n'||input_str[i+3]==' ')
+        
         ){
         *end=i+3;
         return "relation";
     }
-    if (match(input_str, i, "or")) {
+    if (match(input_str, i, "or")
+        && (i+2>=length||input_str[i+2]=='\n'||input_str[i+2]==' ')) {
         *end=i+2;
         return "relation";
     }
@@ -290,31 +293,31 @@ char* Walley_Analyze_Token_Class(char *input_str, int i, int *end){
     
     // 7 keyword
     // 1) if
-    if (i<=length-2&&(input_str[i]=='i'&&input_str[i+1]=='f')) {
+    if (i<=length-2&& match(input_str, i, "if") && (i+2>=length||input_str[i+2]==' '||input_str[i+2]=='\n')) {
         
         
         *end=i+2;
         return "keyword";
     }
     // 2)for def
-    if (match(input_str, i, "for")
-        ||match(input_str, i,"def")) {
+    if ((match(input_str, i, "for")
+        ||match(input_str, i,"def"))&&(i+3>=length||input_str[i+3]==' '||input_str[i+3]=='\n')) {
        
         
         *end=i+3;
         return "keyword";
     }
     // 3) elif else case
-    if (match(input_str, i, "elif")
+    if ((match(input_str, i, "elif")
         ||match(input_str, i, "else")
-        ||match(input_str, i, "case")) {
+        ||match(input_str, i, "case"))&&(i+4>=length||input_str[i+4]==' '||input_str[i+4]=='\n')) {
         *end=i+4;
         return "keyword";
     }
     
     // 4) while class
-    if (match(input_str, i, "while")
-        ||match(input_str, i, "class")) {
+    if ((match(input_str, i, "while")
+        ||match(input_str, i, "class"))&&(i+5>=length || input_str[i+5]==' '||input_str[i+5]=='\n')) {
        
         
         *end=i+5;
@@ -322,7 +325,7 @@ char* Walley_Analyze_Token_Class(char *input_str, int i, int *end){
     }
     
     // then
-    if (match(input_str, i, "then")) {
+    if (match(input_str, i, "then")&&(i+4>=length||input_str[i+4]==' '||input_str[i+4]=='\n')) {
         *end=i+4;
         
         
@@ -352,7 +355,7 @@ char* Walley_Analyze_Token_Class(char *input_str, int i, int *end){
     }
     
     // local
-    if (match(input_str, i, "local")) {
+    if (match(input_str, i, "local")&&(i+5>=length || input_str[i+5]==' '||input_str[i+5]=='\n')) {
         *end=i+5;
         return "local";
     }
@@ -674,7 +677,7 @@ bool sentences_seperation(Token_List *tl, Token_List **output_tl,int *begin){
         if (i<length_of_tl-1&&(term(tl->current_token.TOKEN_CLASS, "num")||term(tl->current_token.TOKEN_CLASS, "string")||term(tl->current_token.TOKEN_CLASS, "id")||term(tl->current_token.TOKEN_CLASS, "list_table")||term(tl->current_token.TOKEN_STRING, ")"))
             && (term(tl->next->current_token.TOKEN_CLASS, "id") ||term(tl->next->current_token.TOKEN_CLASS, "num")
                 ||term(tl->next->current_token.TOKEN_CLASS, "return")||term(tl->next->current_token.TOKEN_STRING, "continue")||term(tl->next->current_token.TOKEN_STRING, "break")||term(tl->next->current_token.TOKEN_CLASS, "local"))) {
-                            
+                
             int end=i+1;
             
             Token_List *ahead_tl=TL_subtl(temp_tl, *begin, end);
@@ -709,7 +712,6 @@ bool sentences_seperation(Token_List *tl, Token_List **output_tl,int *begin){
                     return TRUE;
                 }
             }
-
             
             int count=0;
             for (; i<length_of_tl; i++) {
