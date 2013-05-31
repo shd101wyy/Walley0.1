@@ -336,8 +336,15 @@ bool table_value(TREE *tree, Token_List *tl){
     
     // check whether have m_operator to solve a.length-1 parser error
     Token_List *temp_tl=tl;
+    int count=0;
     while (temp_tl!=NULL) {
-        if (term(temp_tl->current_token.TOKEN_CLASS, "m_operator")) {
+        if (term(temp_tl->current_token.TOKEN_STRING, "(")) {
+            count++;
+        }
+        else if (term(temp_tl->current_token.TOKEN_STRING, ")")){
+            count--;
+        }
+        if (count==0 && term(temp_tl->current_token.TOKEN_CLASS, "m_operator")) {
             return FALSE;
         }
         temp_tl=temp_tl->next;

@@ -132,9 +132,7 @@ Str_List *Compile_to_JS(char *file_name){
                 tree=parser(temp_tl);
             }
         }
-        
-        
-        TREE_print(tree);
+                
         
         char *output_str=Code_Generation_2_Javascript(&output_sl, tree);
         

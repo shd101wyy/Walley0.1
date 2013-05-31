@@ -9,7 +9,7 @@ Token_init=function(){
      return Token;
  };
 TOKEN_print=function(token){
-     console["log"](token+token["TOKEN_CLASS"]+":"+"|"+token["TOKEN_STRING"]+"|"+token["TOKEN_START"]+"|");
+     console["log"](token["TOKEN_CLASS"]+":"+"|"+token["TOKEN_STRING"]+"|"+token["TOKEN_START"]+"|"+token["TOKEN_END"]);
  };
 TL_toString=function(tl){
      var return_string="";
@@ -450,7 +450,7 @@ TREE_addNode=function(tree,name,token_class){
 tree["node_list"][0]["name"]=name;
 tree["node_list"][0]["token_class"]=token_class;
 tree["node_list"][0]["index"]=index;
-tree["node_list"][0]["layer"]=tree+tree["layer"];
+tree["node_list"][0]["layer"]=tree["layer"]+1;
 tree["node_list"][0]["node_list"]={};
 TREE_INDEX=TREE_INDEX+1;
      }
@@ -459,7 +459,7 @@ var length_of_node_list=tree["node_list"]["length"];
 tree["node_list"][length_of_node_list]["name"]=name;
 tree["node_list"][length_of_node_list]["token_class"]=token_class;
 tree["node_list"][length_of_node_list]["index"]=index;
-tree["node_list"][length_of_node_list]["layer"]=tree+tree["layer"];
+tree["node_list"][length_of_node_list]["layer"]=tree["layer"]+1;
 tree["node_list"][length_of_node_list]["node_list"]={};
      }
  };
@@ -468,14 +468,14 @@ TREE_addTree=function(tree,add_tree){
      if (tree["node_list"]==={}){
 tree["node_list"][0]=add_tree;
 tree["node_list"][0]["index"]=index;
-tree["node_list"][0]["layer"]=tree+tree["layer"];
+tree["node_list"][0]["layer"]=tree["layer"]+1;
 TREE_INDEX=TREE_INDEX+1;
      }
 else{
 var length_of_node_list=tree["node_list"]["length"];
 tree["node_list"][length_of_node_list]=add_tree;
 tree["node_list"][length_of_node_list]["index"]=index;
-tree["node_list"][length_of_node_list]["layer"]=tree+tree["layer"];
+tree["node_list"][length_of_node_list]["layer"]=tree["layer"]+1;
 TREE_INDEX=TREE_INDEX+1;
      }
  };
@@ -658,7 +658,7 @@ value(key_tree,key_tl)
 TREE_addTree(TREE_getTreeAccordingToIndex(tree,index1),key_tree)
 var index=TREE_INDEX;
 TREE_addNode(tree,"value","")
-key_index["val"]=key_index+key_index["val"];
+key_index["val"]=key_index["val"]+1;
 return value(TREE_getTreeAccordingToIndex(tree,index),tl);
      }
      return FALSE;
@@ -672,7 +672,7 @@ return FALSE;
 var list_string=tl[0]["TOKEN_STRING"];
 var length_of_list_string=list_string["length"];
 if (list_string[0]==="[" && list_string[length_of_list_string-1]==="]"){
-var list_string2=list_string.slice(1,list_string-list_string["length"])trim();
+var list_string2=list_string.slice(1,list_string["length"]-1)["trim"]();
 if (list_string2===""){
 return TRUE;
 }
@@ -692,6 +692,20 @@ table_value=function(tree,tl){
 return FALSE;
      }
      var length_of_tl=tl["length"];
+     var i=0;
+     var count=0;
+     for (i=0;i<length_of_tl;){
+if (term(tl[i]["TOKEN_STRING"],"(")){
+count=count+1;
+}
+else if (term(tl[i]["TOKEN_STRING"],")")){
+count=count-1;
+}
+if (count===0 && term(tl[i]["TOKEN_CLASS"],"m_operator")){
+return FALSE;
+}
+i=i+1;
+}
      if (2<=length_of_tl && term(tl[0]["TOKEN_CLASS"],"id") || term(tl[0]["TOKEN_CLASS"],"string") || term(tl[0]["TOKEN_CLASS"],"list_table") || term(tl[0]["TOKEN_CLASS"],"num") && term(tl[1]["TOKEN_STRING"],".") || term(tl[1]["TOKEN_CLASS"],"list_table")){
 var index=TREE_INDEX;
 TREE_addNode(tree,"table_value","")
@@ -958,11 +972,10 @@ return expr(tree,temp_tl);
 var tl1=tl.slice(0,index_of_first_sign);
 var tl2=tl.slice(index_of_first_sign+1,length_of_tl);
 tree["name"]=sign;
-var current_index=tree["index"];
+var index_of_expr1_node=TREE_INDEX;
 TREE_addNode(tree,"expr","")
-TREE_addNodeAtIndex(tree,current_index,"expr","")
-var index_of_expr1_node=TREE_INDEX-2;
-var index_of_expr2_node=TREE_INDEX-1;
+var index_of_expr2_node=TREE_INDEX;
+TREE_addNode(tree,"expr","")
 return
 expr(TREE_getTreeAccordingToIndex(tree,index_of_expr1_node),tl1)&&expr(TREE_getTreeAccordingToIndex(tree,index_of_expr2_node),tl2);
 }
@@ -1500,7 +1513,7 @@ return FALSE;
      }
      return FALSE;
  };
-else_stms=function(TREE*tree,Token_List*tl){
+else_stms=function(tree,tl){
      if (INCOMPLETE_STATEMENT===TRUE){
 return FALSE;
      }
@@ -1621,7 +1634,7 @@ return FALSE;
      if (length_of_tl!==2 && num_of_semi_colon!==0 && num_of_semi_colon<=2){
 if (num_of_semi_colon===1){
 var simple_relation_tl=tl.slice(1,index_of_comma[0]);
-var assignment_tl=tl.slice(index_of_comma+index_of_comma[0],index_of_then);
+var assignment_tl=tl.slice(index_of_comma[0]+1,index_of_then);
 TREE_addNode(tree,"for","")
 var index_of_sr=TREE_INDEX;
 TREE_addNode(tree,"simple_relation","")
@@ -1632,7 +1645,7 @@ return simple_relation(TREE_getTreeAccordingToIndex(tree,index_of_sr),simple_rel
 else{
 if (term(tl[1]["TOKEN_STRING"],",")){
 var simple_relation_tl=tl.slice(2,index_of_comma[1]);
-var assignment_tl=tl.slice(index_of_comma+index_of_comma[1],index_of_then);
+var assignment_tl=tl.slice(index_of_comma[1]+1,index_of_then);
 TREE_addNode(tree,"for","")
 var index_of_sr=TREE_INDEX;
 TREE_addNode(tree,"simple_relation","")
@@ -1642,8 +1655,8 @@ return simple_relation(TREE_getTreeAccordingToIndex(tree,index_of_sr),simple_rel
 }
 else{
 var assignment_tl1=tl.slice(1,index_of_comma[0]);
-var simple_relation_tl=tl.slice(index_of_comma+index_of_comma[0],index_of_comma[1]);
-var assignment_tl2=tl.slice(index_of_comma+index_of_comma[1],index_of_then);
+var simple_relation_tl=tl.slice(index_of_comma[0]+1,index_of_comma[1]);
+var assignment_tl2=tl.slice(index_of_comma[1]+1,index_of_then);
 TREE_addNode(tree,"for","")
 var index_of_a_tl1=TREE_INDEX;
 TREE_addNode(tree,"assignment","")
@@ -1687,7 +1700,7 @@ return TRUE;
      }
      return FALSE;
  };
-def_stms=function(TREE*tree,Token_List*tl){
+def_stms=function(tree,tl){
      if (INCOMPLETE_STATEMENT===TRUE){
 return FALSE;
      }
@@ -1736,7 +1749,7 @@ return FALSE;
      }
      return return_stm(tree,tl) || if_stms(tree,tl) || elif_stms(tree,tl) || else_stms(tree,tl) || while_stms(tree,tl) || for_stms(tree,tl) || def_stms(tree,tl) || end_stm(tree,tl) || assignment(tree,tl)||value(tree,tl);
  };
-walley_statements=function(TREE*tree,Token_List*tl){
+walley_statements=function(tree,tl){
      if (INCOMPLETE_STATEMENT===TRUE){
 return FALSE;
      }

@@ -696,6 +696,7 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
     }
     
     else if(term(tree.name, "table_value")){
+        
         Node_List *nl=tree.node_list;
         char *var_name=Code_Generation_2_Javascript(sl,nl->node);
         char *append_str=var_name;
@@ -746,10 +747,15 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
             }
             append_str=append(append_str, ")");
             
+            //        t        f       f
+            // solve a[0:a.length-1].trim() problem
+            js_isTableValue=TRUE;
+            
             return append_str;
         }
         else{
             TREE key_tree=tree.node_list->node;
+            js_isTableValue=TRUE;
             return append("[", append(Code_Generation_2_Javascript(sl, key_tree), "]"));
         }
     }
