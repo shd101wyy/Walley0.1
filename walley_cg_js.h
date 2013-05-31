@@ -155,6 +155,14 @@ char *JS_min(Str_List *sl){
     output[index]=0;
     return output;
 }
+/*
+    statements add ;\n
+    walley_statements add ;\n
+    =    no ;
+    for  no ;
+ 
+ 
+ */
 
 // compile to javascript
 char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
@@ -365,6 +373,7 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
             
             if (term(nl->next->node.name, "assignment")) {
                 append_str=append(append_str,Code_Generation_2_Javascript(sl, nl->next->node.node_list->node));
+                append_str=append(append_str, ";");
                 nl=nl->next->next;
                 //exit(0);
             }
@@ -377,17 +386,17 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
             char *judge_str=Code_Generation_2_Javascript(sl, nl->node);
             
             append_str=append(append_str, judge_str);
-            append_str=append(append_str, ";){\n");
+            append_str=append(append_str, ";");
             //SL_addString(sl, append_str);
             
             nl=nl->next;
             Node_List *temp_nl;
-            bool has_assignment_after_judge=FALSE;
             if (term(nl->node.name, "assignment")) {
-                has_assignment_after_judge=TRUE;
+                append_str=append(append_str,Code_Generation_2_Javascript(sl, nl->node.node_list->node));
                 temp_nl=nl;
                 nl=nl->next;
             }
+            append_str=append(append_str, "){\n");
             
             char *output_str="";
             
@@ -403,13 +412,8 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
                 }
             }
             append_str=append(append_str, output_str);
-            //SL_addString(sl, output_str);
 
-            if (has_assignment_after_judge) {
-                append_str=append(append_str,Code_Generation_2_Javascript(sl, temp_nl->node.node_list->node));
-            }
-            append_str=append(append_str, "\n}\n");
-            //SL_addString(sl, "}\n");
+            append_str=append(append_str, "\n}");
             return append_str;
            
         }
@@ -527,6 +531,8 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
         append_str=append(append_str, relationship);
         append_str=append(append_str, right_str);
         
+        append_str=append("(", append(append_str,")"));
+        
         return append_str;
     }
     
@@ -591,7 +597,7 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
         
         append_string=append(append_string, var_value);
         
-        append_string=append(append_string,";");
+        //append_string=append(append_string,";");
 
         //SL_addString(sl, append_string);
         

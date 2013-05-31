@@ -3,7 +3,18 @@
 # string trim() should be rewritten like str = str.replace(/^\s+|\s+$/g,'')
 # true -> true false -> false
 INCOMPLETE_STATEMENT=false
-
+#= FILE: walley_string.wy
+def Walley_Print_Error(input_str,error_message,error_start_index) then
+    console.log("Error.. %s\n",error_message)
+    console.log("%s\n",input_str)
+    local empty=""
+    local i=0
+    for  i<error_start_index, i=i+1 then
+        empty=empty+" " 
+    end
+    empty=empty+"^"
+    console.log("%s\n",empty)  
+end
 #= FILE: walley_data.wy
 # Attenttion:
 #   Token_List is just []
