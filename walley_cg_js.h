@@ -93,41 +93,6 @@ bool isString(char *input_str){
     }
 }
 
-void JS_Table(Str_List **sl,char *var_name, Node_List *table_expr_nl){
-    while (table_expr_nl!=NULL) {
-        
-        TREE key_tree=table_expr_nl->node.node_list->node;
-        TREE value_tree=table_expr_nl->node.node_list->next->node;
-        
-        //TREE_print(key_tree);
-        
-        char *key_str=key_tree.node_list->node.name;
-        char *value_str=Code_Generation_2_Javascript(sl, value_tree);
-        
-        table_expr_nl=table_expr_nl->next;
-        
-        char *append_string=var_name;
-        append_string=append(append_string,"[");
-        append_string=append(append_string, key_str);
-        append_string=append(append_string, "]");
-        
-        if (term(value_str, "[]")) {
-            SL_addString(sl, append(append_string, "=[];"));
-            JS_Table(sl, append_string, value_tree.node_list);
-        }
-        else{
-        
-        
-            append_string=append(append_string, "=");
-            append_string=append(append_string, value_str);
-            append_string=append(append_string, ";\n");
-            SL_addString(sl, append_string);
-
-        }
-        //printf("---> %s\n",append_string);
-    }
-
-}
 
 // remove /n
 char *JS_min(Str_List *sl){
@@ -390,10 +355,8 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
             //SL_addString(sl, append_str);
             
             nl=nl->next;
-            Node_List *temp_nl;
             if (term(nl->node.name, "assignment")) {
                 append_str=append(append_str,Code_Generation_2_Javascript(sl, nl->node.node_list->node));
-                temp_nl=nl;
                 nl=nl->next;
             }
             append_str=append(append_str, "){\n");
