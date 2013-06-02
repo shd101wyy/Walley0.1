@@ -606,21 +606,12 @@ TREE_addNode = def(tree, name, token_class) then
 end
 
 def TREE_addTree(tree, add_tree) then
-    local index=TREE_INDEX
-    # initiate node_list
-    if tree.node_list==[] then    
-        tree.node_list[0]=add_tree
-        tree.node_list[0].index=index
-        tree.node_list[0].layer=tree.layer+1
-        TREE_INDEX=TREE_INDEX+1
-    # append new node
-    else
-        local length_of_node_list=len(tree.node_list)
-        tree.node_list[length_of_node_list]=add_tree
-        tree.node_list[length_of_node_list].index=index
-        tree.node_list[length_of_node_list].layer=tree.layer+1
-        TREE_INDEX=TREE_INDEX+1
-    end
+    local index = TREE_INDEX
+    local length_of_nl=len(tree["node_list"])
+    tree["node_list"][length_of_nl] = add_tree
+    tree["node_list"][length_of_nl]["index"] = index
+    tree["node_list"][length_of_nl]["layer"] = tree["layer"] + 1
+    TREE_INDEX = TREE_INDEX + 1
 end
 
 
@@ -630,7 +621,7 @@ def TREE_getTreeAccordingToIndex( tree, index) then
         return tree
     else
         local nl=tree.node_list # Node_List
-        if nl==[] then
+        if len(nl)==0 then
             return none
         end
 
@@ -852,7 +843,7 @@ def table_expr(tree,tl,key_index) then
         local index1=TREE_INDEX
         TREE_addNode(tree, "key", "")
         
-        local key_tl=Walley_Lexical_Analyzie(intToCString(key_index.val))
+        local key_tl=Walley_Lexical_Analyzie(key_index.val+"")
         local key_tree=TREE_init("key")
         value(key_tree, key_tl)
         
@@ -1713,7 +1704,7 @@ def params(tree, tl)then
         return false
     end
     # has no params
-    if tl==[] then
+    if len(tl)==0 then
         return true
     end
     local length_of_tl=len(tl)
@@ -2697,7 +2688,7 @@ def parser(tl) then
     
     local output_tree=TREE_init("walley_statements")
     
-    if tl==[] then
+    if len(tl)==0 then
         return output_tree
     end
 

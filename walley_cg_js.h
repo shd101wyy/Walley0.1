@@ -742,6 +742,9 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
             char *left_str=Code_Generation_2_Javascript(sl, left);
             append_str=append(append_str, left_str);
             
+            // restore that value 
+            js_isTableValue=FALSE;
+            
             // does not append
             if (term(right.name,"its_length")) {
                 

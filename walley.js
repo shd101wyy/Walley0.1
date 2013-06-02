@@ -1,6 +1,4 @@
-function isalpha(e){return/^[a-z]+$/i.test(e)}function isdigit(e){return!isNaN(parseFloat(e))&&isFinite(e)}function len(e){if(typeof e=="string"){return e.length}else if(typeof e=="object"){return Object.keys(e).length}else{console.log("Error..
-functin len() only support table or string
-")}}none=null;String.prototype.find=function(e,t){if(typeof t=="undefined"){t=0}return this.indexOf(e,t)};String.prototype.tolower=function(){return this.toLowerCase()};String.prototype.toupper=function(){return this.toUpperCase()};String.prototype.reverse=function(){return this.split("").reverse().join("")};Math["cot"]=function(e){return 1/Math.tan(e)};Math["sec"]=function(e){return 1/Math.cos(e)};Math["csc"]=function(e){return 1/Math.sin(e)};Object.prototype.slice=function(e,t){var n={};var r=0;for(var i=e;i<t;i++){n[r]=this[i];r++}return n};Object.prototype.append=function(e){var t=-1;for(var n in this){if(isdigit(n)){n=parseInt(n);if(n>t){t=n}}}if(t!==-1){t=t+1}else{t=0}this[t]=e};Object.prototype.length=function(){return Object.keys(this).length}
+function isalpha(e){return/^[a-z]+$/i.test(e)}function isdigit(e){return!isNaN(parseFloat(e))&&isFinite(e)}function len(e){if(typeof e=="string"){return e.length}else if(typeof e=="object"){return Object.keys(e).length}else{console.log("Error..\nfunctin len() only support table or string\n")}}none=null;String.prototype.find=function(e,t){if(typeof t=="undefined"){t=0}return this.indexOf(e,t)};String.prototype.tolower=function(){return this.toLowerCase()};String.prototype.toupper=function(){return this.toUpperCase()};String.prototype.reverse=function(){return this.split("").reverse().join("")};Math["cot"]=function(e){return 1/Math.tan(e)};Math["sec"]=function(e){return 1/Math.cos(e)};Math["csc"]=function(e){return 1/Math.sin(e)};Object.prototype.slice=function(e,t){var n={};var r=0;for(var i=e;i<t;i++){n[r]=this[i];r++}return n};Object.prototype.append=function(e){var t=-1;for(var n in this){if(isdigit(n)){n=parseInt(n);if(n>t){t=n}}}if(t!==-1){t=t+1}else{t=0}this[t]=e};Object.prototype.length=function(){return Object.keys(this).length}
 INCOMPLETE_STATEMENT=false;
 Walley_Print_Error=function(input_str,error_message,error_start_index){
      console["log"]("Error.. %s\n",error_message);
@@ -430,19 +428,11 @@ TREE_addNode=function(tree,name,token_class){
  };
 TREE_addTree=function(tree,add_tree){
      var index=TREE_INDEX;
-     if (tree["node_list"]==={}){
-tree["node_list"][0]=add_tree;
-tree["node_list"][0]["index"]=index;
-tree["node_list"][0]["layer"]=tree["layer"]+1;
-TREE_INDEX=TREE_INDEX+1;
-     }
-else{
-var length_of_node_list=len(tree["node_list"]);
-tree["node_list"][length_of_node_list]=add_tree;
-tree["node_list"][length_of_node_list]["index"]=index;
-tree["node_list"][length_of_node_list]["layer"]=tree["layer"]+1;
-TREE_INDEX=TREE_INDEX+1;
-     }
+     var length_of_nl=len(tree["node_list"]);
+     tree["node_list"][length_of_nl]=add_tree;
+     tree["node_list"][length_of_nl]["index"]=index;
+     tree["node_list"][length_of_nl]["layer"]=tree["layer"]+1;
+     TREE_INDEX=TREE_INDEX+1;
  };
 TREE_getTreeAccordingToIndex=function(tree,index){
      if (index===tree["index"]){
@@ -450,7 +440,7 @@ return tree;
      }
 else{
 var nl=tree["node_list"];
-if (nl==={}){
+if (len(nl)===0){
 return null;
 }
 var i=0;
@@ -1250,7 +1240,7 @@ params=function(tree,tl){
      if (INCOMPLETE_STATEMENT===true){
 return false;
      }
-     if (tl==={}){
+     if (len(tl)===0){
 return true;
      }
      var length_of_tl=len(tl);
@@ -1959,7 +1949,7 @@ return true;
 parser=function(tl){
      TREE_INDEX=0;
      var output_tree=TREE_init("walley_statements");
-     if (tl==={}){
+     if (len(tl)===0){
 return output_tree;
      }
      if ((walley_statements(output_tree,tl)===false && INCOMPLETE_STATEMENT===false)){

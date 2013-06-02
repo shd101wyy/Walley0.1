@@ -10,7 +10,7 @@ function len(e) {
     } else if (typeof e == "object") {
         return Object.keys(e).length
     } else {
-        console.log("Error..functin len() only support table or string")
+        console.log("Error..\nfunctin len() only support table or string\n")
     }
 }
 none = null;
@@ -480,25 +480,18 @@ TREE_addNode = function(tree, name, token_class) {
 };
 TREE_addTree = function(tree, add_tree) {
     var index = TREE_INDEX;
-    if (tree["node_list"] === {}) {
-        tree["node_list"][0] = add_tree;
-        tree["node_list"][0]["index"] = index;
-        tree["node_list"][0]["layer"] = tree["layer"] + 1;
-        TREE_INDEX = TREE_INDEX + 1;
-    } else {
-        var length_of_node_list = len(tree["node_list"]);
-        tree["node_list"][length_of_node_list] = add_tree;
-        tree["node_list"][length_of_node_list]["index"] = index;
-        tree["node_list"][length_of_node_list]["layer"] = tree["layer"] + 1;
-        TREE_INDEX = TREE_INDEX + 1;
-    }
+    var length_of_nl = len(tree["node_list"]);
+    tree["node_list"][length_of_nl] = add_tree;
+    tree["node_list"][length_of_nl]["index"] = index;
+    tree["node_list"][length_of_nl]["layer"] = tree["layer"] + 1;
+    TREE_INDEX = TREE_INDEX + 1;
 };
 TREE_getTreeAccordingToIndex = function(tree, index) {
     if (index === tree["index"]) {
         return tree;
     } else {
         var nl = tree["node_list"];
-        if (nl === {}) {
+        if (len(nl) === 0) {
             return null;
         }
         var i = 0;
@@ -654,7 +647,7 @@ table_expr = function(tree, tl, key_index) {
     } else {
         var index1 = TREE_INDEX;
         TREE_addNode(tree, "key", "")
-        var key_tl = Walley_Lexical_Analyzie(intToCString(key_index["val"]));
+        var key_tl = Walley_Lexical_Analyzie(key_index["val"]+"");
         var key_tree = TREE_init("key");
         value(key_tree, key_tl)
         TREE_addTree(TREE_getTreeAccordingToIndex(tree, index1), key_tree)
@@ -674,7 +667,7 @@ table = function(tree, tl, key_index) {
         var list_string = tl[0]["TOKEN_STRING"];
         var length_of_list_string = len(list_string);
         if ((list_string[0] === "[" && list_string[length_of_list_string - 1] === "]")) {
-            var list_string2 = list_string.slice(1, ["len"](list_string) - 1)["trim"]();
+            var list_string2 = list_string.slice(1, len(list_string) - 1)["trim"]();
             if (list_string2 === "") {
                 return true;
             }
@@ -1240,7 +1233,7 @@ params = function(tree, tl) {
     if (INCOMPLETE_STATEMENT === true) {
         return false;
     }
-    if (tl === {}) {
+    if (len(tl) === 0) {
         return true;
     }
     var length_of_tl = len(tl);
@@ -1920,7 +1913,7 @@ sentences_seperation = function(tl, output_tl, begin) {
 parser = function(tl) {
     TREE_INDEX = 0;
     var output_tree = TREE_init("walley_statements");
-    if (tl === {}) {
+    if (len(tl) === 0) {
         return output_tree;
     }
     if ((walley_statements(output_tree, tl) === false && INCOMPLETE_STATEMENT === false)) {
@@ -1930,7 +1923,11 @@ parser = function(tl) {
     return output_tree;
 };
 
+//var tl=Walley_Lexical_Analyzie("[1,2]");
+//console.log(tl);
+//console.log(tl[0]);
+//var tree=TREE_init("value");
+//value(tree,tl);
+//TREE_print(tree);
 
-var a=TREE_init("value");
-TREE_addNode(a,"num","12");
-TREE_print(a);
+process.stdout.write("Hello\n");
