@@ -593,28 +593,16 @@ def TREE_init(name) then
     return TREE
 end
 
-def TREE_addNode(tree, name, token_class) then
-    local index=TREE_INDEX
-    # initiate node_list
-    if tree.node_list==[] then
-        # empty node_list
-        tree.node_list[0].name=name
-        tree.node_list[0].token_class=token_class
-        tree.node_list[0].index=index
-        tree.node_list[0].layer=tree.layer+1
-        tree.node_list[0].node_list=[]
-       
-        TREE_INDEX=TREE_INDEX+1
-    
-    #append new node
-    else
-        local length_of_node_list=len(tree.node_list)
-        tree.node_list[length_of_node_list].name=name
-        tree.node_list[length_of_node_list].token_class=token_class
-        tree.node_list[length_of_node_list].index=index
-        tree.node_list[length_of_node_list].layer=tree.layer+1
-        tree.node_list[length_of_node_list].node_list=[]  
-    end
+TREE_addNode = def(tree, name, token_class) then
+    local index = TREE_INDEX
+    local length_of_nl=len(tree.node_list)
+    tree["node_list"][length_of_nl]=TREE_init()
+    tree["node_list"][length_of_nl]["name"] = name
+    tree["node_list"][length_of_nl]["token_class"] = token_class
+    tree["node_list"][length_of_nl]["index"] = index
+    tree["node_list"][length_of_nl]["layer"] = tree["layer"] + 1
+    tree["node_list"][length_of_nl]["node_list"] = []
+    TREE_INDEX = TREE_INDEX + 1
 end
 
 def TREE_addTree(tree, add_tree) then
