@@ -465,18 +465,17 @@ TREE_init = function(name) {
     TREE["index"] = 0;
     TREE["layer"] = 0;
     TREE["node_list"] = {};
+    TREE_INDEX = TREE_INDEX + 1;
     return TREE;
 };
 TREE_addNode = function(tree, name, token_class) {
-    var index = TREE_INDEX;
     var length_of_nl = len(tree["node_list"]);
     tree["node_list"][length_of_nl] = TREE_init();
     tree["node_list"][length_of_nl]["name"] = name;
     tree["node_list"][length_of_nl]["token_class"] = token_class;
-    tree["node_list"][length_of_nl]["index"] = index;
+    tree["node_list"][length_of_nl]["index"] = TREE_INDEX - 1;
     tree["node_list"][length_of_nl]["layer"] = tree["layer"] + 1;
     tree["node_list"][length_of_nl]["node_list"] = {};
-    TREE_INDEX = TREE_INDEX + 1;
 };
 TREE_addTree = function(tree, add_tree) {
     var index = TREE_INDEX;
@@ -514,7 +513,7 @@ TREE_getTreeAccordingToIndex = function(tree, index) {
     return null;
 };
 TREE_print = function(tree) {
-    console["log"]("(%s %s", tree["token_class"], tree["name"]);
+    process["stdout"]["write"]("(" + tree["token_class"] + " " + tree["name"]);
     var length_of_node_list = len(tree["node_list"]);
     if (length_of_node_list !== 0) {
         var i = 0;
@@ -523,7 +522,7 @@ TREE_print = function(tree) {
             TREE_print(nl[i])
         }
     }
-    console["log"](")");
+    process["stdout"]["write"](")");
 };
 TREE_changeNameAccordingToIndex = function(tree, index, change_to_name) {
     var temp_tree = TREE_getTreeAccordingToIndex(tree, index);
@@ -647,7 +646,7 @@ table_expr = function(tree, tl, key_index) {
     } else {
         var index1 = TREE_INDEX;
         TREE_addNode(tree, "key", "")
-        var key_tl = Walley_Lexical_Analyzie(key_index["val"]+"");
+        var key_tl = Walley_Lexical_Analyzie(key_index["val"] + "");
         var key_tree = TREE_init("key");
         value(key_tree, key_tl)
         TREE_addTree(TREE_getTreeAccordingToIndex(tree, index1), key_tree)
@@ -942,8 +941,7 @@ expr = function(tree, tl) {
             TREE_addNode(tree, "expr", "")
             var index_of_expr2_node = TREE_INDEX;
             TREE_addNode(tree, "expr", "")
-            return
-            expr(TREE_getTreeAccordingToIndex(tree, index_of_expr1_node), tl1) && expr(TREE_getTreeAccordingToIndex(tree, index_of_expr2_node), tl2);
+            return expr(TREE_getTreeAccordingToIndex(tree, index_of_expr1_node), tl1) && expr(TREE_getTreeAccordingToIndex(tree, index_of_expr2_node), tl2);
         }
     };
     return s_term(tree, tl);
@@ -975,8 +973,7 @@ s_term = function(tree, tl) {
             TREE_addNodeAtIndex(tree, current_index, "p_term", "")
             var index_of_node1 = TREE_INDEX - 2;
             var index_of_node2 = TREE_INDEX - 1;
-            return
-            s_term(TREE_getTreeAccordingToIndex(tree, index_of_node1), tl1) && p_term(TREE_getTreeAccordingToIndex(tree, index_of_node2), tl2);
+            return s_term(TREE_getTreeAccordingToIndex(tree, index_of_node1), tl1) && p_term(TREE_getTreeAccordingToIndex(tree, index_of_node2), tl2);
         }
     };
     return p_term(tree, tl);
@@ -1008,8 +1005,7 @@ p_term = function(tree, tl) {
             TREE_addNodeAtIndex(tree, current_index, "factor", "")
             var index_of_node1 = TREE_INDEX - 2;
             var index_of_node2 = TREE_INDEX - 1;
-            return
-            p_term(TREE_getTreeAccordingToIndex(tree, index_of_node1), tl1) && factor(TREE_getTreeAccordingToIndex(tree, index_of_node2), tl2);
+            return p_term(TREE_getTreeAccordingToIndex(tree, index_of_node1), tl1) && factor(TREE_getTreeAccordingToIndex(tree, index_of_node2), tl2);
         }
     };
     return factor(tree, tl);
@@ -1065,7 +1061,7 @@ assignment = function(tree, tl) {
         }
         var_name(var_name_tree, var_name_list)
         TREE_INDEX = 0;
-        var var_value_tree = TREE_initWithName(var_value_tree, "var_value");
+        var var_value_tree = TREE_init("var_value");
         var var_value_list = tl.slice(index_of_equal + 1, length_of_tl);
         var_value(var_value_tree, var_value_list)
         TREE_INDEX = save_TREE_INDEX;
@@ -1250,7 +1246,7 @@ params = function(tree, tl) {
             continue;
         }
         if ((count === 0 && term(tl[i]["TOKEN_STRING"], ","))) {
-            index_of_comma = -1;
+            index_of_comma = i;
             break;
         }
     };
@@ -1263,6 +1259,7 @@ params = function(tree, tl) {
             return value(TREE_getTreeAccordingToIndex(tree, index), tl);
         }
     } else {
+
         var tl1 = tl.slice(0, index_of_comma);
         var tl2 = tl.slice(index_of_comma + 1, length_of_tl);
         if (assignment(tree, tl1) === true) {
@@ -1475,7 +1472,7 @@ while_stms = function(tree, tl) {
             INCOMPLETE_STATEMENT = true;
             return false;
         }
-        if ((term(TL_tokenAtIndex(tl, length_of_tl - 1)["TOKEN_STRING"], "end") && 2 < length_of_tl)) {
+        if ((term(tl[length_of_tl - 1]["TOKEN_STRING"], "end") && 2 < length_of_tl)) {
             var relation_tl = tl.slice(1, index_of_then);
             TREE_addNode(tree, "while", "")
             var index = TREE_INDEX;
@@ -1923,11 +1920,7 @@ parser = function(tl) {
     return output_tree;
 };
 
-//var tl=Walley_Lexical_Analyzie("[1,2]");
-//console.log(tl);
-//console.log(tl[0]);
-//var tree=TREE_init("value");
-//value(tree,tl);
-//TREE_print(tree);
 
-process.stdout.write("Hello\n");
+var tl=Walley_Lexical_Analyzie("while x<4 then x=x+1 end");
+var tree=parser(tl);
+TREE_print(tree);

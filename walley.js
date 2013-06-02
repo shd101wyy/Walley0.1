@@ -413,18 +413,17 @@ TREE_init=function(name){
      TREE["index"]=0;
      TREE["layer"]=0;
      TREE["node_list"]={};
+     TREE_INDEX=TREE_INDEX+1;
      return TREE;
  };
 TREE_addNode=function(tree,name,token_class){
-     var index=TREE_INDEX;
      var length_of_nl=len(tree["node_list"]);
      tree["node_list"][length_of_nl]=TREE_init();
      tree["node_list"][length_of_nl]["name"]=name;
      tree["node_list"][length_of_nl]["token_class"]=token_class;
-     tree["node_list"][length_of_nl]["index"]=index;
+     tree["node_list"][length_of_nl]["index"]=TREE_INDEX-1;
      tree["node_list"][length_of_nl]["layer"]=tree["layer"]+1;
      tree["node_list"][length_of_nl]["node_list"]={};
-     TREE_INDEX=TREE_INDEX+1;
  };
 TREE_addTree=function(tree,add_tree){
      var index=TREE_INDEX;
@@ -465,7 +464,7 @@ return found_tree;
      return null;
  };
 TREE_print=function(tree){
-     console["log"]("(%s %s",tree["token_class"],tree["name"]);
+     process["stdout"]["write"]("("+tree["token_class"]+" "+tree["name"]);
      var length_of_node_list=len(tree["node_list"]);
      if (length_of_node_list!==0){
 var i=0;
@@ -475,7 +474,7 @@ TREE_print(nl[i])
 
 }
      }
-     console["log"](")");
+     process["stdout"]["write"](")");
  };
 TREE_changeNameAccordingToIndex=function(tree,index,change_to_name){
      var temp_tree=TREE_getTreeAccordingToIndex(tree,index);
@@ -607,7 +606,7 @@ return value(TREE_getTreeAccordingToIndex(tree,index2),tl.slice(2,length_of_tl))
 else{
 var index1=TREE_INDEX;
 TREE_addNode(tree,"key","")
-var key_tl=Walley_Lexical_Analyzie(intToCString(key_index["val"]));
+var key_tl=Walley_Lexical_Analyzie(key_index["val"]+"");
 var key_tree=TREE_init("key");
 value(key_tree,key_tl)
 TREE_addTree(TREE_getTreeAccordingToIndex(tree,index1),key_tree)
@@ -627,7 +626,7 @@ return false;
 var list_string=tl[0]["TOKEN_STRING"];
 var length_of_list_string=len(list_string);
 if ((list_string[0]==="[" && list_string[length_of_list_string-1]==="]")){
-var list_string2=list_string.slice(1,["len"](list_string)-1)["trim"]();
+var list_string2=list_string.slice(1,len(list_string)-1)["trim"]();
 if (list_string2===""){
 return true;
 }
@@ -931,8 +930,7 @@ var index_of_expr1_node=TREE_INDEX;
 TREE_addNode(tree,"expr","")
 var index_of_expr2_node=TREE_INDEX;
 TREE_addNode(tree,"expr","")
-return
-expr(TREE_getTreeAccordingToIndex(tree,index_of_expr1_node),tl1)&&expr(TREE_getTreeAccordingToIndex(tree,index_of_expr2_node),tl2);
+return expr(TREE_getTreeAccordingToIndex(tree,index_of_expr1_node),tl1)&&expr(TREE_getTreeAccordingToIndex(tree,index_of_expr2_node),tl2);
 }
 
 };
@@ -965,8 +963,7 @@ TREE_addNode(tree,"s_term","")
 TREE_addNodeAtIndex(tree,current_index,"p_term","")
 var index_of_node1=TREE_INDEX-2;
 var index_of_node2=TREE_INDEX-1;
-return
-s_term(TREE_getTreeAccordingToIndex(tree,index_of_node1),tl1)&&p_term(TREE_getTreeAccordingToIndex(tree,index_of_node2),tl2);
+return s_term(TREE_getTreeAccordingToIndex(tree,index_of_node1),tl1)&&p_term(TREE_getTreeAccordingToIndex(tree,index_of_node2),tl2);
 }
 
 };
@@ -999,8 +996,7 @@ TREE_addNode(tree,"p_term","")
 TREE_addNodeAtIndex(tree,current_index,"factor","")
 var index_of_node1=TREE_INDEX-2;
 var index_of_node2=TREE_INDEX-1;
-return
-p_term(TREE_getTreeAccordingToIndex(tree,index_of_node1),tl1)&&factor(TREE_getTreeAccordingToIndex(tree,index_of_node2),tl2);
+return p_term(TREE_getTreeAccordingToIndex(tree,index_of_node1),tl1)&&factor(TREE_getTreeAccordingToIndex(tree,index_of_node2),tl2);
 }
 
 };
