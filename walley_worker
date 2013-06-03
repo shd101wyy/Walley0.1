@@ -1,0 +1,46 @@
+#!/usr/bin/env node
+var fs=require("fs")
+var argv=process.argv
+var walley=require("./walley.js")
+console.log(argv)
+
+// compile walley_file
+if (argv[2]=="compile"){
+	console.log("Begin to compile..")
+
+	// get file that will be compiled 
+	var file_name=argv[3]
+	if (file_name==undefined){
+		console.log("No input file..")
+		process.exit(0)
+	}
+	if (file_name.slice(file_name.length-3,file_name.length)!=".wy"){
+		console.log("File %s format wrong..\nNeed .wy\n")
+		process.exit(0)
+	}
+
+	// get file that will be compiled to 
+	var compile_to_file_name=argv[4]
+
+	// if target file is undefined. then its name is compile file +".js"
+	if(compile_to_file_name==undefined){
+		compile_to_file_name=file_name.slice(0,file_name.length-3)
+		compile_to_file_name=compile_to_file_name+".js"
+	}
+
+	// get content of file
+	var content_in_file=fs.readFileSync(file_name,"utf8")
+
+	// compile the content 
+	var sl_string=walley.Code_Generation(content_in_file)
+
+	// write to the target file
+	fs.writeFile(compile_to_file_name,sl_string, function(err){
+		if (err){
+			console.log("Fail to write to file "+compile_to_file_name);
+			process.exit(0);
+		}
+		console.log("Successfully compiled to file "+compile_to_file_name);
+	});
+
+}

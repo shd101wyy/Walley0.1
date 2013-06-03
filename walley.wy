@@ -4,6 +4,13 @@
 # true -> true false -> false
 INCOMPLETE_STATEMENT=false
 #= FILE: walley_string.wy
+def toString(input_str) then
+    if input_str[0]=="\"" then
+        return input_str
+    else
+        return "\""+input_str+"\""
+    end
+end
 def Walley_Print_Error(input_str,error_message,error_start_index) then
     console.log("Error.. %s\n",error_message)
     console.log("%s\n",input_str)
@@ -1132,7 +1139,7 @@ def table_value_key(tree, tl) then
             elif term(tl[i].TOKEN_STRING,")") then
                 count=count-1
                 if count==0 then
-                    index_of_right=-1
+                    index_of_right=i
                     break
                 end
             end
@@ -1616,7 +1623,7 @@ def func_assign(tree, tl) then
 
         if index_of_right==-1 then
             INCOMPLETE_STATEMENT=true
-            printf("INCOMPLETE_STATEMENT func_assign\n")
+            console.log("INCOMPLETE_STATEMENT func_assign\n")
             exit(0)
         else
             TREE_addNode(tree, "def", "")
@@ -2335,7 +2342,7 @@ def walley_statements(tree, tl) then
         TREE_addNode(tree, "statements", "")
         
         if statements(TREE_getTreeAccordingToIndex(tree, index), temp_tl.val)==false then
-            printf("Walley Statements Parse Error\n")
+            console.log("Walley Statements Parse Error\n")
             return false
         end
     end
@@ -3558,3 +3565,22 @@ def Code_Generation_2_Javascript(sl,tree)then
     end
 end
 
+# return string type of output
+exports.Code_Generation=def(input_str) then
+    local tl=Walley_Lexical_Analyzie(input_str)
+    local tree=parser(tl)
+    local sl=[]
+    local output=Code_Generation_2_Javascript(sl,tree)
+
+    if output!="" then
+        sl.append(output)
+    end
+
+
+    local output_str=""
+    local  length=len(sl)
+    for i=0,i<length,i=i+1 then
+        output_str=output_str+sl[i]
+    end
+    return output_str
+end
