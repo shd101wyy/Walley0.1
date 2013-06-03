@@ -2689,6 +2689,25 @@ end
 
 
 #= walley_cg_js.wy
+def isString(input_str) then
+    if input_str[0]!="\"" or input_str[input_str.length-1]!="\"" then
+        return false
+    end
+    local count=0
+    local i=0
+    local length=input_str.length
+    for i<length, i=i+1 then
+        if input_str[i]=="\"" then
+            count=count+1
+        end
+    end
+    if count!=2 then
+        return false
+    else
+        return true
+    end
+
+end
 
 js_isTableValue=false
 # compile to javascript
@@ -3216,7 +3235,7 @@ def Code_Generation_2_Javascript(sl,tree)then
         local value_tree=tree.node_list[1]
         local left=Code_Generation_2_Javascript(sl, key_tree.node_list[0])
         bool left_is_string=isString(left)
-        if left_is_string==false and stringIsDigit(left)==false then
+        if left_is_string==false and isdigit(left)==false then
             console.log("Error.. invalid key %s\n",left)
             exit(0)
         end
@@ -3397,7 +3416,7 @@ def Code_Generation_2_Javascript(sl,tree)then
         local left_str=Code_Generation_2_Javascript(sl, left)
         local right_str=Code_Generation_2_Javascript(sl, right)
         
-        if ((stringIsDigit(left_str) or isString(left_str)) and (stringIsDigit(right_str) or isString(right_str))) then
+        if ((isdigit(left_str) or isString(left_str)) and (isdigit(right_str) or isString(right_str))) then
             local value=Walley_Calculation(left_str, right_str, tree.name)
             return value
         end
