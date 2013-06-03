@@ -817,7 +817,7 @@ def table_expr(tree,tl,key_index) then
 
         local index2=TREE_INDEX
         TREE_addNode(tree, "value", "")
-        return value(TREE_getTreeAccordingToIndex(tree, index2), TL_subtl(tl, 2, length_of_tl))
+        return value(TREE_getTreeAccordingToIndex(tree, index2), tl[2:length_of_tl])
     #              0           1       2
     #    |'[' (string|int) ']' '=' (value)
     elif term(tl[0].TOKEN_CLASS, "list_table") and tl[1]!=undefined and term(tl[1].TOKEN_STRING, "=") then
@@ -1089,7 +1089,7 @@ def table_value_key(tree, tl) then
             
             # has no right
             if index_of_colon==length_of_key_tl-1 then
-                right_tl=NULL
+                right_tl=none
             else
                 right_tl=key_tl[index_of_colon+1:length_of_key_tl]
             end
@@ -1103,7 +1103,7 @@ def table_value_key(tree, tl) then
             end
             # add right
             local index_right=TREE_INDEX
-            if right_tl==NULL then
+            if right_tl==none then
                 TREE_addNode(slice_tree, "its_length","special")
             else
                 TREE_addNode(slice_tree, "value", "")
@@ -2706,7 +2706,7 @@ def ism_operator(input_str) then
     return false
 end
 
- def Walley_Calculation(value1, value2, sign) then
+def Walley_Calculation(value1, value2, sign) then
     # number calculation
     if value1[0]!="\"" and value2[0]!="\"" then
         if sign=="^" then
@@ -3310,13 +3310,13 @@ def Code_Generation_2_Javascript(sl,tree)then
         local key_tree=tree.node_list[0]
         local value_tree=tree.node_list[1]
         local left=Code_Generation_2_Javascript(sl, key_tree.node_list[0])
-        bool left_is_string=isString(left)
+        local left_is_string=isString(left)
         if left_is_string==false and isdigit(left)==false then
             console.log("Error.. invalid key %s\n",left)
             exit(0)
         end
         if left_is_string==true then
-            left=substr(left, 1, left.length-1)
+            left=left[1:left.length-1]
         end
         
         local right=Code_Generation_2_Javascript(sl, value_tree)
@@ -3348,8 +3348,8 @@ def Code_Generation_2_Javascript(sl,tree)then
             local append_str=".slice("
             
             local nl=tree.node_list[0].node_list
-            TREE left=nl[0]
-            TREE right=nl[1]
+            local left=nl[0]
+            local right=nl[1]
             
             local left_str=Code_Generation_2_Javascript(sl, left)
             append_str=append(append_str, left_str)
