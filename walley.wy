@@ -3161,7 +3161,7 @@ def Code_Generation_2_Javascript(sl,tree)then
         append_str=append_str+relationship
         append_str=append_str+right_str
         
-        append_str="("+append(append_str,")")
+        append_str="("+append_str+")"
         
         return append_str
     
@@ -3321,7 +3321,7 @@ def Code_Generation_2_Javascript(sl,tree)then
         
         local right=Code_Generation_2_Javascript(sl, value_tree)
         
-        return append(left, append(":", right))
+        return left+":"+right
     
     
     elif term(tree.name, "table_value") then
@@ -3352,7 +3352,7 @@ def Code_Generation_2_Javascript(sl,tree)then
             local right=nl[1]
             
             local left_str=Code_Generation_2_Javascript(sl, left)
-            append_str=append(append_str, left_str)
+            append_str=append_str+left_str
             
             # restore that value 
             js_isTableValue=false
@@ -3442,7 +3442,7 @@ def Code_Generation_2_Javascript(sl,tree)then
         if term(tree.name, "or") then
             judge_sign="||"
         end
-        return append(left_str, judge_sign+right_str)
+        return left_str+judge_sign+right_str
     
     elif term(tree.name,"params") then
         local append_string=""

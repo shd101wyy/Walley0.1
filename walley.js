@@ -2291,7 +2291,7 @@ Code_Generation_2_Javascript = function (sl, tree) {
         }
         append_str = append_str + relationship;
         append_str = append_str + right_str;
-        append_str = "(" + append(append_str, ")");
+        append_str = "(" + append_str+ ")";
         return append_str;
     } else if (term(tree["name"], "simple_relation")) {
         var judge_tree = tree["node_list"][0];
@@ -2375,9 +2375,11 @@ Code_Generation_2_Javascript = function (sl, tree) {
         append_str = append_str + "}";
         return append_str;
     } else if (term(tree["name"], "table_expr")) {
+       
         var key_tree = tree["node_list"][0];
         var value_tree = tree["node_list"][1];
         var left = Code_Generation_2_Javascript(sl, key_tree["node_list"][0]);
+
         var left_is_string = isString(left);
         if ((left_is_string === false && isdigit(left) === false)) {
             console["log"]("Error.. invalid key %s\n", left);
@@ -2387,7 +2389,7 @@ Code_Generation_2_Javascript = function (sl, tree) {
             left = left.slice(1,left["length"] - 1);
         }
         var right = Code_Generation_2_Javascript(sl, value_tree);
-        return append(left, append(":", right));
+        return left+":"+right)
     } else if (term(tree["name"], "table_value")) {
         var nl = tree["node_list"];
         var var_name = Code_Generation_2_Javascript(sl, nl[0]);
@@ -2410,7 +2412,7 @@ Code_Generation_2_Javascript = function (sl, tree) {
             var left = nl[0];
             var right = nl[1];
             var left_str = Code_Generation_2_Javascript(sl, left);
-            append_str = append(append_str, left_str);
+            append_str = append_str+left_str;
             js_isTableValue = false;
             if (term(right["name"], "its_length")) {
                 console["log"]("");
@@ -2467,7 +2469,7 @@ Code_Generation_2_Javascript = function (sl, tree) {
         if (term(tree["name"], "or")) {
             judge_sign = "||";
         }
-        return append(left_str, judge_sign + right_str);
+        return left_str+judge_sign + right_str
     } else if (term(tree["name"], "params")) {
         var append_string = "";
         var nl = tree["node_list"];
@@ -2577,9 +2579,13 @@ exports["Code_Generation"] = function (input_str) {
 
 
 
-var tl=Walley_Lexical_Analyzie("process[\"stdout\"][\"write\"](hello)")
+var tl=Walley_Lexical_Analyzie("x=[1,2,3]")
 var tree=parser(tl)
+var sl={}
+var output_str=Code_Generation_2_Javascript(sl,tree)
 TREE_print(tree)
+console.log(sl)
+console.log(output_str)
 
 
 
