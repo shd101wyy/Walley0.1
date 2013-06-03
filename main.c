@@ -18,8 +18,8 @@ int main(int argc, char **argv)
     exit(0);
     */
     
-    /*
-    Token_List *tl=Walley_Lexical_Analyzie("a.length-1" );
+    
+    Token_List *tl=Walley_Lexical_Analyzie("Token_init()" );
     TL_print(tl);
     
     TREE tree;
@@ -27,7 +27,8 @@ int main(int argc, char **argv)
     
     
     TREE_print(tree);
-    
+    exit(0);
+    /*
     Str_List *sl;
     SL_initSL(&sl);
     char *output=Code_Generation_2_Javascript(&sl, tree);

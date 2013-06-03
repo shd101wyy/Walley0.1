@@ -27,14 +27,19 @@ if (argv.length==2){
 		//console.log(sl_string);
 
 		// check incomplete
-		console.log(walley.INCOMPLETE_STATEMENT)
+		//console.log(walley.INCOMPLETE_STATEMENT)
 
 		if(walley.INCOMPLETE_STATEMENT==false){
 			// print out output
 			console.log(eval(sl_string))
 			to_run=""
+			rl.setPrompt('walley> ')
+			rl.prompt()
 		}
-	    rl.prompt()
+		else{
+			rl.setPrompt("walley>>> ")
+			rl.prompt()
+		}
 	})
 
 	rl.on('close', function() {

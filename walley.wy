@@ -820,7 +820,7 @@ def table_expr(tree,tl,key_index) then
         return value(TREE_getTreeAccordingToIndex(tree, index2), TL_subtl(tl, 2, length_of_tl))
     #              0           1       2
     #    |'[' (string|int) ']' '=' (value)
-    elif term(tl[0].TOKEN_CLASS, "list_table") and tl[1]!="undefined" and term(tl[1].TOKEN_STRING, "=") then
+    elif term(tl[0].TOKEN_CLASS, "list_table") and tl[1]!=undefined and term(tl[1].TOKEN_STRING, "=") then
         # THIS PLACE HAS SOME PROBLEM
         #printf("'[' (string|int) ']' '=' (value)  HAS NOT BEEN IMPLEMENTED\n")
         
@@ -956,7 +956,7 @@ def table_value(tree, tl) then
         for i=0,i<len(tl),i=i+1 then
             if term(tl[i].TOKEN_STRING,"(") then
                 count=count+1
-            elif term(tl[0].TOKEN_STRING,")") then
+            elif term(tl[i].TOKEN_STRING,")") then
                 count=count-1
                 if count==0 then
                     index=i
@@ -971,7 +971,7 @@ def table_value(tree, tl) then
         end
 
         # fix 'a() and b()' bug
-        if term(tl[i+1].TOKEN_CLASS, "relation") then
+        if tl[i+1]!=undefined and term(tl[i+1].TOKEN_CLASS, "relation") then
             return false
         end
         
@@ -1042,7 +1042,7 @@ def table_value_key(tree, tl) then
     # [(string|num)value|slice]        # slice need ":"    like ':3' ':3' or '0:3'
     if length_of_tl==1 and term(tl[0].TOKEN_CLASS, "list_table") then
         # get string inside []
-        local length=tl[0].TOKEN_STRING
+        local length=len(tl[0].TOKEN_STRING)
         local string_inside=tl[0].TOKEN_STRING[1:length-1]
         
         local key_tl=Walley_Lexical_Analyzie(string_inside)
@@ -1489,7 +1489,7 @@ def assignment(tree,tl) then
 
             TREE_addTree(TREE_getTreeAccordingToIndex(tree, index), var_name_nl[i])
 
-            if var_value_nl[i]=="undefined" then
+            if var_value_nl[i]==undefined then
                 local temp_tree=TREE_init()
                 temp_tree.name="none"
                 temp_tree.token_class="id"
@@ -2057,7 +2057,7 @@ def for_stms(tree,tl) then
     # |  'for' id ',' id 'in' value 'then' walley_statements 'end'
     # |  'for' id        'in' value 'then' walley_statements 'end'
     # assume it is correct
-    if term(tl[4].TOKEN_STRING, "in") and term(tl[2].TOKEN_STRING, "in") then
+    if term(tl[4].TOKEN_STRING, "in") or term(tl[2].TOKEN_STRING, "in") then
         local index_of_then=-1
         # check then index;
         local i=0
@@ -2109,7 +2109,7 @@ def for_stms(tree,tl) then
         end
         
         return walley_statements(tree, tl[index_of_then+1:length_of_tl-1])
-         and end_stm(tree, TL_subtl(temp_tl, length_of_tl-1, length_of_tl))
+         and end_stm(tree, tl[length_of_tl-1:length_of_tl])
     end
     
     local num_of_comma=0
@@ -2686,7 +2686,7 @@ def parser(tl) then
         console.log("Fail to parse statements\n")
     end
 
-    TREE_print(output_tree)
+    #TREE_print(output_tree)
     
      
     return output_tree
