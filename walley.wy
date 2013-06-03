@@ -558,7 +558,7 @@ def Walley_Lexical_Analyzie(input_str) then
         temp_token.TOKEN_CLASS=token_class
         
         local token_string=""
-        token_string=input_str[i:end_index]
+        token_string=input_str[i:end_index].trim()
         
         temp_token.TOKEN_STRING=token_string
         
@@ -2147,11 +2147,11 @@ def for_stms(tree,tl) then
     end
     
     if length_of_tl!=2
-        and num_of_semi_colon!=0
-        and num_of_semi_colon<=2
+        and num_of_comma!=0
+        and num_of_comma<=2
         then
         #|  'for' simple_relation ',' assignment 'then' walley_statements 'end'
-        if num_of_semi_colon==1 then
+        if num_of_comma==1 then
             local simple_relation_tl=tl[1:index_of_comma[0]]
             local assignment_tl=tl[index_of_comma[0]+1:index_of_then]
         
@@ -2413,7 +2413,7 @@ def sentences_seperation(tl, output_tl,begin) then
             
             # return ahead Token_List
             if begin.val!=i then
-                if term(tl[i].TOKEN_STRING, "def") and term(tl[1].TOKEN_STRING, "(") then
+                if term(tl[i].TOKEN_STRING, "def") and term(tl[i+1].TOKEN_STRING, "(") then
                    #nothing 
                    console.log("")
                 else
@@ -2685,6 +2685,74 @@ def parser(tl) then
     return output_tree
 end
 
+
+#= walley_calculation.wy
+def ism_operator(input_str) then
+    if term(input_str, "+") 
+        or term(input_str, "-")
+        or term(input_str, "*")
+        or term(input_str, "/")
+        or term(input_str,"^")
+        or term(input_str, "%") then
+        return true
+    end
+    return false
+end
+
+ def Walley_Calculation(value1, value2, sign) then
+    # number calculation
+    if value1[0]!="\"" and value2[0]!="\"" then
+        if sign=="^" then
+            return eval("Math.pow("+value1+","+value2+")")
+        end
+        return eval(value1+sign+value2)
+    # string or number calculation
+    else
+        local value1IsString=false
+        local value2IsString=false
+        if value1[0]=="\"" then
+            value1=value1[1:len(value1)-1]
+            value1IsString=true
+        end
+
+        if value2[0]=="\"" then
+            value2=value2[1:len(value2)-1]
+            value2IsString=true
+        end
+
+        if sign[0]=="+" then
+            local output_str="\""+value1+value2+"\""
+            return output_str
+        elif sign[0]=="*" then
+            if value1IsString==true and value2IsString==true then
+                console.log("Error.. Can not multiply two string %s and %s\n",value1,value2)
+                exit(0)
+            else
+                local num=0
+                local mult_str=""
+                if value1IsString==true then
+                    mult_str=value1
+                    num=parseInt(value2)
+                else
+                    mult_str=value2
+                    num=parseInt(value1)
+                end
+                
+                local output_str="\""
+                local i=0
+
+                for i<num, i=i+1 then
+                    output_str=output_str+mult_str
+                end
+                output_str=output_str+"\""
+                return output_str
+            end
+        else
+            console.log("Error.. Sign %s can not be used for string calculation for %s and %s\n",sign,value1,value2)
+            exit(0)
+        end
+    end
+end
 
 
 
@@ -3040,6 +3108,7 @@ def Code_Generation_2_Javascript(sl,tree)then
             append_str=append_str+output_str
             return append_str
         else
+            local append_str=""
             local i=0
             local length_of_nl=len(nl)
             local output_str=""

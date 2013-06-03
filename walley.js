@@ -465,7 +465,7 @@ Walley_Lexical_Analyzie = function (input_str) {
         temp_token["TOKEN_END"] = end_index;
         temp_token["TOKEN_CLASS"] = token_class;
         var token_string = "";
-        token_string = input_str.slice(i, end_index);
+        token_string = input_str.slice(i, end_index)["trim"]();
         temp_token["TOKEN_STRING"] = token_string;
         tl["append"](temp_token);
         i = end_index - 1;
@@ -1054,6 +1054,8 @@ factor = function (tree, tl) {
     }
 };
 assignment = function (tree, tl) {
+    //console.log("\n-----> enter here\n");
+    //console.log(tl);
     if (INCOMPLETE_STATEMENT === true) {
         return false;
     }
@@ -1600,8 +1602,8 @@ for_stms = function (tree, tl) {
         INCOMPLETE_STATEMENT = true;
         return false;
     }
-    if (((length_of_tl !== 2 && num_of_semi_colon !== 0) && num_of_semi_colon <= 2)) {
-        if (num_of_semi_colon === 1) {
+    if (((length_of_tl !== 2 && num_of_comma !== 0) && num_of_comma <= 2)) {
+        if (num_of_comma === 1) {
             var simple_relation_tl = tl.slice(1, index_of_comma[0]);
             var assignment_tl = tl.slice(index_of_comma[0] + 1, index_of_then);
             TREE_addNode(tree, "for", "")
@@ -1774,7 +1776,9 @@ sentences_seperation = function (tl, output_tl, begin) {
                 return true;
             }
         }
-        if (((i < length_of_tl - 1 && ((((term(tl[i]["TOKEN_CLASS"], "num") || term(tl[i]["TOKEN_CLASS"], "string")) || term(tl[i]["TOKEN_CLASS"], "id")) || term(tl[i]["TOKEN_CLASS"], "list_table")) || term(tl[i]["TOKEN_STRING"], ")"))) && (((((term(tl[1 + i]["TOKEN_CLASS"], "id") || term(tl[1 + i]["TOKEN_CLASS"], "num")) || term(tl[i + 1]["TOKEN_CLASS"], "return")) || term(tl[i + 1]["TOKEN_STRING"], "continue")) || term(tl[1 + i]["TOKEN_STRING"], "break")) || term(tl[1 + i]["TOKEN_CLASS"], "local")))) {
+        if (((i < length_of_tl - 1 &&
+         ((((term(tl[i]["TOKEN_CLASS"], "num") || term(tl[i]["TOKEN_CLASS"], "string")) || term(tl[i]["TOKEN_CLASS"], "id")) || term(tl[i]["TOKEN_CLASS"], "list_table")) || term(tl[i]["TOKEN_STRING"], ")")))
+          && (((((term(tl[1 + i]["TOKEN_CLASS"], "id") || term(tl[1 + i]["TOKEN_CLASS"], "num")) || term(tl[i + 1]["TOKEN_CLASS"], "return")) || term(tl[i + 1]["TOKEN_STRING"], "continue")) || term(tl[1 + i]["TOKEN_STRING"], "break")) || term(tl[1 + i]["TOKEN_CLASS"], "local")))) {
             var end_index = i + 1;
             var ahead_tl = tl.slice(begin["val"], end_index);
             output_tl["val"] = ahead_tl;
@@ -1783,7 +1787,7 @@ sentences_seperation = function (tl, output_tl, begin) {
         }
         if (((term(tl[i]["TOKEN_STRING"], "def") || term(tl[i]["TOKEN_STRING"], "for")) || term(tl[i]["TOKEN_STRING"], "while"))) {
             if (begin["val"] !== i) {
-                if ((term(tl[i]["TOKEN_STRING"], "def") && term(tl[1]["TOKEN_STRING"], "("))) {
+                if ((term(tl[i]["TOKEN_STRING"], "def") && term(tl[i+1]["TOKEN_STRING"], "("))) {
                     console["log"]("");
                 } else {
                     var end_index = i;
@@ -1965,6 +1969,61 @@ parser = function (tl) {
     TREE_print(output_tree);
     return output_tree;
 };
+ism_operator = function (input_str) {
+    if ((((((term(input_str, "+") || term(input_str, "-")) || term(input_str, "*")) || term(input_str, "/")) || term(input_str, "^")) || term(input_str, "%"))) {
+        return true;
+    }
+    return false;
+};
+Walley_Calculation = function (value1, value2, sign) {
+    if ((value1[0] !== "\"" && value2[0] !== "\"")) {
+        if (sign=="^"){
+            return eval("Math.pow("+value1+","+value2+")");
+        }
+        return eval(value1 + sign + value2);
+    } else {
+        var value1IsString = false;
+        var value2IsString = false;
+        if (value1[0] === "\"") {
+            value1 = value1.slice(1, len(value1) - 1);
+            value1IsString = true;
+        }
+        if (value2[0] === "\"") {
+            value2 = value2.slice(1, len(value2) - 1);
+            value2IsString = true;
+        }
+        if (sign[0] === "+") {
+            var output_str = "\"" + value1 + value2 + "\"";
+            return output_str;
+        } else if (sign[0] === "*") {
+            if ((value1IsString === true && value2IsString === true)) {
+                console["log"]("Error.. Can not multiply two string %s and %s\n", value1, value2);
+                exit(0)
+            } else {
+                var num = 0;
+                var mult_str = "";
+                if (value1IsString === true) {
+                    mult_str = value1;
+                    num = parseInt(value2);
+                } else {
+                    mult_str = value2;
+                    num = parseInt(value1);
+                }
+                var output_str = "\"";
+                var i = 0;
+                for (; i < num; i = i + 1) {
+                    output_str = output_str + mult_str;
+
+                }
+                output_str = output_str + "\"";
+                return output_str;
+            }
+        } else {
+            console["log"]("Error.. Sign %s can not be used for string calculation for %s and %s\n", sign, value1, value2);
+            exit(0)
+        }
+    }
+};
 isString = function (input_str) {
     if ((input_str[0] !== "\"" || input_str[input_str["length"] - 1] !== "\"")) {
         return false;
@@ -2006,8 +2065,8 @@ Code_Generation_2_Javascript = function (sl, tree) {
             var temp_str = Code_Generation_2_Javascript(sl, nl[i]);
             if (len(temp_str) !== 0) {
                 output_str = output_str + temp_str;
-                if (output_str[["len"](output_str) - 1] !== "\n") {
-                    if (output_str[["len"](output_str) - 1] !== ";") {
+                if (output_str[len(output_str) - 1] !== "\n") {
+                    if (output_str[len(output_str) - 1] !== ";") {
                         output_str = output_str + ";\n";
                     } else {
                         output_str = output_str + "\n";
@@ -2031,8 +2090,8 @@ Code_Generation_2_Javascript = function (sl, tree) {
                 var temp_str = Code_Generation_2_Javascript(sl, nl[i]);
                 if (len(temp_str) !== 0) {
                     output_str = output_str + temp_str;
-                    if (output_str[["len"](output_str) - 1] !== "\n") {
-                        if (output_str[["len"](output_str) - 1] !== ";") {
+                    if (output_str[len(output_str) - 1] !== "\n") {
+                        if (output_str[len(output_str) - 1] !== ";") {
                             output_str = output_str + ";\n";
                         } else {
                             output_str = output_str + "\n";
@@ -2055,8 +2114,8 @@ Code_Generation_2_Javascript = function (sl, tree) {
                 var temp_str = Code_Generation_2_Javascript(sl, nl[i]);
                 if (len(temp_str) !== 0) {
                     output_str = output_str + temp_str;
-                    if (output_str[["len"](output_str) - 1] !== "\n") {
-                        if (output_str[["len"](output_str) - 1] !== ";") {
+                    if (output_str[len(output_str) - 1] !== "\n") {
+                        if (output_str[len(output_str) - 1] !== ";") {
                             output_str = output_str + ";\n";
                         } else {
                             output_str = output_str + "\n";
@@ -2076,8 +2135,8 @@ Code_Generation_2_Javascript = function (sl, tree) {
                 var temp_str = Code_Generation_2_Javascript(sl, nl[i]);
                 if (len(temp_str) !== 0) {
                     output_str = output_str + temp_str;
-                    if (output_str[["len"](output_str) - 1] !== "\n") {
-                        if (output_str[["len"](output_str) - 1] !== ";") {
+                    if (output_str[len(output_str) - 1] !== "\n") {
+                        if (output_str[len(output_str) - 1] !== ";") {
                             output_str = output_str + ";\n";
                         } else {
                             output_str = output_str + "\n";
@@ -2100,8 +2159,8 @@ Code_Generation_2_Javascript = function (sl, tree) {
                 var temp_str = Code_Generation_2_Javascript(sl, nl[i]);
                 if (len(temp_str) !== 0) {
                     output_str = output_str + temp_str;
-                    if (output_str[["len"](output_str) - 1] !== "\n") {
-                        if (output_str[["len"](output_str) - 1] !== ";") {
+                    if (output_str[len(output_str) - 1] !== "\n") {
+                        if (output_str[len(output_str) - 1] !== ";") {
                             output_str = output_str + ";\n";
                         } else {
                             output_str = output_str + "\n";
@@ -2139,8 +2198,8 @@ Code_Generation_2_Javascript = function (sl, tree) {
                 var temp_str = Code_Generation_2_Javascript(sl, nl[i]);
                 if (len(temp_str) !== 0) {
                     output_str = output_str + temp_str;
-                    if (output_str[["len"](output_str) - 1] !== "\n") {
-                        if (output_str[["len"](output_str) - 1] !== ";") {
+                    if (output_str[len(output_str) - 1] !== "\n") {
+                        if (output_str[len(output_str) - 1] !== ";") {
                             output_str = output_str + ";\n";
                         } else {
                             output_str = output_str + "\n";
@@ -2179,8 +2238,8 @@ Code_Generation_2_Javascript = function (sl, tree) {
                 var temp_str = Code_Generation_2_Javascript(sl, nl[i]);
                 if (len(temp_str) !== 0) {
                     output_str = output_str + temp_str;
-                    if (output_str[["len"](output_str) - 1] !== "\n") {
-                        if (output_str[["len"](output_str) - 1] !== ";") {
+                    if (output_str[len(output_str) - 1] !== "\n") {
+                        if (output_str[len(output_str) - 1] !== ";") {
                             output_str = output_str + ";\n";
                         } else {
                             output_str = output_str + "\n";
@@ -2192,6 +2251,7 @@ Code_Generation_2_Javascript = function (sl, tree) {
             append_str = append_str + output_str;
             return append_str;
         } else {
+            var append_str = "";
             var i = 0;
             var length_of_nl = len(nl);
             var output_str = "";
@@ -2199,8 +2259,8 @@ Code_Generation_2_Javascript = function (sl, tree) {
                 var temp_str = Code_Generation_2_Javascript(sl, nl[i]);
                 if (len(temp_str) !== 0) {
                     output_str = output_str + temp_str;
-                    if (output_str[["len"](output_str) - 1] !== "\n") {
-                        if (output_str[["len"](output_str) - 1] !== ";") {
+                    if (output_str[len(output_str) - 1] !== "\n") {
+                        if (output_str[len(output_str) - 1] !== ";") {
                             output_str = output_str + ";\n";
                         } else {
                             output_str = output_str + "\n";
@@ -2262,12 +2322,15 @@ Code_Generation_2_Javascript = function (sl, tree) {
             var_value_tree = nl[1];
         }
         var var_name = Code_Generation_2_Javascript(sl, var_name_tree);
+
         append_string = var_name;
         if (is_local === true) {
             append_string = "var " + append_string;
         }
         append_string = append_string + "=";
+
         var var_value = Code_Generation_2_Javascript(sl, var_value_tree);
+
         append_string = append_string + var_value;
         return append_string;
     } else if (term(tree["name"], "func_value")) {
@@ -2283,8 +2346,8 @@ Code_Generation_2_Javascript = function (sl, tree) {
             var temp_str = Code_Generation_2_Javascript(sl, nl[i]);
             if (len(temp_str) !== 0) {
                 output_str = output_str + temp_str;
-                if (output_str[["len"](output_str) - 1] !== "\n") {
-                    if (output_str[["len"](output_str) - 1] !== ";") {
+                if (output_str[len(output_str) - 1] !== "\n") {
+                    if (output_str[len(output_str) - 1] !== ";") {
                         output_str = output_str + ";\n";
                     } else {
                         output_str = output_str + "\n";
@@ -2364,9 +2427,11 @@ Code_Generation_2_Javascript = function (sl, tree) {
             return append_str;
         } else {
             var key_tree = tree["node_list"][0];
-            js_isTableValue = true;
-            return "[" + Code_Generation_2_Javascript(sl, key_tree);
+            js_isTableValue = false;
+            var append_str = "[" + Code_Generation_2_Javascript(sl, key_tree);
             "0]"
+            js_isTableValue = true;
+            return append_str;
         }
     } else if (term(tree["name"], "func")) {
         var used_to_be_js_isTableValue = false;
@@ -2496,12 +2561,9 @@ Code_Generation_2_Javascript = function (sl, tree) {
 };
 
 
-
-var sl={}
-var tl=Walley_Lexical_Analyzie("x=1")
+var tl=Walley_Lexical_Analyzie("for i=0,i<12,i=i+1 then i=i+5 end");
 var tree=parser(tl)
+var sl={}
 var output_str=Code_Generation_2_Javascript(sl,tree)
-
-
-
-
+console.log(sl)
+console.log(output_str)
