@@ -2389,7 +2389,7 @@ Code_Generation_2_Javascript = function (sl, tree) {
             left = left.slice(1,left["length"] - 1);
         }
         var right = Code_Generation_2_Javascript(sl, value_tree);
-        return left+":"+right)
+        return left+":"+right
     } else if (term(tree["name"], "table_value")) {
         var nl = tree["node_list"];
         var var_name = Code_Generation_2_Javascript(sl, nl[0]);
@@ -2427,8 +2427,7 @@ Code_Generation_2_Javascript = function (sl, tree) {
         } else {
             var key_tree = tree["node_list"][0];
             js_isTableValue = false;
-            var append_str = "[" + Code_Generation_2_Javascript(sl, key_tree);
-            "0]"
+            var append_str = "[" + Code_Generation_2_Javascript(sl, key_tree)+"]"
             js_isTableValue = true;
             return append_str;
         }
@@ -2579,13 +2578,13 @@ exports["Code_Generation"] = function (input_str) {
 
 
 
-var tl=Walley_Lexical_Analyzie("x=[1,2,3]")
-var tree=parser(tl)
-var sl={}
-var output_str=Code_Generation_2_Javascript(sl,tree)
-TREE_print(tree)
-console.log(sl)
-console.log(output_str)
+//var tl=Walley_Lexical_Analyzie("x=[] x[0]=12")
+//var tree=parser(tl)
+//var sl={}
+//var output_str=Code_Generation_2_Javascript(sl,tree)
+//TREE_print(tree)
+//console.log(sl)
+//console.log(output_str)
 
 
 
