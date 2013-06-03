@@ -3567,6 +3567,7 @@ end
 
 # return string type of output
 exports.Code_Generation=def(input_str) then
+    INCOMPLETE_STATEMENT=false
     local tl=Walley_Lexical_Analyzie(input_str)
     local tree=parser(tl)
     local sl=[]
@@ -3582,5 +3583,8 @@ exports.Code_Generation=def(input_str) then
     for i=0,i<length,i=i+1 then
         output_str=output_str+sl[i]
     end
+
+    exports.INCOMPLETE_STATEMENT=INCOMPLETE_STATEMENT
+    
     return output_str
 end

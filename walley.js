@@ -2602,6 +2602,7 @@ exit(0)
      }
  };
 exports["Code_Generation"]=function(input_str){
+     INCOMPLETE_STATEMENT=false
      var tl=Walley_Lexical_Analyzie(input_str);
      var tree=parser(tl);
      var sl={};
@@ -2615,6 +2616,7 @@ sl["append"](output);
 output_str=output_str+sl[i];
 
 };
+     exports.INCOMPLETE_STATEMENT=INCOMPLETE_STATEMENT;
      return output_str;
  };
 

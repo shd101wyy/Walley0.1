@@ -4,6 +4,46 @@ var argv=process.argv
 var walley=require("./walley.js")
 console.log(argv)
 
+if (argv.length==2){
+	console.log("Interactive mode");
+	console.log("Press Ctrl + C to quit\n");
+	var readline = require('readline');
+
+	var input_str=""
+
+	var rl = readline.createInterface({
+	  input: process.stdin,
+	  output: process.stdout
+	})
+
+	rl.setPrompt('walley> ')
+	rl.prompt()
+
+	var to_run=""
+
+	rl.on('line', function(line) {
+		to_run=to_run+" "+line
+		var sl_string=walley.Code_Generation(to_run)
+		//console.log(sl_string);
+
+		// check incomplete
+		console.log(walley.INCOMPLETE_STATEMENT)
+
+		if(walley.INCOMPLETE_STATEMENT==false){
+			// print out output
+			console.log(eval(sl_string))
+			to_run=""
+		}
+	    rl.prompt()
+	})
+
+	rl.on('close', function() {
+	  console.log('Quit walley')
+	  process.exit(0)
+	});
+
+}
+
 // compile walley_file
 if (argv[2]=="compile"){
 	console.log("Begin to compile..")
