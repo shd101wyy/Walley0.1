@@ -2690,7 +2690,7 @@ end
 
 #= walley_cg_js.wy
 
-js_isTableValue=FALSE
+js_isTableValue=false
 # compile to javascript
 def Code_Generation_2_Javascript(sl,tree)then
     if term(tree.token_class,"id") then
@@ -2886,7 +2886,7 @@ def Code_Generation_2_Javascript(sl,tree)then
 
         elif term(nl[0].name,"for") then
             #~
-             // for i=0,i<10,i=i+1 then i=2 end
+             # for i=0,i<10,i=i+1 then i=2 end
             ( walley_statements
                 ( statements
                     ( for)
@@ -2908,7 +2908,7 @@ def Code_Generation_2_Javascript(sl,tree)then
             if term(nl[1].name, "assignment") then
                 append_str=append_str+Code_Generation_2_Javascript(sl, nl[1].node_list[0])
                 append_str=append_str+";"
-                nl_index=2;
+                nl_index=2
             else
                 append_str=append_str+";"
                 nl_index=1
@@ -2924,7 +2924,7 @@ def Code_Generation_2_Javascript(sl,tree)then
             
             if term(nl[nl_index].name, "assignment") then
                 append_str=append_str+Code_Generation_2_Javascript(sl, nl[nl_index].node_list[0])
-                nl_index=nl_index+1;
+                nl_index=nl_index+1
             end
             append_str=append_str+"){\n"
             
@@ -2971,14 +2971,14 @@ def Code_Generation_2_Javascript(sl,tree)then
             local append_str="for("
             # for i,v in x
             # get i
-            local foreach_index=nl[1].name;
+            local foreach_index=nl[1].name
             append_str=append_str+foreach_index
             append_str=append_str+ " in "
             
             
-            local has_v=TRUE
+            local has_v=true
             if term(nl[2].name, "") then
-                has_v=FALSE
+                has_v=false
             end
             
             local foreach_in_value=Code_Generation_2_Javascript(sl, nl[3].node_list[0])
@@ -3072,7 +3072,7 @@ def Code_Generation_2_Javascript(sl,tree)then
     
     
     # this place has problem
-    else if term(tree.name, "simple_relation") then
+    elif term(tree.name, "simple_relation") then
         local judge_tree=tree.node_list[0]
         #<(num 4)(id x)
         
@@ -3099,13 +3099,13 @@ def Code_Generation_2_Javascript(sl,tree)then
     
     # append
     elif term(tree.name,"=") then
-        local  is_local=FALSE
+        local  is_local=false
         local append_string=""
         
         local nl=tree.node_list
         local var_name_tree=nl[0]
         if term(var_name_tree.name, "local") then
-            is_local=TRUE
+            is_local=true
             var_name_tree=nl[1]
         end
 
@@ -3220,7 +3220,7 @@ def Code_Generation_2_Javascript(sl,tree)then
             console.log("Error.. invalid key %s\n",left)
             exit(0)
         end
-        if left_is_string==true
+        if left_is_string==true then
             left=substr(left, 1, left.length-1)
         end
         
@@ -3234,7 +3234,7 @@ def Code_Generation_2_Javascript(sl,tree)then
         local nl=tree.node_list
         local var_name=Code_Generation_2_Javascript(sl,nl[0])
         local append_str=var_name
-        js_isTableValue=TRUE
+        js_isTableValue=true
 
         local i=1
         local length_of_nl=len(nl)
@@ -3244,7 +3244,7 @@ def Code_Generation_2_Javascript(sl,tree)then
             append_str=append_str+key_str
         end
         
-        js_isTableValue=FALSE
+        js_isTableValue=false
         return append_str
     
     elif term(tree.name, "key") then
@@ -3263,7 +3263,7 @@ def Code_Generation_2_Javascript(sl,tree)then
             js_isTableValue=false
             
             # does not append
-            if term(right.name,"its_length")    
+            if term(right.name,"its_length") then
                 console.log("")
             else
                 append_str=append_str+","
@@ -3274,7 +3274,7 @@ def Code_Generation_2_Javascript(sl,tree)then
             
             #        t        f       f
             # solve a[0:a.length-1].trim() problem
-            js_isTableValue=TRUE
+            js_isTableValue=true
             
             return append_str
         else
@@ -3295,7 +3295,7 @@ def Code_Generation_2_Javascript(sl,tree)then
      ~#
     elif term(tree.name, "func") then
         local used_to_be_js_isTableValue=false
-        local append_str="" #=tree.node_list->node.name;
+        local append_str="" #=tree.node_list->node.name
         if js_isTableValue==false then
             # i changed parser for func on 05/20/2013
             local func_name_string=Code_Generation_2_Javascript(sl,tree.node_list[0].node_list[0])
@@ -3331,14 +3331,14 @@ def Code_Generation_2_Javascript(sl,tree)then
         append_str=append_str+")"
         
         
-        if used_to_be_js_isTableValue=true then
+        if used_to_be_js_isTableValue==true then
             js_isTableValue=true
         end
         
         return append_str
     
     # and( +(num 3)(num 4))(id a)
-    elif term(tree.name, "and")||term(tree.name, "or") then
+    elif term(tree.name, "and") or term(tree.name, "or") then
         local left_str=Code_Generation_2_Javascript(sl, tree.node_list[0])
         local right_str=Code_Generation_2_Javascript(sl, tree.node_list[1])
         local judge_sign="&&"
@@ -3383,7 +3383,7 @@ def Code_Generation_2_Javascript(sl,tree)then
     elif term(tree.token_class, "string") then
         return tree.name
 
-    // if must be behind 'id' to solve ' def value ()' problem
+    # if must be behind 'id' to solve ' def value ()' problem
     elif term(tree.name, "value") then
         local nl=tree.node_list
         return Code_Generation_2_Javascript(sl, nl[0])
@@ -3416,12 +3416,12 @@ def Code_Generation_2_Javascript(sl,tree)then
         
         
         local need_bracket=false
-        if (term(tree.name, "*") or term(tree.name, "/") or term(tree.name, "^") or term(tree.name, "%") then
+        if term(tree.name, "*") or term(tree.name, "//") or term(tree.name, "^") or term(tree.name, "%") then
             need_bracket=true
         end
         
         if need_bracket then
-            #char *append_str=left_str;
+            #char *append_str=left_str
             if left_need_bracket then
                 left_str="("+left_str+")"
             end
@@ -3459,7 +3459,7 @@ def Code_Generation_2_Javascript(sl,tree)then
         local nl=tree.node_list
         append_str=append_str+Code_Generation_2_Javascript(sl, nl[0])
         append_str=append_str+";\n"
-        # SL_addString(sl, append_str);
+        # SL_addString(sl, append_str)
         return append_str
         
     else
@@ -3467,51 +3467,4 @@ def Code_Generation_2_Javascript(sl,tree)then
         exit(0)
     end
 end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
