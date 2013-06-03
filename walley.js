@@ -890,6 +890,7 @@ table_value_key = function (tree, tl) {
     } else if (((2 <= length_of_tl && term(tl[0]["TOKEN_CLASS"], "list_table")) && (term(tl[1]["TOKEN_STRING"], ".") || term(tl[1]["TOKEN_CLASS"], "list_table")))) {
         return table_value_key(tree, tl.slice(0, 1)) && table_value_key(tree, tl.slice(1, length_of_tl));
     } else if (((3 <= length_of_tl && term(tl[0]["TOKEN_CLASS"], "list_table")) && term(tl[1]["TOKEN_STRING"], "("))) {
+        
         var index = -1;
         var i = 0;
         var count = 0;
@@ -899,7 +900,7 @@ table_value_key = function (tree, tl) {
             } else if (term(tl[i]["TOKEN_STRING"], ")")) {
                 count = count - 1;
                 if (count === 0) {
-                    index = -1;
+                    index = i;
                     break;
                 }
             }
@@ -2573,3 +2574,12 @@ exports["Code_Generation"] = function (input_str) {
     exports["INCOMPLETE_STATEMENT"] = INCOMPLETE_STATEMENT;
     return output_str;
 };
+
+
+
+var tl=Walley_Lexical_Analyzie("process[\"stdout\"][\"write\"](hello)")
+var tree=parser(tl)
+TREE_print(tree)
+
+
+

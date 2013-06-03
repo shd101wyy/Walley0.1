@@ -39,7 +39,7 @@ end
 
 #print token
 TOKEN_print=def(token)then
-    console.log(token.TOKEN_CLASS+":"+"|"+token.TOKEN_STRING+"|"+token.TOKEN_START+"|"+token.TOKEN_END)
+	console.log(token.TOKEN_CLASS+":"+"|"+token.TOKEN_STRING+"|"+token.TOKEN_START+"|"+token.TOKEN_END)
 end
 
 #token list
@@ -48,19 +48,19 @@ end
 # convert token list to string
 
 TL_toString=def(tl)then
-    local return_string=""
-    for i,v in tl then
-        return_string=return_string+v.TOKEN_STRING
-    end
+	local return_string=""
+	for i,v in tl then
+		return_string=return_string+v.TOKEN_STRING
+	end
 end
 
 TL_addToken=def(tl,add_token) then
-    local temp_token=Token_init()
-    temp_token.TOKEN_CLASS=add_token.TOKEN_CLASS
-    temp_token.TOKEN_STRING=add_token.TOKEN_STRING
-    temp_token.TOKEN_START=add_token.TOKEN_START
-    temp_token.TOKEN_END=add_token.TOKEN_END
-    tl.append(temp_token)
+	local temp_token=Token_init()
+	temp_token.TOKEN_CLASS=add_token.TOKEN_CLASS
+	temp_token.TOKEN_STRING=add_token.TOKEN_STRING
+	temp_token.TOKEN_START=add_token.TOKEN_START
+	temp_token.TOKEN_END=add_token.TOKEN_END
+	tl.append(temp_token)
 end
 
 TL_indexOfTokenThatHasTokenString=def(tl, token_string) then
@@ -87,7 +87,7 @@ end
 
 #= walley_lexer.wy
 match=def(input_str, index, match_string) then
-    local length_of_input_str=len(input_str)
+	local length_of_input_str=len(input_str)
     local length_of_match_str=len(match_string)
     if index+length_of_match_str>length_of_input_str then
         return false
@@ -173,10 +173,10 @@ def indexOfFinalDoubleQuote(input_str, first_index) then
 end
 
 def Walley_Analyze_Token_Class(input_str, i) then
-    # return obj
-    # 0 --> end_index
-    # 1 --> token class
-    local return_obj=[]
+	# return obj
+	# 0 --> end_index
+	# 1 --> token class
+	local return_obj=[]
     local length=len(input_str)
     #  1  m_operator
     if match(input_str, i, "**") then
@@ -338,10 +338,10 @@ def Walley_Analyze_Token_Class(input_str, i) then
     
     # end
     if match(input_str, i, "end") and (i+3>=length or input_str[i+3]==" " or input_str[i+3]=="\n") then
-        end_index=i+3
-        return_obj[0]=end_index
-        return_obj[1]="end" 
-        return return_obj
+       	end_index=i+3
+       	return_obj[0]=end_index
+       	return_obj[1]="end" 
+       	return return_obj
     end
     
     # return
@@ -1179,7 +1179,7 @@ def table_value_key(tree, tl) then
             elif term(tl[i].TOKEN_STRING,")") then
                 count=count-1
                 if count==0 then
-                    index=-1
+                    index=i
                     break
                 end
             end
@@ -2706,7 +2706,7 @@ def ism_operator(input_str) then
     return false
 end
 
- def Walley_Calculation(value1, value2, sign) then
+def Walley_Calculation(value1, value2, sign) then
     # number calculation
     if value1[0]!="\"" and value2[0]!="\"" then
         if sign=="^" then

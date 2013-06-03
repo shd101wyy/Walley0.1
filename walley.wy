@@ -1179,7 +1179,7 @@ def table_value_key(tree, tl) then
             elif term(tl[i].TOKEN_STRING,")") then
                 count=count-1
                 if count==0 then
-                    index=-1
+                    index=i
                     break
                 end
             end
