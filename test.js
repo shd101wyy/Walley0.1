@@ -1,6 +1,5 @@
-String.prototype.trim = function() {
-     // body...
-     return this.replace(/^\s+|\s+$/g,'');
-};
-
-console.log("|%s|","  hello   world    ".trim());
+function isalpha(e){return/^[a-z]+$/i.test(e)}function isdigit(e){return!isNaN(parseFloat(e))&&isFinite(e)}function len(e){if(typeof e=="string"){return e.length}else if(typeof e=="object"){return Object.keys(e).length}else{console.log("Error..\nfunctin len() only support table or string\n")}}none=null;String.prototype.find=function(e,t){if(typeof t=="undefined"){t=0}return this.indexOf(e,t)};String.prototype.tolower=function(){return this.toLowerCase()};String.prototype.toupper=function(){return this.toUpperCase()};String.prototype.reverse=function(){return this.split("").reverse().join("")};String.prototype.trim=function(){return this.replace(/^\s+|\s+$/g,"")};Math["cot"]=function(e){return 1/Math.tan(e)};Math["sec"]=function(e){return 1/Math.cos(e)};Math["csc"]=function(e){return 1/Math.sin(e)};Object.prototype.slice=function(e,t){var n={};var r=0;for(var i=e;i<t;i++){n[r]=this[i];r++}return n};Object.prototype.append=function(e){var t=-1;for(var n in this){if(isdigit(n)){n=parseInt(n);if(n>t){t=n}}}if(t!==-1){t=t+1}else{t=0}this[t]=e};Object.prototype.length=function(){return Object.keys(this).length}
+if (output[len(output)]==="12"){
+console["log"]("Hi");
+}
+;

@@ -133,7 +133,6 @@ Str_List *Compile_to_JS(char *file_name){
             }
         }
                 
-        
         char *output_str=Code_Generation_2_Javascript(&output_sl, tree);
         
 

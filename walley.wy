@@ -3298,8 +3298,10 @@ def Code_Generation_2_Javascript(sl,tree)then
             return append_str
         else
             local key_tree=tree.node_list[0]
+            js_isTableValue=false
+            local append_str="["+Code_Generation_2_Javascript(sl, key_tree)+"]"
             js_isTableValue=true
-            return "["+Code_Generation_2_Javascript(sl, key_tree)+"]"
+            return append_str
         end
     
     #~

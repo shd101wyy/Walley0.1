@@ -727,8 +727,10 @@ char* Code_Generation_2_Javascript(Str_List **sl,TREE tree){
         }
         else{
             TREE key_tree=tree.node_list->node;
+            js_isTableValue=FALSE;
+            char *append_str=append("[", append(Code_Generation_2_Javascript(sl, key_tree), "]"));
             js_isTableValue=TRUE;
-            return append("[", append(Code_Generation_2_Javascript(sl, key_tree), "]"));
+            return append_str;
         }
     }
     /*
