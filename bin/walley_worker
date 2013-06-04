@@ -1,0 +1,101 @@
+#!/usr/bin/env node
+var fs=require("fs")
+var argv=process.argv
+var walley=require("./walley.js")
+var vm=require("vm")
+var util=require("util")
+console.log(argv)
+
+var preload_js_str="none=null;function isalpha(input_char){return/^[a-z]+$/i.test(input_char)}function isdigit(e){return!isNaN(parseFloat(e))&&isFinite(e)}String.prototype.find=function(find_str,start){if(typeof start==\"undefined\"){start=0}return this.indexOf(find_str,start)};String.prototype.tolower=function(){return this.toLowerCase()};String.prototype.toupper=function(){return this.toUpperCase()};String.prototype.reverse=function(){return this.split(\"\").reverse().join(\"\")};String.prototype.trim=function(){return this.replace(/^\s+|\s+$/g,\"\")};Math[\"cot\"]=function(num){return 1/Math.tan(num)};Math[\"sec\"]=function(num){return 1/Math.cos(num)};Math[\"csc\"]=function(num){return 1/Math.sin(num)};Object.defineProperty(Object.prototype,\"slice\",{value:function(start,end){var return_obj={};var a=0;for(var i=start;i<end;i++){return_obj[a]=this[i];a++}return return_obj},enumerable:false});Object.defineProperty(Object.prototype,\"append\",{value:function(e){var t=this.maxn()+1;this[t]=e},enumerable:false});Object.defineProperty(Object.prototype,\"maxn\",{value:function(){var t=0;if(this[0]==undefined){return-1}while(this[t]!=undefined){t=t+1}return t-1},enumerable:false});Object.defineProperty(Object.prototype,\"insert\",{value:function(insert_obj,pos){if(pos==undefined){pos=table.maxn(this)+1;this[pos]=insert_obj}else{this[pos]=insert_obj}},enumerable:false});Object.defineProperty(Object.prototype,\"remove\",{value:function(pos){if(pos==undefined){pos=table.maxn(obj)}delete this[pos]},enumerable:false});Object.defineProperty(Object.prototype,\"length\",{value:function(){return Object.keys(this).length},enumerable:false});function len(obj){if(typeof obj==\"string\"){return obj.length}else if(typeof obj==\"object\"){return Object.keys(obj).length}else{console.log(\"Error..\\nfunctin len() only support table or string\\n\")}}\n"
+
+if (argv.length==2){
+	console.log("Interactive mode");
+	console.log("Press Ctrl + C to quit\n");
+	var readline = require('readline');
+
+	var input_str=""
+
+	var rl = readline.createInterface({
+	  input: process.stdin,
+	  output: process.stdout
+	})
+
+	rl.setPrompt('walley> ')
+	rl.prompt()
+
+	vm.runInThisContext(preload_js_str)
+
+	var to_run=""
+
+	rl.on('line', function(line) {
+		to_run=to_run+" "+line
+		var sl_string=walley.Code_Generation(to_run)
+		//console.log(sl_string);
+
+		// check incomplete
+		//console.log(walley.INCOMPLETE_STATEMENT)
+		if(walley.INCOMPLETE_STATEMENT==false){
+			// print out output with color
+			console.log(util.inspect(vm.runInThisContext(sl_string),{colors:true}))	
+			// print out output without color	
+			// vm.runInThisContext(sl_string)
+			to_run=""
+			rl.setPrompt('walley> ')
+			rl.prompt()
+		}
+		else{
+			rl.setPrompt("walley>>> ")
+			rl.prompt()
+		}
+	})
+
+	rl.on('close', function() {
+	  console.log('Quit walley')
+	  process.exit(0)
+	});
+
+}
+
+// compile walley_file
+if (argv[2]=="compile"){
+	console.log("Begin to compile..")
+
+	// get file that will be compiled 
+	var file_name=argv[3]
+	if (file_name==undefined){
+		console.log("No input file..")
+		process.exit(0)
+	}
+	if (file_name.slice(file_name.length-3,file_name.length)!=".wy"){
+		console.log("File %s format wrong..\nNeed .wy\n")
+		process.exit(0)
+	}
+
+	// get file that will be compiled to 
+	var output_file_name=argv[4]
+
+	// get content of file
+	var content_in_file=fs.readFileSync(file_name,"utf8")
+	// compile the content 
+	var sl_string=walley.Code_Generation(content_in_file)
+
+	sl_string=preload_js_str+sl_string
+
+	// if output file is undefined
+	// then only show the compiled content
+	if(output_file_name==undefined){
+		console.log("=======================\n\n\n")
+		console.log(sl_string)
+	}
+	else{
+		// write to the target file
+		fs.writeFile(output_file_name,sl_string, function(err){
+			if (err){
+				console.log("Fail to write to file "+output_file_name);
+				process.exit(0);
+			}
+			console.log("Successfully compiled to file "+output_file_name);
+		});
+	}
+
+}

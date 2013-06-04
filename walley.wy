@@ -1273,7 +1273,7 @@ def expr(tree, tl) then
 
                 local a=0
                 for a=0,a<len(tl),a=a+1 then
-                    temp_tl.append[a+1]=tl[a]
+                    temp_tl.append(tl[a])
                 end
 
                 return expr(tree,temp_tl)

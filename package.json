@@ -1,11 +1,8 @@
 {
   "name": "walley-language",
-  "version": "0.0.1-603",
+  "version": "0.0.1607",
   "description": "walley language is a simple script language",
   "main": "walley.js",
-  "scripts": {
-    "test": "walley_worker"
-  },
   "repository": {
     "type": "git",
     "url": "https://github.com/shd101wyy/Walley0.1.git"
@@ -13,6 +10,9 @@
   "keywords": [
     "language"
   ],
+  "bin": {
+    "walley_worker": "./bin/walley_worker"
+  },
   "author": "Yiyi Wang",
   "license": "MIT",
   "readmeFilename": "README.md",

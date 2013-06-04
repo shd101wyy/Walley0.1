@@ -11,7 +11,7 @@ Walley Language
                        \\____|    \\____|  \__/\ ||___ ||___   ||     
                __________________________________________________||     
                ---------------------------------------------------|     
-                       VERSION 0.0.1603  FOR FUTURE AR,VR,AI  
+                       VERSION 0.0.1604  FOR FUTURE AR,VR,AI  
        
                     Walley Language is a script language that       
                     compiles Walley Language into Javascript which  
