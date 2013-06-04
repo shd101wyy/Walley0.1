@@ -84,7 +84,7 @@ function len(obj) {
         console.log("Error..\nfunctin len() only support table or string\n")
     }
 }
-if (exports === undefined) {
+if (typeof(exports) === "undefined") {
     exports = {};
 }
 INCOMPLETE_STATEMENT = false;

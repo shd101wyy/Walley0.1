@@ -2,7 +2,7 @@
 # check -> , current_token , && || , else if , ; , // '' TL_subtl &
 # string trim() should be rewritten like str = str.replace(/^\s+|\s+$/g,'')
 # true -> true false -> false
-if exports == undefined then
+if typeof(exports) == "undefined" then
     exports=[]
 end
 INCOMPLETE_STATEMENT=false
