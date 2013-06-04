@@ -2,6 +2,9 @@
 # check -> , current_token , && || , else if , ; , // '' TL_subtl &
 # string trim() should be rewritten like str = str.replace(/^\s+|\s+$/g,'')
 # true -> true false -> false
+if exports == undefined then
+    exports=[]
+end
 INCOMPLETE_STATEMENT=false
 #= FILE: walley_string.wy
 def toString(input_str) then
@@ -2388,7 +2391,8 @@ def sentences_seperation(tl, output_tl,begin) then
                 INCOMPLETE_STATEMENT=true
                 return false
             # solve return a() and b() problem
-           elif i+1<len(tl) and (term(tl[i+1].TOKEN_STRING, "and") or term(tl[i+1].TOKEN_STRING, "or")) then
+            # solve a(b)+"[" problem on 06/04/2013
+            elif i+1<len(tl) and (term(tl[i+1].TOKEN_STRING, "and") or term(tl[i+1].TOKEN_STRING, "or") or term(tl[i+1].TOKEN_CLASS, "m_operator")) then
                  continue
             else
                 local end_index=index_of_right+1
@@ -3048,6 +3052,15 @@ def Code_Generation_2_Javascript(sl,tree)then
            
         elif term(nl[0].name, "foreach") then
             #~
+            for(var i in x){
+                // add this 
+                if(x.hasOwnProperty(i))
+                    {
+                    
+
+                    }
+            }
+
              ( walley_statements
                 ( statements
                     ( foreach)
@@ -3079,6 +3092,9 @@ def Code_Generation_2_Javascript(sl,tree)then
             # append in value
             append_str=append_str+foreach_in_value
             append_str=append_str+"){\n"
+
+            # solve enumerable problem
+            append_str=append_str+"if(("+foreach_in_value+").hasOwnProperty("+foreach_index+")){\n"
             
             
             if has_v==true then
@@ -3113,6 +3129,7 @@ def Code_Generation_2_Javascript(sl,tree)then
             end
             
             append_str=append_str+output_str
+            append_str=append_str+"};\n"
             return append_str
         else
             local append_str=""

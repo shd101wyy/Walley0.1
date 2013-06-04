@@ -1,0 +1,4 @@
+#!/usr/bin/env node
+var walley=require("./walley.js")
+var output=walley.Code_Generation("x=12")
+console.log(output)

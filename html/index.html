@@ -1,0 +1,98 @@
+<html>
+	<head>
+		<title> Walley Language </title>
+		<script src="./walley_min.js"></script>
+		<style>
+			#div1{
+				position: absolute;
+				color: white;
+				top:20%;
+				left: 1%;
+				height: 60%;
+				width: 49%;
+				background-color: #d95eec;
+				border-width: 100px;
+				border-color: white;
+			}
+			
+			#div2{
+				position: absolute;
+				color: white;
+				top: 20%;
+				left: 51%;
+				height: 60%;
+				width: 50%;
+				background-color: #d95eec;
+				border-width: 100px;
+				border-color: white;
+			}
+			
+			#div_area1{
+				position: absolute;
+				width: 80%;
+				height: 80%;
+				left: 10%;
+				top: 10%;
+			}
+			#div_area2{
+				position: absolute;
+				width: 80%;
+				height: 80%;
+				left: 10%;
+				top: 10%;
+			}
+			
+			#compile{
+				position: absolute;
+				left: 45%;
+				top:50%;
+				width: 10%;
+			}
+			
+			#run{
+				position: absolute;
+				left: 45%;
+				top:55%;
+				width: 10%;
+			}
+
+		
+		</style>
+	</head>
+	<body>
+		<div id="div1">
+			<div id="div_area1" contenteditable="true">
+				alert("Hello World")
+			</div>
+		</div>
+		
+		<div id="div2">
+			<div id="div_area2"  contenteditable="true">
+				alert("Hello World");
+			</div>
+		</div>
+		
+		<button id="compile" onclick="clickCompile()"> compile </button>
+		<button id="run" onclick="clickRun()"> run </button>
+		<script>
+			
+			var clickCompile=function(){
+				//alert("Clicked Button");
+				var content_in_div1=document.getElementById("div_area1").innerHTML;
+				content_in_div1=content_in_div1.replace(/<br>/g, "\n");
+				content_in_div1=content_in_div1.replace(/&nbsp;/g," ");
+				console.log(content_in_div1);
+				
+				var compiled_string=exports["Code_Generation"](content_in_div1);
+				document.getElementById("div_area2").innerHTML=compiled_string;
+			}
+			
+			var clickRun=function(){
+				var run_javascript=document.getElementById("div_area2").innerHTML;
+				eval(run_javascript);
+			}
+			
+			
+		</script>
+	</body>
+</html>
