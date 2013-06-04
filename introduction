@@ -9,7 +9,7 @@
                        \\____|    \\____|  \__/\ ||___ ||___   ||     
                __________________________________________________||     
                ---------------------------------------------------|     
-                       VERSION 0.0.1607  FOR FUTURE AR,VR,AI  
+                       VERSION 0.0.1610  FOR FUTURE AR,VR,AI  
        
                     Walley Language is a script language that       
                     compiles Walley Language into Javascript which  
@@ -18,4 +18,3 @@
                                                                                     
                        It is the language for creating a WORLD:)   
 
-		    try command "walley_worker" in terminal
