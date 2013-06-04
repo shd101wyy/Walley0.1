@@ -1,123 +1,89 @@
-none=null;
-//new written function for javascript
-function isalpha(input_char){
-   //return /^[ a-z]+$/i.test(input_char); including space
-   return /^[a-z]+$/i.test(input_char);
-}
-//javascript : isdigit
-function isdigit(e) {
-    return !isNaN(parseFloat(e)) && isFinite(e);
-}
-// String
-// find
-String.prototype.find=function(find_str, start){
-    if(typeof(start)=='undefined'){start=0};
-    return this.indexOf(find_str,start);
-}
-// tolower
-String.prototype.tolower=function(){
-    return this.toLowerCase();
-}
-// toupper
-String.prototype.toupper=function(){
-    return this.toUpperCase();
-}
-// reverse
-String.prototype.reverse=function(){
-    return this.split("").reverse().join("");
+none = null;
+
+function isalpha(input_char) {
+    return /^[a-z]+$/i.test(input_char)
 }
 
-String.prototype.trim = function() {
-     return this.replace(/^\s+|\s+$/g,'');
+function isdigit(e) {
+    return !isNaN(parseFloat(e)) && isFinite(e)
+}
+String.prototype.find = function (find_str, start) {
+    if (typeof start == "undefined") {
+        start = 0
+    }
+    return this.indexOf(find_str, start)
+};
+String.prototype.tolower = function () {
+    return this.toLowerCase()
+};
+String.prototype.toupper = function () {
+    return this.toUpperCase()
+};
+String.prototype.reverse = function () {
+    return this.split("").reverse().join("")
+};
+String.prototype.trim = function () {
+    return this.replace(/^s+|s+$/g, "")
+};
+Math["cot"] = function (num) {
+    return 1 / Math.tan(num)
+};
+Math["sec"] = function (num) {
+    return 1 / Math.cos(num)
+};
+Math["csc"] = function (num) {
+    return 1 / Math.sin(num)
+};
+Object.prototype.slice = function (start, end) {
+    var return_obj = {};
+    var a = 0;
+    for (var i = start; i < end; i++) {
+        return_obj[a] = this[i];
+        a++
+    }
+    return return_obj
+};
+Object.prototype.append = function (e) {
+    var t = this.maxn() + 1;
+    this[t] = e
+};
+Object.prototype.maxn = function () {
+    var t = 0;
+    if (this[0] == undefined) {
+        return -1
+    }
+    while (this[t] != undefined) {
+        t = t + 1
+    }
+    return t - 1
+};
+Object.prototype.insert = function (insert_obj, pos) {
+    if (pos == undefined) {
+        pos = table.maxn(this) + 1;
+        this[pos] = insert_obj
+    } else {
+        this[pos] = insert_obj
+    }
+};
+Object.prototype.remove = function (pos) {
+    if (pos == undefined) {
+        pos = table.maxn(obj)
+    }
+    delete this[pos]
+};
+Object.prototype.length = function () {
+    return Object.keys(this).length
 };
 
-// Math
-
-Math["cot"]=function(num){
-    return 1/Math.tan(num);
-}
-Math["sec"]=function(num){
-    return 1/Math.cos(num);
-}
-Math["csc"]=function(num){
-    return 1/Math.sin(num);
-}
-
-// OBJECT FUNCTIONS
-Object.prototype.slice=function(start,end) {
-        var return_obj={};
-        var a=0;
-        for (var i=start;i<end;i++){
-            return_obj[a]=this[i];
-            a++;
-        }
-        return return_obj;
-    };
-
-Object.prototype.append= function(e) {
-        var t=this.maxn()+1
-        this[t] = e;
-    };
-
-// get largest index
-// eg [1,2,3] largest index is 2 
-// only return continuous integer index
-// eg [0:1,1:2,15:2] because 15 is not after 1
-//                   so only return 1
-// if no integer index then return -1
-Object.prototype.maxn=function(){
-        var t=0
-        if (this[0]==undefined){
-            return -1
-        }
-        while(this[t]!=undefined){
-            t=t+1
-        }
-        return t-1
-    };
-
-
-// insert insert_obj at pos
-Object.prototype.insert=function(insert_obj, pos){
-        // default position is the largest integer index
-        if (pos==undefined){
-            pos=table.maxn(this)+1
-            this[pos] = insert_obj
-        }
-        else{
-            this[pos]=insert_obj
-        }
-    };
-
-// remove element at position
-Object.prototype.remove=function(pos){
-        if (pos==undefined){
-            pos=table.maxn(obj)
-        }
-        delete(this[pos])
-    };
-
-// get the length of table
-// [0:1,hi:2] -> length 2
-Object.prototype.length=function(){
-        return Object.keys(this).length
-    }
-
-
-// len like python
-function len(obj){
-    if(typeof(obj)=='string'){
+function len(obj) {
+    if (typeof obj == "string") {
         return obj.length
-    }
-    else if(typeof(obj)=='object'){
+    } else if (typeof obj == "object") {
         return Object.keys(obj).length
-    }
-    else{
-        console.log("Error..\nfunctin len() only support table or string\n");
+    } else {
+        console.log("Error..\nfunctin len() only support table or string\n")
     }
 }
-
-
 if (exports === undefined) {
     exports = {};
 }
@@ -145,8 +111,8 @@ Token_init = function () {
     var Token = {};
     Token["TOKEN_CLASS"] = "";
     Token["TOKEN_STRING"] = "";
-    Token["TOKEN_START"] = 0;
-    Token["TOKEN_END"] = 0;
+    Token["TOKEN_START"] = -1;
+    Token["TOKEN_END"] = -1;
     return Token;
 };
 TOKEN_print = function (token) {
@@ -155,9 +121,11 @@ TOKEN_print = function (token) {
 TL_toString = function (tl) {
     var return_string = "";
     for (i in tl) {
-        v = (tl)[i];
-        return_string = return_string + v["TOKEN_STRING"];
-    }
+        if ((tl).hasOwnProperty(i)) {
+            v = (tl)[i];
+            return_string = return_string + v["TOKEN_STRING"];
+        }
+    };
 };
 TL_addToken = function (tl, add_token) {
     var temp_token = Token_init();
@@ -168,7 +136,7 @@ TL_addToken = function (tl, add_token) {
     tl["append"](temp_token);
 };
 TL_indexOfTokenThatHasTokenString = function (tl, token_string) {
-    var output = 0;
+    var output = -1;
     var i = 0;
     for (i = 0; i < len(tl); i = i + 1) {
         if (tl[i]["TOKEN_STRING"] === token_string) {
@@ -176,10 +144,10 @@ TL_indexOfTokenThatHasTokenString = function (tl, token_string) {
         }
 
     };
-    return 0;
+    return -1;
 };
 TL_indexOfTokenThatHasTokenClass = function (tl, token_string) {
-    var output = 0;
+    var output = -1;
     var i = 0;
     for (i = 0; i < len(tl); i = i + 1) {
         if (tl[i]["TOKEN_CLASS"] === token_string) {
@@ -187,7 +155,7 @@ TL_indexOfTokenThatHasTokenClass = function (tl, token_string) {
         }
 
     };
-    return 0;
+    return -1;
 };
 match = function (input_str, index, match_string) {
     var length_of_input_str = len(input_str);
@@ -247,7 +215,7 @@ LIST_indexOfFinalBracket = function (input_str, index_of_first_bracket) {
         }
 
     };
-    return 0;
+    return -1;
 };
 indexOfFinalDoubleQuote = function (input_str, first_index) {
     var first_char = input_str[first_index];
@@ -266,7 +234,7 @@ indexOfFinalDoubleQuote = function (input_str, first_index) {
 
         };
     }
-    return 0;
+    return -1;
 };
 Walley_Analyze_Token_Class = function (input_str, i) {
     var return_obj = {};
@@ -399,7 +367,7 @@ Walley_Analyze_Token_Class = function (input_str, i) {
     }
     if (input_str[i] === "[") {
         var index_of_final = LIST_indexOfFinalBracket(input_str, i);
-        if (index_of_final === 0) {
+        if (index_of_final === -1) {
             INCOMPLETE_STATEMENT = true;
         }
         end_index = index_of_final + 1;
@@ -409,7 +377,7 @@ Walley_Analyze_Token_Class = function (input_str, i) {
     }
     if (input_str[i] === "\"") {
         var index_of_right_dq = indexOfFinalDoubleQuote(input_str, i);
-        if (index_of_right_dq === 0) {
+        if (index_of_right_dq === -1) {
             console["log"]("incomplete str\n");
             exit(0);
         } else {
@@ -617,7 +585,7 @@ elements = function (tree, tl) {
     }
     var length_of_tl = len(tl);
     var index_of_comma = TL_indexOfTokenThatHasTokenString(tl, ",");
-    if (index_of_comma === 0) {
+    if (index_of_comma === -1) {
         var index_of_tl = TREE_INDEX;
         TREE_addNode(tree, "value", "");
         return value(TREE_getTreeAccordingToIndex(tree, index_of_tl), tl);
@@ -663,7 +631,7 @@ table_elements = function (tree, tl, key_index) {
     }
     var length_of_tl = len(tl);
     var i = 0;
-    var index_of_comma = 0;
+    var index_of_comma = -1;
     for (i = 0; i < length_of_tl; i = i + 1) {
         if (term(tl[i]["TOKEN_STRING"], ",")) {
             index_of_comma = i;
@@ -671,7 +639,7 @@ table_elements = function (tree, tl, key_index) {
         }
 
     };
-    if (index_of_comma !== 0) {
+    if (index_of_comma !== -1) {
         table_expr_tl = tl.slice(0, index_of_comma);
         table_elements_tl = tl.slice(index_of_comma + 1, length_of_tl);
         var index1 = TREE_INDEX;
@@ -779,7 +747,7 @@ table_value = function (tree, tl) {
         TREE_addNode(TREE_getTreeAccordingToIndex(tree, index), tl[0]["TOKEN_STRING"], tl[0]["TOKEN_CLASS"]);
         return table_value_key(TREE_getTreeAccordingToIndex(tree, index), tl.slice(1, length_of_tl));
     } else if (((3 <= length_of_tl && term(tl[0]["TOKEN_CLASS"], "id")) && term(tl[1]["TOKEN_STRING"], "("))) {
-        var index = 0;
+        var index = -1;
         var i = 0;
         var count = 0;
         for (i = 0; i < len(tl); i = i + 1) {
@@ -808,7 +776,7 @@ table_value = function (tree, tl) {
         return table_value_key(TREE_getTreeAccordingToIndex(tree, tree_index), tl.slice(index + 1, length_of_tl));
     } else {
         if (term(tl[0]["TOKEN_STRING"], "(")) {
-            var index_of_right = 0;
+            var index_of_right = -1;
             var i = 0;
             var count = 0;
             for (i = 0; i < len(tl); i = i + 1) {
@@ -823,7 +791,7 @@ table_value = function (tree, tl) {
                 }
 
             };
-            if (index_of_right === 0) {
+            if (index_of_right === -1) {
                 return false;
             } else {
                 if (index_of_right === length_of_tl - 1) {
@@ -851,7 +819,7 @@ table_value_key = function (tree, tl) {
         var length = len(tl[0]["TOKEN_STRING"]);
         var string_inside = tl[0]["TOKEN_STRING"].slice(1, length - 1);
         var key_tl = Walley_Lexical_Analyzie(string_inside);
-        var index_of_colon = 0;
+        var index_of_colon = -1;
         var i = 0;
         for (i = 0; i < len(key_tl); i = i + 1) {
             if (term(key_tl[i]["TOKEN_STRING"], ":")) {
@@ -860,7 +828,7 @@ table_value_key = function (tree, tl) {
             }
 
         };
-        if (index_of_colon === 0) {
+        if (index_of_colon === -1) {
             var index1 = TREE_INDEX;
             TREE_addNode(tree, "key", "");
             var key_tree = TREE_init(key_tree, "key");
@@ -910,7 +878,7 @@ table_value_key = function (tree, tl) {
         TREE_addTree(TREE_getTreeAccordingToIndex(tree, index1), key_tree);
         return true;
     } else if ((((4 <= length_of_tl && term(tl[0]["TOKEN_STRING"], ".")) && term(tl[1]["TOKEN_CLASS"], "id")) && term(tl[2]["TOKEN_STRING"], "("))) {
-        var index_of_right = 0;
+        var index_of_right = -1;
         var i = 0;
         var count = 0;
         for (i = 0; i < len(tl); i = i + 1) {
@@ -925,7 +893,7 @@ table_value_key = function (tree, tl) {
             }
 
         };
-        if (index_of_right === 0) {
+        if (index_of_right === -1) {
             INCOMPLETE_STATEMENT = true;
             return false;
         }
@@ -939,7 +907,7 @@ table_value_key = function (tree, tl) {
     } else if (((2 <= length_of_tl && term(tl[0]["TOKEN_CLASS"], "list_table")) && (term(tl[1]["TOKEN_STRING"], ".") || term(tl[1]["TOKEN_CLASS"], "list_table")))) {
         return table_value_key(tree, tl.slice(0, 1)) && table_value_key(tree, tl.slice(1, length_of_tl));
     } else if (((3 <= length_of_tl && term(tl[0]["TOKEN_CLASS"], "list_table")) && term(tl[1]["TOKEN_STRING"], "("))) {
-        var index = 0;
+        var index = -1;
         var i = 0;
         var count = 0;
         for (i = 0; i < len(tl); i = i + 1) {
@@ -954,7 +922,7 @@ table_value_key = function (tree, tl) {
             }
 
         };
-        if (index === 0) {
+        if (index === -1) {
             INCOMPLETE_STATEMENT = true;
             return false;
         }
@@ -1007,8 +975,8 @@ expr = function (tree, tl) {
                 var temp_token = Token_init();
                 temp_token["TOKEN_STRING"] = "0";
                 temp_token["TOKEN_CLASS"] = "num";
-                temp_token["TOKEN_START"] = 0;
-                temp_token["TOKEN_END"] = 0;
+                temp_token["TOKEN_START"] = -1;
+                temp_token["TOKEN_END"] = -1;
                 temp_tl["append"](temp_token);
                 var a = 0;
                 for (a = 0; a < len(tl); a = a + 1) {
@@ -1119,7 +1087,7 @@ assignment = function (tree, tl) {
     }
     var count = 0;
     var count_of_equal = 0;
-    var index_of_equal = 0;
+    var index_of_equal = -1;
     var i = 0;
     for (i = 0; i < len(tl); i = i + 1) {
         if (((((term(tl[i]["TOKEN_STRING"], "(") || term(tl[i]["TOKEN_STRING"], "if")) || term(tl[i]["TOKEN_STRING"], "def")) || term(tl[i]["TOKEN_STRING"], "for")) || term(tl[i]["TOKEN_STRING"], "while"))) {
@@ -1182,7 +1150,7 @@ var_name = function (tree, tl) {
         return false;
     }
     var index_of_comma = TL_indexOfTokenThatHasTokenString(tl, ",");
-    if (index_of_comma !== 0) {
+    if (index_of_comma !== -1) {
         var length_of_tl = len(tl);
         var tl1 = tl.slice(0, index_of_comma);
         var tl2 = tl.slice(index_of_comma + 1, length_of_tl);
@@ -1207,7 +1175,7 @@ var_value = function (tree, tl) {
         return false;
     }
     var length_of_tl = len(tl);
-    var index_of_comma = 0;
+    var index_of_comma = -1;
     var i = 0;
     var count = 0;
     for (; i < length_of_tl; i = i + 1) {
@@ -1227,7 +1195,7 @@ var_value = function (tree, tl) {
         INCOMPLETE_STATEMENT = true;
         return false;
     }
-    if (index_of_comma !== 0) {
+    if (index_of_comma !== -1) {
         var tl1 = tl.slice(0, index_of_comma);
         var tl2 = tl.slice(index_of_comma + 1, length_of_tl);
         var index_of_tl1 = TREE_INDEX;
@@ -1245,7 +1213,7 @@ func_assign = function (tree, tl) {
     }
     var length_of_tl = len(tl);
     if (((4 <= length_of_tl && term(tl[0]["TOKEN_STRING"], "def")) && term(tl[1]["TOKEN_STRING"], "("))) {
-        var index_of_right = 0;
+        var index_of_right = -1;
         var count = 0;
         var i = 0;
         for (; i < length_of_tl; i = i + 1) {
@@ -1261,7 +1229,7 @@ func_assign = function (tree, tl) {
             }
 
         };
-        if (index_of_right === 0) {
+        if (index_of_right === -1) {
             INCOMPLETE_STATEMENT = true;
             console["log"]("INCOMPLETE_STATEMENT func_assign\n");
             exit(0);
@@ -1307,7 +1275,7 @@ func_value = function (tree, tl) {
         tree["name"] = "func_value";
         tree["token_class"] = "";
         var index_of_then = TL_indexOfTokenThatHasTokenString(tl, "then");
-        if (index_of_then === 0) {
+        if (index_of_then === -1) {
             INCOMPLETE_STATEMENT = true;
             return false;
         }
@@ -1323,7 +1291,7 @@ params = function (tree, tl) {
         return true;
     }
     var length_of_tl = len(tl);
-    var index_of_comma = 0;
+    var index_of_comma = -1;
     var count = 0;
     var i = 0;
     for (i = 0; i < length_of_tl; i = i + 1) {
@@ -1341,7 +1309,7 @@ params = function (tree, tl) {
         }
 
     };
-    if (index_of_comma === 0) {
+    if (index_of_comma === -1) {
         if (assignment(tree, tl) === true) {
             return true;
         } else {
@@ -1367,8 +1335,8 @@ func = function (tree, tl) {
     }
     var length_of_tl = len(tl);
     var index_of_left = TL_indexOfTokenThatHasTokenString(tl, "(");
-    var index_of_right = 0;
-    if (index_of_left === 0) {
+    var index_of_right = -1;
+    if (index_of_left === -1) {
         return false;
     }
     var i = 0;
@@ -1385,11 +1353,11 @@ func = function (tree, tl) {
         }
 
     };
-    if (index_of_right === 0) {
+    if (index_of_right === -1) {
         INCOMPLETE_STATEMENT = true;
         return false;
     }
-    if (((index_of_right + 1 !== length_of_tl || index_of_left === 0) || index_of_left === 0)) {
+    if (((index_of_right + 1 !== length_of_tl || index_of_left === -1) || index_of_left === 0)) {
         return false;
     } else {
         var test_id = tl.slice(0, index_of_left);
@@ -1419,7 +1387,7 @@ relation = function (tree, tl) {
     var length_of_tl = len(tl);
     var i = length_of_tl - 1;
     var count = 0;
-    var index_of_and_or = 0;
+    var index_of_and_or = -1;
     for (; 0 <= i; i = i - 1) {
         if (term(tl[i]["TOKEN_STRING"], "(")) {
             count = count + 1;
@@ -1462,7 +1430,7 @@ simple_relation = function (tree, tl) {
     } else {
         tree["name"] = "simple_relation";
         var index_of_judge_sign = TL_indexOfTokenThatHasTokenClass(tl, "judge_sign");
-        if (index_of_judge_sign === 0) {
+        if (index_of_judge_sign === -1) {
             return expr(tree, tl);
         }
         var tl1 = tl.slice(0, index_of_judge_sign);
@@ -1496,7 +1464,7 @@ if_stms = function (tree, tl) {
     var length_of_tl = len(tl);
     if (term(tl[0]["TOKEN_STRING"], "if")) {
         var index_of_then = TL_indexOfTokenThatHasTokenString(tl, "then");
-        if (index_of_then === 0) {
+        if (index_of_then === -1) {
             INCOMPLETE_STATEMENT = true;
             return false;
         }
@@ -1520,7 +1488,7 @@ elif_stms = function (tree, tl) {
     var length_of_tl = len(tl);
     if (term(tl[0]["TOKEN_STRING"], "elif")) {
         var index_of_then = TL_indexOfTokenThatHasTokenString(tl, "then");
-        if (index_of_then === 0) {
+        if (index_of_then === -1) {
             INCOMPLETE_STATEMENT = true;
             return false;
         }
@@ -1560,7 +1528,7 @@ while_stms = function (tree, tl) {
     var length_of_tl = len(tl);
     if (term(tl[0]["TOKEN_STRING"], "while")) {
         var index_of_then = TL_indexOfTokenThatHasTokenString(tl, "then");
-        if (index_of_then === 0) {
+        if (index_of_then === -1) {
             INCOMPLETE_STATEMENT = true;
             return false;
         }
@@ -1586,7 +1554,7 @@ for_stms = function (tree, tl) {
     }
     var length_of_tl = len(tl);
     if ((term(tl[4]["TOKEN_STRING"], "in") || term(tl[2]["TOKEN_STRING"], "in"))) {
-        var index_of_then = 0;
+        var index_of_then = -1;
         var i = 0;
         for (; i < length_of_tl; i = i + 1) {
             if (term(tl[i]["TOKEN_STRING"], "then")) {
@@ -1623,13 +1591,13 @@ for_stms = function (tree, tl) {
     var num_of_comma = 0;
     var count_of_p = 0;
     var index_of_comma = {
-        0: 0,
-        1: 0,
-        2: 0
+        0: -1,
+        1: -1,
+        2: -1
     };
     var index = 0;
     var i = 0;
-    var index_of_then = 0;
+    var index_of_then = -1;
     for (; i < length_of_tl; i = i + 1) {
         if (term(tl[i]["TOKEN_STRING"], "then")) {
             index_of_then = i;
@@ -1652,7 +1620,7 @@ for_stms = function (tree, tl) {
         }
 
     };
-    if ((index_of_then === 0 || term(tl[length_of_tl - 1]["TOKEN_STRING"], "end") === false)) {
+    if ((index_of_then === -1 || term(tl[length_of_tl - 1]["TOKEN_STRING"], "end") === false)) {
         INCOMPLETE_STATEMENT = true;
         return false;
     }
@@ -1730,7 +1698,7 @@ def_stms = function (tree, tl) {
     if ((term(tl[0]["TOKEN_STRING"], "def") && term(tl[1]["TOKEN_STRING"], "(") === false)) {
         var index_of_then = TL_indexOfTokenThatHasTokenString(tl, "then");
         var index_of_left_bracket = TL_indexOfTokenThatHasTokenString(tl, "(");
-        if (index_of_then === 0) {
+        if (index_of_then === -1) {
             INCOMPLETE_STATEMENT = true;
             return false;
         }
@@ -1803,33 +1771,6 @@ sentences_seperation = function (tl, output_tl, begin) {
     }
     i = begin["val"];
     for (; i < length_of_tl; i = i + 1) {
-        if (term(tl[i]["TOKEN_STRING"], "(")) {
-            var index_of_right = 0;
-            var count = 0;
-            for (; i < length_of_tl; i = i + 1) {
-                if (term(tl[i]["TOKEN_STRING"], "(")) {
-                    count = count + 1;
-                } else if (term(tl[i]["TOKEN_STRING"], ")")) {
-                    count = count - 1;
-                    if (count === 0) {
-                        index_of_right = i;
-                        break;
-                    }
-                }
-
-            };
-            if (index_of_right === 0) {
-                INCOMPLETE_STATEMENT = true;
-                return false;
-            } else if ((i + 1 < len(tl) && ((term(tl[i + 1]["TOKEN_STRING"], "and") || term(tl[i + 1]["TOKEN_STRING"], "or")) || term(tl[i + 1]["TOKEN_CLASS"], "m_operator")))) {
-                continue;
-            } else {
-                var end_index = index_of_right + 1;
-                output_tl["val"] = tl.slice(begin["val"], end_index);
-                begin["val"] = i + 1;
-                return true;
-            }
-        }
         if (((i < length_of_tl - 1 && ((((term(tl[i]["TOKEN_CLASS"], "num") || term(tl[i]["TOKEN_CLASS"], "string")) || term(tl[i]["TOKEN_CLASS"], "id")) || term(tl[i]["TOKEN_CLASS"], "list_table")) || term(tl[i]["TOKEN_STRING"], ")"))) && (((((term(tl[1 + i]["TOKEN_CLASS"], "id") || term(tl[1 + i]["TOKEN_CLASS"], "num")) || term(tl[i + 1]["TOKEN_CLASS"], "return")) || term(tl[i + 1]["TOKEN_STRING"], "continue")) || term(tl[1 + i]["TOKEN_STRING"], "break")) || term(tl[1 + i]["TOKEN_CLASS"], "local")))) {
             var end_index = i + 1;
             var ahead_tl = tl.slice(begin["val"], end_index);
@@ -1943,7 +1884,7 @@ sentences_seperation = function (tl, output_tl, begin) {
                     output_tl["val"] = ahead_tl;
                     return true;
                 }
-                if ((count_of_end === 0 && count_of_if === 0)) {
+                if ((count_of_end === -1 && count_of_if === -1)) {
                     var end_index = i + 1;
                     var ahead_tl = tl.slice(begin["val"], end_index);
                     begin["val"] = end_index - 1;
@@ -1971,7 +1912,7 @@ sentences_seperation = function (tl, output_tl, begin) {
                 if (((count_of_if === 0 && i !== temp_i) && (term(tl[i]["TOKEN_STRING"], "elif") || term(tl[i]["TOKEN_STRING"], "else")))) {
                     Walley_Print_Error(TL_toString(temp_tl), "elif or else statements error", tl[i]["TOKEN_START"]);
                 }
-                if (count_of_end === 0) {
+                if (count_of_end === -1) {
                     var end_index = i + 1;
                     var ahead_tl = tl.slice(begin["val"], end_index);
                     begin["val"] = end_index - 1;
@@ -2475,8 +2416,7 @@ Code_Generation_2_Javascript = function (sl, tree) {
         } else {
             var key_tree = tree["node_list"][0];
             js_isTableValue = false;
-            var append_str = "[" + Code_Generation_2_Javascript(sl, key_tree);
-            0;
+            var append_str = "[" + Code_Generation_2_Javascript(sl, key_tree) + "]";
             js_isTableValue = true;
             return append_str;
         }
@@ -2624,3 +2564,4 @@ exports["Code_Generation"] = function (input_str) {
     exports["INCOMPLETE_STATEMENT"] = INCOMPLETE_STATEMENT;
     return output_str;
 };
+

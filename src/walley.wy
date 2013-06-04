@@ -2368,39 +2368,6 @@ def sentences_seperation(tl, output_tl,begin) then
     i=begin.val
 
     for  i<length_of_tl, i=i+1 then
-       
-        # from ( find )
-        if term(tl[i].TOKEN_STRING, "(") then
-            local index_of_right=-1
-            local count=0
-
-            for i<length_of_tl,i=i+1 then
-                if term(tl[i].TOKEN_STRING,"(") then
-                    count=count+1
-                elif term(tl[i].TOKEN_STRING,")") then
-                    count=count-1
-                    if count==0 then
-                        index_of_right=i
-                        break
-                    end
-                end
-            end
-                        
-            # did not find right
-            if index_of_right==-1 then
-                INCOMPLETE_STATEMENT=true
-                return false
-            # solve return a() and b() problem
-            # solve a(b)+"[" problem on 06/04/2013
-            elif i+1<len(tl) and (term(tl[i+1].TOKEN_STRING, "and") or term(tl[i+1].TOKEN_STRING, "or") or term(tl[i+1].TOKEN_CLASS, "m_operator")) then
-                 continue
-            else
-                local end_index=index_of_right+1
-                output_tl.val=tl[begin.val:end_index]
-                begin.val=i+1
-                return true
-            end
-        end
         
         # x=1 y=2 ->
         # x=1
