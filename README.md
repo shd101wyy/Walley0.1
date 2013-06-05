@@ -90,6 +90,10 @@ Walley Language
             3. for [judge] , [stm] then [stms] end
             # 4. for [judge] then [stms] end
 
+          foreach:
+            1. for [key],[value] in [table] then [stms] end
+            2. for [key] in [table] then [stms] end
+
           annotation:
             # [stm]      : short annotation
             #~ [stms] ~# : long annotation
