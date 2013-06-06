@@ -22,9 +22,6 @@ String.prototype.toupper = function () {
 String.prototype.reverse = function () {
     return this.split("").reverse().join("")
 };
-String.prototype.trim = function () {
-    return this.replace(/^s+|s+$/g, "")
-};
 Math["cot"] = function (num) {
     return 1 / Math.tan(num)
 };
@@ -84,7 +81,7 @@ function len(obj) {
         console.log("Error..\nfunctin len() only support table or string\n")
     }
 }
-if (typeof(exports) === "undefined") {
+if (typeof (exports) === "undefined") {
     exports = {};
 }
 INCOMPLETE_STATEMENT = false;
@@ -239,6 +236,16 @@ indexOfFinalDoubleQuote = function (input_str, first_index) {
 Walley_Analyze_Token_Class = function (input_str, i) {
     var return_obj = {};
     var length = len(input_str);
+    if ((match(input_str, i, "&&") || match(input_str, i, "||"))) {
+        console["log"]("Error.. Does not support && and ||");
+        console["log"]("Please use ' and ' and ' or ' instead");
+    }
+    if ((match(input_str, i, "++") || match(input_str, i, "--"))) {
+        end_index = i + 2;
+        return_obj[0] = end_index;
+        return_obj[1] = "self_operator";
+        return return_obj;
+    }
     if (match(input_str, i, "**")) {
         end_index = i + 2;
         return_obj[0] = end_index;
@@ -379,7 +386,7 @@ Walley_Analyze_Token_Class = function (input_str, i) {
         var index_of_right_dq = indexOfFinalDoubleQuote(input_str, i);
         if (index_of_right_dq === -1) {
             console["log"]("incomplete str\n");
-            exit(0);
+            process["exit"](0);
         } else {
             end_index = index_of_right_dq + 1;
             return_obj[0] = end_index;
@@ -435,7 +442,7 @@ Walley_Analyze_Token_Class = function (input_str, i) {
         return return_obj;
     }
     Walley_Print_Error(input_str, "Can not analyze this input", i);
-    exit(0);
+    process["exit"](0);
 };
 Walley_Lexical_Analyzie = function (input_str) {
     var i = 0;
@@ -443,7 +450,7 @@ Walley_Lexical_Analyzie = function (input_str) {
     var tl = {};
     var end_index = 0;
     for (; i < length; i = i + 1) {
-        var output_data = Walley_Analyze_Token_Class(input_str, i, end_index);
+        var output_data = Walley_Analyze_Token_Class(input_str, i);
         end_index = output_data[0];
         var token_class = output_data[1];
         if (INCOMPLETE_STATEMENT === true) {
@@ -1232,7 +1239,7 @@ func_assign = function (tree, tl) {
         if (index_of_right === -1) {
             INCOMPLETE_STATEMENT = true;
             console["log"]("INCOMPLETE_STATEMENT func_assign\n");
-            exit(0);
+            process["exit"](0);
         } else {
             TREE_addNode(tree, "def", "");
             var index = TREE_INDEX;
@@ -1732,11 +1739,31 @@ def_stms = function (tree, tl) {
         return false;
     }
 };
+self_operator_stm = function (tree, tl) {
+    if (INCOMPLETE_STATEMENT === true) {
+        return false;
+    }
+    var length_of_tl = len(tl);
+    if (tl[length_of_tl - 1]["TOKEN_CLASS"] === "self_operator") {
+        var index = TREE_INDEX;
+        TREE_addNode(tree, "self_operator_stm", "");
+        var valid_var_name = var_name(TREE_getTreeAccordingToIndex(tree, index), tl["slice"](0, length_of_tl - 1));
+        if (valid_var_name === true) {
+            TREE_addNode(TREE_getTreeAccordingToIndex(tree, index), tl[length_of_tl - 1]["TOKEN_STRING"], "self_operator");
+            return true;
+        } else {
+            console["log"]("Error.. invalid self operation\n");
+            process["exit"](0);
+        }
+    } else {
+        return false;
+    }
+};
 statements = function (tree, tl) {
     if (INCOMPLETE_STATEMENT === true) {
         return false;
     }
-    return ((((((((return_stm(tree, tl) || if_stms(tree, tl)) || elif_stms(tree, tl)) || else_stms(tree, tl)) || while_stms(tree, tl)) || for_stms(tree, tl)) || def_stms(tree, tl)) || end_stm(tree, tl)) || assignment(tree, tl)) || value(tree, tl);
+    return (((((((((self_operator_stm(tree, tl) || return_stm(tree, tl)) || if_stms(tree, tl)) || elif_stms(tree, tl)) || else_stms(tree, tl)) || while_stms(tree, tl)) || for_stms(tree, tl)) || def_stms(tree, tl)) || end_stm(tree, tl)) || assignment(tree, tl)) || value(tree, tl);
 };
 walley_statements = function (tree, tl) {
     if (INCOMPLETE_STATEMENT === true) {
@@ -1748,7 +1775,7 @@ walley_statements = function (tree, tl) {
     var begin = {
         val: 0
     };
-    while (sentences_seperation(tl, temp_tl, begin) === true) {
+    while (sentences_separation(tl, temp_tl, begin) === true) {
         if (INCOMPLETE_STATEMENT === true) {
             return false;
         }
@@ -1764,14 +1791,14 @@ walley_statements = function (tree, tl) {
     }
     return true;
 };
-sentences_seperation = function (tl, output_tl, begin) {
+sentences_separation = function (tl, output_tl, begin) {
     var length_of_tl = len(tl);
     if (length_of_tl <= begin["val"]) {
         return false;
     }
     i = begin["val"];
     for (; i < length_of_tl; i = i + 1) {
-        if (((i < length_of_tl - 1 && ((((term(tl[i]["TOKEN_CLASS"], "num") || term(tl[i]["TOKEN_CLASS"], "string")) || term(tl[i]["TOKEN_CLASS"], "id")) || term(tl[i]["TOKEN_CLASS"], "list_table")) || term(tl[i]["TOKEN_STRING"], ")"))) && (((((term(tl[1 + i]["TOKEN_CLASS"], "id") || term(tl[1 + i]["TOKEN_CLASS"], "num")) || term(tl[i + 1]["TOKEN_CLASS"], "return")) || term(tl[i + 1]["TOKEN_STRING"], "continue")) || term(tl[1 + i]["TOKEN_STRING"], "break")) || term(tl[1 + i]["TOKEN_CLASS"], "local")))) {
+        if (((i < length_of_tl - 1 && (((((term(tl[i]["TOKEN_CLASS"], "num") || term(tl[i]["TOKEN_CLASS"], "string")) || term(tl[i]["TOKEN_CLASS"], "id")) || term(tl[i]["TOKEN_CLASS"], "list_table")) || term(tl[i]["TOKEN_STRING"], ")")) || term(tl[i]["TOKEN_CLASS"], "self_operator"))) && (((((term(tl[1 + i]["TOKEN_CLASS"], "id") || term(tl[1 + i]["TOKEN_CLASS"], "num")) || term(tl[i + 1]["TOKEN_CLASS"], "return")) || term(tl[i + 1]["TOKEN_STRING"], "continue")) || term(tl[1 + i]["TOKEN_STRING"], "break")) || term(tl[1 + i]["TOKEN_CLASS"], "local")))) {
             var end_index = i + 1;
             var ahead_tl = tl.slice(begin["val"], end_index);
             output_tl["val"] = ahead_tl;
@@ -1990,7 +2017,7 @@ Walley_Calculation = function (value1, value2, sign) {
         } else if (sign[0] === "*") {
             if ((value1IsString === true && value2IsString === true)) {
                 console["log"]("Error.. Can not multiply two string %s and %s\n", value1, value2);
-                exit(0);
+                process["exit"](0);
             } else {
                 var num = 0;
                 var mult_str = "";
@@ -2012,7 +2039,7 @@ Walley_Calculation = function (value1, value2, sign) {
             }
         } else {
             console["log"]("Error.. Sign %s can not be used for string calculation for %s and %s\n", sign, value1, value2);
-            exit(0);
+            process["exit"](0);
         }
     }
 };
@@ -2300,6 +2327,9 @@ Code_Generation_2_Javascript = function (sl, tree) {
         append_str = append_str + judge_sign;
         append_str = append_str + right_str;
         return append_str;
+    } else if (term(tree["name"], "self_operator_stm")) {
+        var var_name = Code_Generation_2_Javascript(sl, tree["node_list"][0]);
+        return var_name + tree["node_list"][1]["name"];
     } else if (term(tree["name"], "=")) {
         var is_local = false;
         var append_string = "";
@@ -2372,7 +2402,7 @@ Code_Generation_2_Javascript = function (sl, tree) {
         var left_is_string = isString(left);
         if ((left_is_string === false && isdigit(left) === false)) {
             console["log"]("Error.. invalid key %s\n", left);
-            exit(0);
+            process["exit"](0);
         }
         if (left_is_string === true) {
             left = left.slice(1, left["length"] - 1);
@@ -2543,7 +2573,7 @@ Code_Generation_2_Javascript = function (sl, tree) {
         return append_str;
     } else {
         console["log"]("Code Generation Error..\n");
-        exit(0);
+        process["exit"](0);
     }
 };
 exports["Code_Generation"] = function (input_str) {
@@ -2564,8 +2594,3 @@ exports["Code_Generation"] = function (input_str) {
     exports["INCOMPLETE_STATEMENT"] = INCOMPLETE_STATEMENT;
     return output_str;
 };
-
-
-
-
-
