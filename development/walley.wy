@@ -194,7 +194,7 @@ def Walley_Analyze_Token_Class(input_str, i) then
     if match(input_str,i,"++") or match(input_str,i,"--") then
         end_index=i+2
         return_obj[0]=end_index
-        return_obj[1]="m_operator"
+        return_obj[1]="self_operator"
         return return_obj
     end
 
@@ -2327,11 +2327,34 @@ def def_stms(tree, tl) then
     end
 end
 
+#self_operator_stm
+# x++
+# var_name self_operator
+def self_operator_stm(tree,tl) then
+    if INCOMPLETE_STATEMENT==true then
+        return false
+    end
+    local length_of_tl=len(tl)
+    if tl[length_of_tl-1].TOKEN_CLASS=="self_operator" then
+        local index1=TREE_INDEX
+        TREE_addNode(tree,"","var_name")
+        local index2=TREE_INDEX
+        TREE_addNode(tree,"self_operator",tl[length_of_tl-1].TOKEN_STRING)
+
+        return var_name(TREE_getTreeAccordingToIndex(tree,index1),tl[0:length_of_tl-1])
+    else
+        return false
+    end
+
+
+end
+
 def statements(tree, tl) then
     if INCOMPLETE_STATEMENT==true then
         return false
     end
-    return return_stm(tree, tl)
+    return self_operator_stm(tree,tl)
+        or return_stm(tree, tl)
         or if_stms(tree, tl)
         or elif_stms(tree, tl)
         or else_stms(tree, tl)
@@ -2344,7 +2367,7 @@ def statements(tree, tl) then
 end
 
 #walley_statements ->
-#| statements, statements        // use sentences_seperation
+#| statements, statements        // use sentences_separation
 def walley_statements(tree, tl) then
     if INCOMPLETE_STATEMENT==true then
         return false
@@ -2353,7 +2376,7 @@ def walley_statements(tree, tl) then
     local temp_tl=[val=[]]
     local begin=[val=0]
     
-    while sentences_seperation(tl, temp_tl, begin)==true then
+    while sentences_separation(tl, temp_tl, begin)==true then
         if INCOMPLETE_STATEMENT==true then
             return false
         end
@@ -2375,7 +2398,7 @@ end
 # output_tl=[val=[]] 
 # begin=[val=0]
 # need to use .val
-def sentences_seperation(tl, output_tl,begin) then
+def sentences_separation(tl, output_tl,begin) then
     local length_of_tl=len(tl)
     
     if begin.val>=length_of_tl then
@@ -2389,7 +2412,7 @@ def sentences_seperation(tl, output_tl,begin) then
         # x=1 y=2 ->
         # x=1
         # y=2
-        if i<length_of_tl-1 and (term(tl[i].TOKEN_CLASS, "num") or term(tl[i].TOKEN_CLASS, "string") or term(tl[i].TOKEN_CLASS, "id") or term(tl[i].TOKEN_CLASS, "list_table") or term(tl[i].TOKEN_STRING, ")"))
+        if i<length_of_tl-1 and (term(tl[i].TOKEN_CLASS, "num") or term(tl[i].TOKEN_CLASS, "string") or term(tl[i].TOKEN_CLASS, "id") or term(tl[i].TOKEN_CLASS, "list_table") or term(tl[i].TOKEN_STRING, ")") or term(tl[i].TOKEN_CLASS,"self_operator"))
             and (term(tl[1+i].TOKEN_CLASS, "id") or term(tl[1+i].TOKEN_CLASS, "num")
                 or term(tl[i+1].TOKEN_CLASS, "return") or term(tl[i+1].TOKEN_STRING, "continue") or term(tl[1+i].TOKEN_STRING, "break") or term(tl[1+i].TOKEN_CLASS, "local")) then
             local end_index=i+1
