@@ -520,7 +520,7 @@ def Walley_Lexical_Analyzie(input_str) then
     
     
     for i<length,i=i+1 then
-        local output_data=Walley_Analyze_Token_Class(input_str,i,end_index)
+        local output_data=Walley_Analyze_Token_Class(input_str,i)
 
         # set end_index and token_class
         end_index=output_data[0]

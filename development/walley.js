@@ -22,9 +22,7 @@ String.prototype.toupper = function () {
 String.prototype.reverse = function () {
     return this.split("").reverse().join("")
 };
-String.prototype.trim = function () {
-    return this.replace(/^s+|s+$/g, "")
-};
+
 Math["cot"] = function (num) {
     return 1 / Math.tan(num)
 };
@@ -443,7 +441,7 @@ Walley_Lexical_Analyzie = function (input_str) {
     var tl = {};
     var end_index = 0;
     for (; i < length; i = i + 1) {
-        var output_data = Walley_Analyze_Token_Class(input_str, i, end_index);
+        var output_data = Walley_Analyze_Token_Class(input_str, i);
         end_index = output_data[0];
         var token_class = output_data[1];
         if (INCOMPLETE_STATEMENT === true) {
@@ -489,6 +487,10 @@ Walley_Lexical_Analyzie = function (input_str) {
         temp_token["TOKEN_END"] = end_index;
         temp_token["TOKEN_CLASS"] = token_class;
         var token_string = "";
+
+        console.log("i---> "+i+"  end_index---> "+end_index);
+        console.log("str---> "+input_str+"  ---> "+input_str.slice(i, end_index).trim());
+
         token_string = input_str.slice(i, end_index)["trim"]();
         temp_token["TOKEN_STRING"] = token_string;
         tl["append"](temp_token);
@@ -2566,6 +2568,19 @@ exports["Code_Generation"] = function (input_str) {
 };
 
 
+//var x=Walley_Analyze_Token_Class("process.out.write(a)",0);
+//console.log(x)
+
+var tl=Walley_Lexical_Analyzie("process.out.write(a)")
 
 
+console.log(tl);
+
+
+var tree=parser(tl)
+TREE_print(tree)
+var sl={}
+var output_str=Code_Generation_2_Javascript(sl,tree)
+console.log(sl)
+console.log(output_str)
 
