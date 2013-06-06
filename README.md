@@ -11,7 +11,7 @@ Walley Language
                        \\____|    \\____|  \__/\ ||___ ||___   ||     
                __________________________________________________||     
                ---------------------------------------------------|     
-                       VERSION 0.0.1612  FOR FUTURE AR,VR,AI  
+                       VERSION 0.1.613  FOR FUTURE AR,VR,AI  
        
                     Walley Language is a script language that       
                     compiles Walley Language into JavaScript which  
@@ -137,10 +137,10 @@ Walley Language
           Human.speak("I am human!!") # call class method "speak"
 
         ========
-        Problem:
+        Problem: (@ means support now)
           Unsupported features or unsolved problems:
-            1. += -= *= /=     ...
-            2. ++ -- **        ...
+            @1. += -= *= /=     ...
+            @2. ++ -- **        ...
             3. x = new Hi()     # new is not supported
             4. ... (argv) in params
             5. switch statements

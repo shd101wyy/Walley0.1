@@ -246,6 +246,12 @@ Walley_Analyze_Token_Class = function (input_str, i) {
         return_obj[1] = "self_operator";
         return return_obj;
     }
+    if (((((match(input_str, i, "+=") || match(input_str, i, "-=")) || match(input_str, i, "*=")) || match(input_str, i, "//=")) || match(input_str, i, "%="))) {
+        end_index = i + 2;
+        return_obj[0] = end_index;
+        return_obj[1] = "self_assignment";
+        return return_obj;
+    }
     if (match(input_str, i, "**")) {
         end_index = i + 2;
         return_obj[0] = end_index;
@@ -1759,11 +1765,39 @@ self_operator_stm = function (tree, tl) {
         return false;
     }
 };
+self_assignment_stm = function (tree, tl) {
+    if (INCOMPLETE_STATEMENT === true) {
+        return false;
+    }
+    var length_of_tl = len(tl);
+    var index_of_self_assignment_operator = TL_indexOfTokenThatHasTokenClass(tl, "self_assignment");
+    if (index_of_self_assignment_operator === -1) {
+        return false;
+    } else {
+        var var_name_tl = tl.slice(0, index_of_self_assignment_operator);
+        var var_value_tl = tl.slice(index_of_self_assignment_operator + 1, length_of_tl);
+        var index = TREE_INDEX;
+        TREE_addNode(tree, "self_assignment_stm", "");
+        var valid_var_name = var_name(TREE_getTreeAccordingToIndex(tree, index), var_name_tl);
+        if (valid_var_name === false) {
+            return false;
+        }
+        TREE_addNode(TREE_getTreeAccordingToIndex(tree, index), tl[index_of_self_assignment_operator]["TOKEN_STRING"], "self_assignment");
+        var index2 = TREE_INDEX;
+        TREE_addNode(TREE_getTreeAccordingToIndex(tree, index), "", "value");
+        var valid_var_value = value(TREE_getTreeAccordingToIndex(tree, index2), var_value_tl);
+        if (valid_var_value === false) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+};
 statements = function (tree, tl) {
     if (INCOMPLETE_STATEMENT === true) {
         return false;
     }
-    return (((((((((self_operator_stm(tree, tl) || return_stm(tree, tl)) || if_stms(tree, tl)) || elif_stms(tree, tl)) || else_stms(tree, tl)) || while_stms(tree, tl)) || for_stms(tree, tl)) || def_stms(tree, tl)) || end_stm(tree, tl)) || assignment(tree, tl)) || value(tree, tl);
+    return ((((((((((self_operator_stm(tree, tl) || self_assignment_stm(tree, tl)) || return_stm(tree, tl)) || if_stms(tree, tl)) || elif_stms(tree, tl)) || else_stms(tree, tl)) || while_stms(tree, tl)) || for_stms(tree, tl)) || def_stms(tree, tl)) || end_stm(tree, tl)) || assignment(tree, tl)) || value(tree, tl);
 };
 walley_statements = function (tree, tl) {
     if (INCOMPLETE_STATEMENT === true) {
@@ -2330,6 +2364,13 @@ Code_Generation_2_Javascript = function (sl, tree) {
     } else if (term(tree["name"], "self_operator_stm")) {
         var var_name = Code_Generation_2_Javascript(sl, tree["node_list"][0]);
         return var_name + tree["node_list"][1]["name"];
+    } else if (term(tree["name"], "self_assignment_stm")) {
+        var var_name = Code_Generation_2_Javascript(sl, tree["node_list"][0]);
+        var append_string = var_name;
+        append_string = append_string + tree["node_list"][1]["name"];
+        var var_value = Code_Generation_2_Javascript(sl, tree["node_list"][2]);
+        append_string = append_string + var_value;
+        return append_string;
     } else if (term(tree["name"], "=")) {
         var is_local = false;
         var append_string = "";

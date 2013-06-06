@@ -198,6 +198,15 @@ def Walley_Analyze_Token_Class(input_str, i) then
         return return_obj
     end
 
+    # add += -= *= /= %= support
+    # does not support **= and ^= now
+    if match(input_str,i,"+=") or match(input_str,i,"-=") or match(input_str,i,"*=") or match(input_str,i,"//=") or match(input_str,i,"%=") then
+        end_index=i+2
+        return_obj[0]=end_index
+        return_obj[1]="self_assignment"
+        return return_obj
+    end
+
     #  1  m_operator
     if match(input_str, i, "**") then
         end_index=i+2
@@ -2350,15 +2359,53 @@ def self_operator_stm(tree,tl) then
     else
         return false
     end
+end
 
+# x += 12
+# x              +=                  12
+# var_name self_assignment_operator value
+
+def self_assignment_stm(tree,tl) then
+    if INCOMPLETE_STATEMENT==true then
+        return false
+    end
+    local length_of_tl=len(tl)
+    local index_of_self_assignment_operator=TL_indexOfTokenThatHasTokenClass(tl,"self_assignment")
+    if index_of_self_assignment_operator==-1 then
+        return false
+    else
+        local var_name_tl = tl[0:index_of_self_assignment_operator]
+        local var_value_tl = tl[index_of_self_assignment_operator+1:length_of_tl]
+
+        local index=TREE_INDEX
+        TREE_addNode(tree,"self_assignment_stm","")
+        local valid_var_name=var_name(TREE_getTreeAccordingToIndex(tree, index), var_name_tl)
+        if valid_var_name==false then
+            return false
+        end
+
+        TREE_addNode(TREE_getTreeAccordingToIndex(tree,index),tl[index_of_self_assignment_operator].TOKEN_STRING,"self_assignment")
+
+        local index2=TREE_INDEX
+        TREE_addNode(TREE_getTreeAccordingToIndex(tree, index),"","value")
+        local valid_var_value = value(TREE_getTreeAccordingToIndex(tree, index2), var_value_tl)
+        
+        if valid_var_value==false then
+            return false
+        else
+            return true
+        end
+    end
 
 end
+
 
 def statements(tree, tl) then
     if INCOMPLETE_STATEMENT==true then
         return false
     end
     return self_operator_stm(tree,tl)
+        or self_assignment_stm(tree,tl)
         or return_stm(tree, tl)
         or if_stms(tree, tl)
         or elif_stms(tree, tl)
@@ -3224,7 +3271,15 @@ def Code_Generation_2_Javascript(sl,tree)then
     elif term(tree.name,"self_operator_stm") then
         local var_name = Code_Generation_2_Javascript(sl, tree.node_list[0])
         return var_name+tree.node_list[1].name
-    
+    # x+=1
+    elif term(tree.name,"self_assignment_stm") then
+        local var_name = Code_Generation_2_Javascript(sl, tree.node_list[0])
+        local append_string=var_name
+        append_string=append_string + tree.node_list[1].name
+        local var_value=Code_Generation_2_Javascript(sl,tree.node_list[2])
+        append_string=append_string+var_value
+        return append_string
+     
     # append
     elif term(tree.name,"=") then
         local  is_local=false
