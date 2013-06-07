@@ -11,7 +11,7 @@ Walley Language
                        \\____|    \\____|  \__/\ ||___ ||___   ||     
                __________________________________________________||     
                ---------------------------------------------------|     
-                       VERSION 0.1.613  FOR FUTURE AR,VR,AI  
+                       VERSION 0.1.615  FOR FUTURE AR,VR,AI  
        
                     Walley Language is a script language that       
                     compiles Walley Language into JavaScript which  
@@ -98,6 +98,13 @@ Walley Language
           annotation:
             # [stm]      : short annotation
             #~ [stms] ~# : long annotation
+
+          06/07/2013 new add:
+          import:
+            1. import [ file_name (string) ]
+              eg: import "Hello.wy"
+                    will import all from Hello.wy.. like c language include ""
+                    
 
         ========
         embed library:

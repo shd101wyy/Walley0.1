@@ -1,10 +1,9 @@
-x=12
-if x==-2 then
-	x=12
-elif x==5 then
-	x=16
-else
-	x=5 
+add = def (a) then
+	a()
 end
 
-console.log(x)
+a = def() then
+	console.log("I am a")
+end
+
+add(def()then console.log("I am a") end)
