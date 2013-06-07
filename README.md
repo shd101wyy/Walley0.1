@@ -32,6 +32,7 @@ Walley Language
         ========
         Command:
         walley_worker                 | interactive mode (compile to js and run immediately)
+        walley_worker [file]          | run .wy file directly
         walley_worker compile [file]  | compile .wy file and show output in terminal
         walley_worker compile [file1] [file2]
                                       | compile file1 and save the output to file2
