@@ -1,10 +1,6 @@
-add = def (a,b) then
+def add(a,b)then
 	a()
 	console.log(b)
 end
 
-a = def() then
-	console.log("I am a")
-end
-
-add(def()then console.log("I am BBBB") end,12)
+add(def()then console.log("Hello") end, 15 )

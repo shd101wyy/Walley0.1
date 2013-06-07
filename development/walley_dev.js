@@ -341,7 +341,7 @@ Walley_Analyze_Token_Class = function (input_str, i) {
         return_obj[1] = "then";
         return return_obj;
     }
-    if ((match(input_str, i, "end") && ((isalpha(input_str[i + 3]) === false && input_str[i + 3] !== "_") && input_str[i + 3] !== "$"))) {
+    if ((match(input_str, i, "end") && (i + 3 === length || ((isalpha(input_str[i + 3]) === false && input_str[i + 3] !== "_") && input_str[i + 3] !== "$")))) {
         end_index = i + 3;
         return_obj[0] = end_index;
         return_obj[1] = "end";

@@ -11,7 +11,7 @@ Walley Language
                        \\____|    \\____|  \__/\ ||___ ||___   ||     
                __________________________________________________||     
                ---------------------------------------------------|     
-                       VERSION 0.1.615  FOR FUTURE AR,VR,AI  
+                       VERSION 0.1.616  FOR FUTURE AR,VR,AI  
        
                     Walley Language is a script language that       
                     compiles Walley Language into JavaScript which  
@@ -163,7 +163,8 @@ Walley Language
               Repository   https://github.com/shd101wyy/Walley0.1.git (git)
               Bugs  https://github.com/shd101wyy/Walley0.1/issues: 
 
-
+        ========
+          version 0.1.616: fix function as function param bug.. fix one lexer bug
 
 
 
