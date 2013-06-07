@@ -1,0 +1,855 @@
+
+
+#~
+	Copyright reserved Yiyi Wang 
+	Please follow MIT license
+
+	This file mainly deals with:
+		code generation
+
+~#
+import "walley_calculation.wy"
+
+#= walley_cg.wy
+def isString(input_str) then
+    if input_str[0]!="\"" or input_str[input_str.length-1]!="\"" then
+        return false
+    end
+    local count=0
+    local i=0
+    local length=input_str.length
+    for i<length, i=i+1 then
+        if input_str[i]=="\"" then
+            count=count+1
+        end
+    end
+    if count!=2 then
+        return false
+    else
+        return true
+    end
+
+end
+
+js_isTableValue=false
+# compile to javascript
+def Code_Generation_2_Javascript(sl,tree)then
+    if term(tree.token_class,"id") then
+        # continue
+        if term(tree.name, "continue") then
+            return "continue;"
+        end
+        
+        if term(tree.name, "break") then
+            return "break;"
+        end
+        
+        # change 'none' to 'null'
+        if term(tree.name, "none") then
+            return "null"
+        end
+        return tree.name
+
+    elif term(tree.name, "walley_statements") then
+        
+        local nl=tree.node_list
+        
+        local output_str=""
+        
+        local i=0
+        local length_of_nl=len(nl)
+        for i=0,i<length_of_nl,i=i+1 then
+            local temp_str=Code_Generation_2_Javascript(sl,nl[i])
+
+            if len(temp_str)!=0 then
+                output_str=output_str+temp_str
+                if output_str[len(output_str)-1]!="\n" then
+                    if output_str[len(output_str)-1]!=";" then
+                        output_str=output_str+";\n"
+                    else
+                        output_str=output_str+"\n"
+                    end
+                end
+            end
+        end 
+        
+        return output_str
+    
+    elif term(tree.name, "statements") then
+        nl=tree.node_list
+        
+        if term(nl[0].name, "if") then
+            #~
+             ( statements
+                ( if)
+                ( simple_relation
+                    ( <(num 4)(id x))
+                )
+                ( statements
+                    ( =(id x)(num 12))
+                )
+             )
+             ( statements( end))
+             
+             ( statements
+                ( if)
+                ( relation
+                    ( and
+                        ( simple_relation( <(num 4)(id x)))
+                        ( simple_relation( <(id x)(num 12))))
+                )
+                ( statements( =(id x)(num 12))))
+             ( statements( end))
+             ~#
+            
+            local append_str="if ("
+            local judge_str=Code_Generation_2_Javascript(sl, nl[1])
+            
+            append_str=append_str+judge_str
+            append_str=append_str+"){\n"
+            
+            
+            local i=2
+            local length_of_nl=len(nl)
+            local output_str=""
+            for i=2,i<length_of_nl,i=i+1 then
+                local temp_str=Code_Generation_2_Javascript(sl,nl[i])
+
+                if len(temp_str)!=0 then
+                    output_str=output_str+temp_str
+                    if output_str[len(output_str)-1]!="\n" then
+                        if output_str[len(output_str)-1]!=";" then
+                            output_str=output_str+";\n"
+                        else
+                            output_str=output_str+"\n"
+                        end
+                    end
+                end
+            end
+            
+            append_str=append_str+output_str
+            return append_str
+
+        elif term(nl[0].name, "elif") then
+            
+            local append_str="}\nelse if ("
+            local judge_str=Code_Generation_2_Javascript(sl, nl[1])
+        
+            append_str=append_str+judge_str
+            append_str=append_str+"){\n"
+            
+                        
+            local i=2
+            local length_of_nl=len(nl)
+            local output_str=""
+            for i=2,i<length_of_nl,i=i+1 then
+                local temp_str=Code_Generation_2_Javascript(sl,nl[i])
+
+                if len(temp_str)!=0 then
+                    output_str=output_str+temp_str
+                    if output_str[len(output_str)-1]!="\n" then
+                        if output_str[len(output_str)-1]!=";" then
+                            output_str=output_str+";\n"
+                        else
+                            output_str=output_str+"\n"
+                        end
+                    end
+                end
+            end
+            
+            append_str=append_str+output_str
+            return append_str
+
+        elif term(nl[0].name, "else") then
+            
+            local append_str="}\nelse{\n"
+            
+            local i=1
+            local length_of_nl=len(nl)
+            local output_str=""
+            for i=1,i<length_of_nl,i=i+1 then
+                local temp_str=Code_Generation_2_Javascript(sl,nl[i])
+
+                if len(temp_str)!=0 then
+                    output_str=output_str+temp_str
+                    if output_str[len(output_str)-1]!="\n" then
+                        if output_str[len(output_str)-1]!=";" then
+                            output_str=output_str+";\n"
+                        else
+                            output_str=output_str+"\n"
+                        end
+                    end
+                end
+            end
+            
+            append_str=append_str+output_str
+            return append_str
+
+        elif term(nl[0].name, "while") then
+            #~
+             ( walley_statements
+                ( statements
+                    ( while)
+                    ( simple_relation( <(id x)(num 10)))
+                    ( statements( =(id x)(num 12)))
+                    ( end)
+                )
+            )
+             ~#
+            local append_str="while ("
+            local judge_str=Code_Generation_2_Javascript(sl, nl[1])
+            
+            
+            append_str=append_str+judge_str
+            append_str=append_str+"){\n"
+            
+            
+            local i=2
+            local length_of_nl=len(nl)
+            local output_str=""
+            for i<length_of_nl,i=i+1 then
+                local temp_str=Code_Generation_2_Javascript(sl,nl[i])
+
+                if len(temp_str)!=0 then
+                    output_str=output_str+temp_str
+                    if output_str[len(output_str)-1]!="\n" then
+                        if output_str[len(output_str)-1]!=";" then
+                            output_str=output_str+";\n"
+                        else
+                            output_str=output_str+"\n"
+                        end
+                    end
+                end
+            end
+            
+            append_str=append_str+output_str
+            return append_str
+
+        elif term(nl[0].name,"for") then
+            #~
+             # for i=0,i<10,i=i+1 then i=2 end
+            ( walley_statements
+                ( statements
+                    ( for)
+                    ( assignment
+                        ( =(id i)(num 0))
+                    )
+                    ( simple_relation
+                        ( <(id i)(num 10))
+                    )
+                    ( assignment( =(id i)( +(id i)(num 1))))
+                    ( statements( =(id i)(num 2)))
+                    ( end)
+                )
+             )
+             ~#
+            local append_str="for ("
+            
+            local nl_index=1
+            if term(nl[1].name, "assignment") then
+                append_str=append_str+Code_Generation_2_Javascript(sl, nl[1].node_list[0])
+                append_str=append_str+";"
+                nl_index=2
+            else
+                append_str=append_str+";"
+                nl_index=1
+            end
+            
+            # nl now is relation
+            local judge_str=Code_Generation_2_Javascript(sl, nl[nl_index])
+            
+            append_str=append_str+judge_str
+            append_str=append_str+";"
+
+            nl_index=nl_index+1
+            
+            if term(nl[nl_index].name, "assignment") then
+                append_str=append_str+Code_Generation_2_Javascript(sl, nl[nl_index].node_list[0])
+                nl_index=nl_index+1
+            end
+            append_str=append_str+"){\n"
+            
+            local output_str=""
+            local i=nl_index
+            local length_of_nl=len(nl)
+
+            for i<length_of_nl-1,i=i+1 then
+                local temp_str=Code_Generation_2_Javascript(sl,nl[i])
+                if len(temp_str)!=0 then
+                    output_str=output_str+temp_str
+                    if output_str[len(output_str)-1]!="\n" then
+                        if output_str[len(output_str)-1]!=";" then
+                            output_str=output_str+";\n"
+                        else
+                            output_str=output_str+"\n"
+                        end
+                    end
+                end  
+            end
+
+
+            append_str=append_str+output_str
+
+            append_str=append_str+"\n}"
+            return append_str
+           
+        elif term(nl[0].name, "foreach") then
+            #~
+            for(var i in x){
+                // add this 
+                if(x.hasOwnProperty(i))
+                    {
+                    
+
+                    }
+            }
+
+             ( walley_statements
+                ( statements
+                    ( foreach)
+                    (foreach_index i)
+                    (foreach_value v)
+                    (foreach_in 
+                        ( +(string "Hello")(num 13))
+                    )
+                    ( statements( =(id i)(num 2)))
+                    ( end)
+                )
+             )
+         
+            ~#
+            local append_str="for("
+            # for i,v in x
+            # get i
+            local foreach_index=nl[1].name
+            append_str=append_str+foreach_index
+            append_str=append_str+ " in "
+            
+            
+            local has_v=true
+            if term(nl[2].name, "") then
+                has_v=false
+            end
+            
+            local foreach_in_value=Code_Generation_2_Javascript(sl, nl[3].node_list[0])
+            # append in value
+            append_str=append_str+foreach_in_value
+            append_str=append_str+"){\n"
+
+            # solve enumerable problem
+            append_str=append_str+"if(("+foreach_in_value+").hasOwnProperty("+foreach_index+")){\n"
+            
+            
+            if has_v==true then
+                
+                local value_var_name=nl[2].name
+                append_str=append_str+value_var_name+"="
+                
+                local in_value="("+foreach_in_value+")"
+                local in_value_and_key=in_value+"["+foreach_index+"]"
+                
+                append_str=append_str + in_value_and_key
+                append_str=append_str + ";\n"
+            end
+            
+            local i=4
+            local length_of_nl=len(nl)
+            local output_str=""
+
+            for i<length_of_nl,i=i+1 then
+                local temp_str=Code_Generation_2_Javascript(sl,nl[i])
+
+                if len(temp_str)!=0 then
+                    output_str=output_str+temp_str
+                    if output_str[len(output_str)-1]!="\n" then
+                        if output_str[len(output_str)-1]!=";" then
+                            output_str=output_str+";\n"
+                        else
+                            output_str=output_str+"\n"
+                        end
+                    end
+                end
+            end
+            
+            append_str=append_str+output_str
+            append_str=append_str+"};\n"
+            return append_str
+
+        # import file_name
+        elif nl[0].name=="import" then
+            local import_file=nl[1].name
+            import_file=import_file.slice(1,import_file.length-1)
+
+            local fs=require("fs")
+            local content_in_import_file=fs.readFileSync(import_file,"utf8")
+
+
+            local output_str=exports.Code_Generation(content_in_import_file)
+            if exports.INCOMPLETE_STATEMENT==true then
+                console.log("Error.. statements in file %s is incomplete\n",import_file)
+                process.exit(0)
+            end
+            return output_str
+        
+        else
+            local append_str=""
+            local i=0
+            local length_of_nl=len(nl)
+            local output_str=""
+            for i<length_of_nl,i=i+1 then
+                local temp_str=Code_Generation_2_Javascript(sl,nl[i])
+
+                if len(temp_str)!=0 then
+                    output_str=output_str+temp_str
+                    if output_str[len(output_str)-1]!="\n" then
+                        if output_str[len(output_str)-1]!=";" then
+                            output_str=output_str+";\n"
+                        else
+                            output_str=output_str+"\n"
+                        end
+                    end
+                end
+            end
+            
+            append_str=append_str+output_str
+            return append_str
+        end
+        return ""
+    
+
+    # this place has problem
+    elif term(tree.name, "relation") then
+        local judge_tree=tree.node_list[0]
+        #<(num 4)(id x)
+        
+        local left_tree=judge_tree.node_list[0]
+        local right_tree=judge_tree.node_list[1]
+        
+        local left_str=Code_Generation_2_Javascript(sl, left_tree)
+        local right_str=Code_Generation_2_Javascript(sl, right_tree)
+        local append_str=left_str
+        local relationship=none
+        if term(judge_tree.name, "and") then
+            relationship=" && "
+        
+        else
+            relationship=" || "
+        end
+        append_str=append_str+relationship
+        append_str=append_str+right_str
+        
+        append_str="("+append_str+")"
+        
+        return append_str
+    
+    
+    # this place has problem
+    elif term(tree.name, "simple_relation") then
+        local judge_tree=tree.node_list[0]
+        #<(num 4)(id x)
+        
+        local left_tree=judge_tree.node_list[0]
+        local right_tree=judge_tree.node_list[1]
+        
+        local left_str=Code_Generation_2_Javascript(sl, left_tree)
+        local right_str=Code_Generation_2_Javascript(sl, right_tree)
+        local append_str=left_str
+        
+        local judge_sign=judge_tree.name
+        if term(judge_sign, "==") then
+            judge_sign="==="
+        
+        elif term(judge_sign, "!=") then
+            judge_sign="!=="
+        end
+        
+        append_str=append_str+judge_sign
+        append_str=append_str+right_str
+        
+        return append_str
+    
+    # x++ or x--
+    elif term(tree.name,"self_operator_stm") then
+        local var_name = Code_Generation_2_Javascript(sl, tree.node_list[0])
+        return var_name+tree.node_list[1].name
+    # x+=1
+    elif term(tree.name,"self_assignment_stm") then
+        local var_name = Code_Generation_2_Javascript(sl, tree.node_list[0])
+        local append_string=var_name
+        append_string=append_string + tree.node_list[1].name
+        local var_value=Code_Generation_2_Javascript(sl,tree.node_list[2])
+        append_string=append_string+var_value
+        return append_string
+     
+    # append
+    elif term(tree.name,"=") then
+        local  is_local=false
+        local append_string=""
+        
+        local nl=tree.node_list
+        local var_name_tree=nl[0]
+        if term(var_name_tree.name, "local") then
+            is_local=true
+            var_name_tree=nl[1]
+        end
+
+        local var_value_tree=none
+        if is_local==true then
+            var_value_tree=nl[2]
+        else
+            var_value_tree=nl[1]
+        end
+        
+        local var_name=Code_Generation_2_Javascript(sl, var_name_tree)
+        
+        append_string=var_name
+        if is_local ==true then
+            append_string="var " + append_string
+        end
+        
+        append_string=append_string + "="
+                
+        
+        local var_value=Code_Generation_2_Javascript(sl, var_value_tree)
+        
+        append_string=append_string + var_value        
+                
+        return append_string
+        
+    
+    elif term(tree.name, "func_value") then
+        local append_string="function("
+        
+        local param_str=Code_Generation_2_Javascript(sl, tree.node_list[1])
+        
+        append_string=append_string+param_str
+        append_string=append_string+"){\n"
+        
+        #( func_value( def)( params(id none))( statements( =(id a)(num 12)))( end))
+        #~
+         ( func_value
+            ( def)
+            ( params(id none))
+            ( statements( =(id a)(num 12)))
+            ( end)
+         )
+         
+         
+         ~#
+        
+        local nl=tree.node_list
+        local i=2
+        local output_str=""
+        local length_of_nl=len(nl)
+
+
+        for i<length_of_nl-1,i=i+1 then
+            local temp_str=Code_Generation_2_Javascript(sl,nl[i])
+            if len(temp_str)!=0 then
+                output_str=output_str+temp_str
+                if output_str[len(output_str)-1]!="\n" then
+                    if output_str[len(output_str)-1]!=";" then
+                        output_str=output_str+";\n"
+                    else
+                        output_str=output_str+"\n"
+                    end
+                end
+            end
+        end
+
+        append_string=append_string+output_str
+        
+        append_string=append_string+" }"
+        return append_string
+    
+    #~
+     (table [1,2,3]
+        ( table_expr
+            ( key(num 0))
+            (num 1)
+        )
+        ( table_expr
+            ( key(num 1))
+            (num 2))
+        ( table_expr
+            ( key(num 2))
+            (num 3)
+        )
+     )
+        Convert Walley Table to JS array
+    ~#
+    elif term(tree.token_class, "table") then
+        local append_str="{"
+        local nl=tree.node_list
+
+        local i=0
+        local length_of_nl=len(nl)
+        for i=0,i<length_of_nl,i=i+1 then
+            local temp_str=Code_Generation_2_Javascript(sl,nl[i])
+            append_str=append_str+temp_str
+            if i+1!=length_of_nl then
+                append_str=append_str+","
+            end
+        end
+        
+        append_str=append_str+"}"
+        return append_str
+
+    elif term(tree.name, "table_expr") then
+        local key_tree=tree.node_list[0]
+        local value_tree=tree.node_list[1]
+        local left=Code_Generation_2_Javascript(sl, key_tree.node_list[0])
+        local left_is_string=isString(left)
+        if left_is_string==false and isdigit(left)==false then
+            console.log("Error.. invalid key %s\n",left)
+            process.exit(0)
+        end
+        if left_is_string==true then
+            left=left[1:left.length-1]
+        end
+        
+        local right=Code_Generation_2_Javascript(sl, value_tree)
+        
+        return left+":"+right
+    
+    
+    elif term(tree.name, "table_value") then
+        
+        local nl=tree.node_list
+        local var_name=Code_Generation_2_Javascript(sl,nl[0])
+        local append_str=var_name
+        js_isTableValue=true
+
+        local i=1
+        local length_of_nl=len(nl)
+        for i<length_of_nl,i=i+1 then
+            local key_tree=nl[i]
+            local key_str=Code_Generation_2_Javascript(sl, key_tree)
+            append_str=append_str+key_str
+        end
+        
+        js_isTableValue=false
+        return append_str
+    
+    elif term(tree.name, "key") then
+        if term(tree.node_list[0].name,"slice") then
+            
+            local append_str=".slice("
+            
+            local nl=tree.node_list[0].node_list
+            local left=nl[0]
+            local right=nl[1]
+            
+            local left_str=Code_Generation_2_Javascript(sl, left)
+            append_str=append_str+left_str
+            
+            # restore that value 
+            js_isTableValue=false
+            
+            # does not append
+            if term(right.name,"its_length") then
+                console.log("")
+            else
+                append_str=append_str+","
+                local right_str=Code_Generation_2_Javascript(sl, right)
+                append_str=append_str+right_str
+            end
+            append_str=append_str+")"
+            
+            #        t        f       f
+            # solve a[0:a.length-1].trim() problem
+            js_isTableValue=true
+            
+            return append_str
+        else
+            local key_tree=tree.node_list[0]
+            js_isTableValue=false
+            local append_str="["+Code_Generation_2_Javascript(sl, key_tree)+"]"
+            js_isTableValue=true
+            return append_str
+        end
+    
+    #~
+     ( func
+        (call toString)
+        ( params
+            (id b)
+            (id c)
+        )
+     )
+     
+     ~#
+    elif term(tree.name, "func") then
+        local used_to_be_js_isTableValue=false
+        local append_str="" #=tree.node_list->node.name
+        if js_isTableValue==false then
+            # i changed parser for func on 05/20/2013
+            local func_name_string=Code_Generation_2_Javascript(sl,tree.node_list[0].node_list[0])
+            local func_name= func_name_string[1:len(func_name_string)-1]            
+            append_str=func_name
+        else
+            local func_name=Code_Generation_2_Javascript(sl,tree.node_list[0].node_list[0])
+            # add []
+            append_str="["+func_name+"]"
+            
+            # solve console.log(a()) -> console["log"](["a"]()) problem
+            # change js_isTableValue to FALSE at first and then restore to TRUE
+            used_to_be_js_isTableValue=true
+            js_isTableValue=false
+        end
+        
+        
+        append_str=append_str+"("
+        
+        local params_tree=tree.node_list[1]
+        local params_nl=params_tree.node_list
+
+        local i=0
+        local length_of_params_nl=len(params_nl)
+        for i=0,i<length_of_params_nl,i=i+1 then
+            append_str=append_str+Code_Generation_2_Javascript(sl, params_nl[i])
+            if i+1!=length_of_params_nl then
+                append_str=append_str+","
+            end
+        end 
+
+        
+        append_str=append_str+")"
+        
+        
+        if used_to_be_js_isTableValue==true then
+            js_isTableValue=true
+        end
+        
+        return append_str
+    
+    # and( +(num 3)(num 4))(id a)
+    elif term(tree.name, "and") or term(tree.name, "or") then
+        local left_str=Code_Generation_2_Javascript(sl, tree.node_list[0])
+        local right_str=Code_Generation_2_Javascript(sl, tree.node_list[1])
+        local judge_sign="&&"
+        if term(tree.name, "or") then
+            judge_sign="||"
+        end
+        return left_str+judge_sign+right_str
+    
+    elif term(tree.name,"params") then
+        local append_string=""
+        local nl=tree.node_list
+
+        local i=0
+        local length_of_nl=len(nl)
+        for i<length_of_nl,i=i+1 then
+            if term(nl[i].name,"=") then
+                console.log("Does not support = in params now \n")
+            end
+            local need_to_be_appended=Code_Generation_2_Javascript(sl, nl[i])
+            # none params
+            if term(need_to_be_appended, "null") then
+                continue
+            end
+            
+            append_string=append_string+need_to_be_appended
+
+            if i+1!=length_of_nl then
+                append_string=append_string+","
+            end
+            
+        end 
+
+        return append_string
+    
+    elif term(tree.name, "end") then
+        return "}\n"
+    
+        
+    elif term(tree.token_class, "num") then
+        return tree.name
+    
+    elif term(tree.token_class, "string") then
+        return tree.name
+
+    # if must be behind 'id' to solve ' def value ()' problem
+    elif term(tree.name, "value") then
+        local nl=tree.node_list
+        return Code_Generation_2_Javascript(sl, nl[0])
+    
+    
+    elif ism_operator(tree.name) then
+        local nl=tree.node_list
+        local left=nl[0]
+        local right=nl[1]
+        
+        local left_str=Code_Generation_2_Javascript(sl, left)
+        local right_str=Code_Generation_2_Javascript(sl, right)
+        
+        if ((isdigit(left_str) or isString(left_str)) and (isdigit(right_str) or isString(right_str))) then
+            local value=Walley_Calculation(left_str, right_str, tree.name)
+            return value
+        end
+        
+        
+        local left_need_bracket=true
+        local right_need_bracket=true
+        
+        if term(left.token_class, "id") or term(left.token_class, "string") or term(left.token_class, "num") then
+            left_need_bracket=false
+        end
+        
+        if term(right.token_class, "id") or term(right.token_class, "string") or term(right.token_class, "num") then
+            right_need_bracket=false
+        end
+        
+        
+        local need_bracket=false
+        if term(tree.name, "*") or term(tree.name, "//") or term(tree.name, "^") or term(tree.name, "%") then
+            need_bracket=true
+        end
+        
+        if need_bracket then
+            #char *append_str=left_str
+            if left_need_bracket then
+                left_str="("+left_str+")"
+            end
+                
+            
+            if right_need_bracket then
+                right_str="("+right_str+")"
+            end
+                        
+            # change ^ to Math.pow()
+            if term(tree.name, "^") then
+                
+                local append_str="Math.pow("+left_str+","+right_str+")"
+                return append_str
+            
+            else
+                local append_str=left_str+tree.name+right_str
+                return append_str
+            end
+        else
+            if term(tree.name, "^") then
+              return  "Math.pow("+left_str+","+right_str+")"
+            else
+                local append_str=left_str
+                append_str=append_str+tree.name
+                append_str=append_str+right_str
+                return append_str
+            end
+        end
+    elif term(tree.name, "expr") then
+        return Code_Generation_2_Javascript(sl, tree.node_list[0])
+    
+    elif term(tree.name, "return") then
+        local append_str="return "
+        local nl=tree.node_list
+        append_str=append_str+Code_Generation_2_Javascript(sl, nl[0])
+        append_str=append_str+";\n"
+        # SL_addString(sl, append_str)
+        return append_str
+        
+    else
+        console.log("Code Generation Error..\n")
+        process.exit(0)
+    end
+end

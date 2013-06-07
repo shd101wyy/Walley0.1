@@ -1,10 +1,10 @@
 
 #~
-	Copyright reserved Yiyi Wang 
-	Please follow MIT license
+    Copyright reserved Yiyi Wang 
+    Please follow MIT license
 
-	This file mainly deals with:
-		Integrate all code
+    This file mainly deals with:
+        Integrate all code
 ~#
 
 import "walley_cg.wy"

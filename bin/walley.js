@@ -71,6 +71,7 @@ Object.prototype.remove = function (pos) {
 Object.prototype.length = function () {
     return Object.keys(this).length
 };
+
 function len(obj) {
     if (typeof obj == "string") {
         return obj.length
@@ -80,7 +81,6 @@ function len(obj) {
         console.log("Error..\nfunctin len() only support table or string\n")
     }
 }
-
 if (typeof (exports) === "undefined") {
     exports = {};
 }
@@ -282,7 +282,7 @@ Walley_Analyze_Token_Class = function (input_str, i) {
         return_obj[1] = "judge_sign";
         return return_obj;
     }
-    if (match(input_str, i, "import")) {
+    if ((match(input_str, i, "import") && ((length <= i + 6 || input_str[i + 6] === " ") || input_str[i + 6] === "\n"))) {
         end_index = i + 6;
         return_obj[0] = end_index;
         return_obj[1] = "import";
@@ -1809,7 +1809,6 @@ import_stm = function (tree, tl) {
         var length_of_tl = len(tl);
         if ((length_of_tl !== 2 || tl[1]["TOKEN_CLASS"] !== "string")) {
             console["log"]("Error.. only support import statements like 'import \" hello.wy \"'");
-            console.log(tl);
             process["exit"](0);
         }
         TREE_addNode(tree, tl[1]["TOKEN_STRING"], "import_file");

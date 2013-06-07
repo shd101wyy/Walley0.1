@@ -282,7 +282,7 @@ Walley_Analyze_Token_Class = function (input_str, i) {
         return_obj[1] = "judge_sign";
         return return_obj;
     }
-    if (match(input_str, i, "import")) {
+    if ((match(input_str, i, "import") && ((length <= i + 6 || input_str[i + 6] === " ") || input_str[i + 6] === "\n"))) {
         end_index = i + 6;
         return_obj[0] = end_index;
         return_obj[1] = "import";
