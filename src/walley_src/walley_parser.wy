@@ -268,12 +268,13 @@ def table_value(tree, tl) then
         and
         (term(tl[1].TOKEN_STRING, ".") or term(tl[1].TOKEN_CLASS, "list_table"))
          then
-        local index=TREE_INDEX
+        local index1 = TREE_INDEX
         TREE_addNode(tree, "table_value", "")
-        
-        
-        TREE_addNode(TREE_getTreeAccordingToIndex(tree, index), tl[0].TOKEN_STRING, tl[0].TOKEN_CLASS)
-        return table_value_key(TREE_getTreeAccordingToIndex(tree, index), tl[1:length_of_tl])
+        local index2 = TREE_INDEX
+        TREE_addNode(TREE_getTreeAccordingToIndex(tree, index1),"value","")
+
+        return value(TREE_getTreeAccordingToIndex(tree, index2),tl.slice(0,1)) and table_value_key(TREE_getTreeAccordingToIndex(tree, index1), tl.slice(1, length_of_tl))
+
     # new support on 05/24/2013
     #func table_value_key
     elif length_of_tl>=3 and term(tl[0].TOKEN_CLASS, "id") and term(tl[1].TOKEN_STRING, "(") then

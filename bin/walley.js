@@ -81,6 +81,24 @@ function len(obj) {
         console.log("Error..\nfunctin len() only support table or string\n")
     }
 }
+WALLEY = {};
+WALLEY.convertObjectToArray = function (obj) {
+    if (typeof obj == "string") {
+        return obj
+    } else {
+        var arr = [];
+        for (var i in obj) {
+            if (obj.hasOwnProperty(i)) {
+                if (isdigit(i)) {
+                    arr[i] = obj[i]
+                } else {
+                    arr.push(obj[i])
+                }
+            }
+        }
+        return arr
+    }
+};
 if (typeof (exports) === "undefined") {
     exports = {};
 }
@@ -2503,6 +2521,9 @@ Code_Generation_2_Javascript = function (sl, tree) {
         for (; i < length_of_nl; i = i + 1) {
             var key_tree = nl[i];
             var key_str = Code_Generation_2_Javascript(sl, key_tree);
+            if (key_str["indexOf"](".slice(") !== -1) {
+                append_str = "WALLEY.convertObjectToArray(" + append_str + ")";
+            }
             append_str = append_str + key_str;
 
         };

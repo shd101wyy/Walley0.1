@@ -11,7 +11,7 @@ Walley Language
                        \\____|    \\____|  \__/\ ||___ ||__e   ||     
                __________________________________________________||     
                ---------------------------------------------------|     
-                       VERSION 0.1.616  FOR FUTURE AR,VR,AI  
+                       VERSION 0.1.617  FOR FUTURE AR,VR,AI  
        
                     Walley Language is a script language that       
                     compiles Walley Language into JavaScript which  
@@ -54,7 +54,7 @@ Walley Language
         Walley Language now support the following data types:
           1. String               | only support "" now. '' is unsupported
           2. Number               | eg 10.0 12
-          3. Table                | influenced by lua, []
+          3. Table                | influenced by lua, [] . it is a wrapper for Object
           4. Function
 
         ========

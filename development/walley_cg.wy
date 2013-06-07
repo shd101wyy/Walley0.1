@@ -625,6 +625,12 @@ def Code_Generation_2_Javascript(sl,tree)then
         for i<length_of_nl,i=i+1 then
             local key_tree=nl[i]
             local key_str=Code_Generation_2_Javascript(sl, key_tree)
+
+            #solve [1,2,3][0:2] problem
+            if key_str.indexOf(".slice(")!=-1 then
+                append_str="WALLEY.convertObjectToArray("+append_str+")"
+            end 
+
             append_str=append_str+key_str
         end
         
