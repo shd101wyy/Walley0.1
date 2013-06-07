@@ -1,0 +1,105 @@
+#~
+	Copyright reserved Yiyi Wang 
+	Please follow MIT license
+
+	This file mainly deals with:
+		tree
+~#
+
+import "walley_lexer.wy"
+
+# I delete all functions relevent with node_list  ***
+# now Node_List is just []
+TREE_INDEX=0
+
+# define TREE object
+def TREE_init(name) then
+    local TREE=[]
+    TREE.name=name or ""
+    TREE.token_class=""
+    TREE.index=0
+    TREE.layer=0
+    TREE.node_list=[]
+    TREE_INDEX=TREE_INDEX+1
+    return TREE
+end
+
+TREE_addNode = def(tree, name, token_class) then
+    local length_of_nl=len(tree.node_list)
+    tree["node_list"][length_of_nl]=TREE_init()
+    tree["node_list"][length_of_nl]["name"] = name
+    tree["node_list"][length_of_nl]["token_class"] = token_class
+    tree["node_list"][length_of_nl]["index"] = TREE_INDEX-1
+    tree["node_list"][length_of_nl]["layer"] = tree["layer"] + 1
+    tree["node_list"][length_of_nl]["node_list"] = []
+end
+
+def TREE_addTree(tree, add_tree) then
+    local index = TREE_INDEX
+    local length_of_nl=len(tree["node_list"])
+    tree["node_list"][length_of_nl] = add_tree
+    tree["node_list"][length_of_nl]["index"] = index
+    tree["node_list"][length_of_nl]["layer"] = tree["layer"] + 1
+    TREE_INDEX = TREE_INDEX + 1
+end
+
+
+def TREE_getTreeAccordingToIndex( tree, index) then
+    
+    if index==tree.index then
+        return tree
+    else
+        local nl=tree.node_list # Node_List
+        if len(nl)==0 then
+            return none
+        end
+
+        local i=0
+        local length=len(nl)
+        for i<length, i=i+1 then
+            local node=nl[i]
+            if index==node.index then
+                return node
+            end
+        end
+
+        nl=tree.node_list # Node_List
+        i=0
+        for  i<length , i=i+1 then
+            found_tree=TREE_getTreeAccordingToIndex(nl[i], index)
+            if found_tree!=none then
+                return found_tree
+            end
+        end    
+    end
+    return none
+end
+
+def TREE_print(tree) then
+    process["stdout"]["write"]("("+tree["token_class"]+" "+tree["name"])
+    local length_of_node_list = len(tree["node_list"])
+    if length_of_node_list != 0 then
+        local i = 0
+        local nl = tree["node_list"]
+        for i = 0, i < length_of_node_list, i = i + 1 then
+            TREE_print(nl[i])
+        end
+    end
+    process["stdout"]["write"](")")
+end
+
+def TREE_changeNameAccordingToIndex(tree, index, change_to_name) then
+    local temp_tree=TREE_getTreeAccordingToIndex(tree, index)
+    temp_tree.name=change_to_name
+end
+
+# return the layer num of TREE
+def TREE_layer(tree) then
+    local temp_tree=TREE_getTreeAccordingToIndex(tree, TREE_INDEX)
+    return temp_tree.layer
+end
+
+def TREE_addNodeAtIndex(tree, index, add_name, add_token_class) then
+    local temp_tree=TREE_getTreeAccordingToIndex(tree, index)
+    TREE_addNode(temp_tree, add_name, add_token_class)
+end

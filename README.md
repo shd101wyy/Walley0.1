@@ -48,7 +48,7 @@ Walley Language
         Keywords:
             and break then if elif else end 
             true false for def if in local none
-            not or return while
+            not or return while import
 
         ========
         Walley Language now support the following data types:

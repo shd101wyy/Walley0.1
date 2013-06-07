@@ -282,6 +282,12 @@ Walley_Analyze_Token_Class = function (input_str, i) {
         return_obj[1] = "judge_sign";
         return return_obj;
     }
+    if (match(input_str, i, "import")) {
+        end_index = i + 6;
+        return_obj[0] = end_index;
+        return_obj[1] = "import";
+        return return_obj;
+    }
     if (((match(input_str, i, "and") || match(input_str, i, "not")) && ((length <= i + 3 || input_str[i + 3] === " ") || input_str[i + 3] === "\n"))) {
         end_index = i + 3;
         return_obj[0] = end_index;
@@ -1793,11 +1799,29 @@ self_assignment_stm = function (tree, tl) {
         }
     }
 };
+import_stm = function (tree, tl) {
+    if (INCOMPLETE_STATEMENT === true) {
+        return false;
+    }
+    if (tl[0]["TOKEN_CLASS"] === "import") {
+        TREE_addNode(tree, "import", "");
+        var index = TREE_INDEX;
+        var length_of_tl = len(tl);
+        if ((length_of_tl !== 2 || tl[1]["TOKEN_CLASS"] !== "string")) {
+            console["log"]("Error.. only support import statements like 'import \" hello.wy \"'");
+            process["exit"](0);
+        }
+        TREE_addNode(tree, tl[1]["TOKEN_STRING"], "import_file");
+        return true;
+    } else {
+        return false;
+    }
+};
 statements = function (tree, tl) {
     if (INCOMPLETE_STATEMENT === true) {
         return false;
     }
-    return ((((((((((self_operator_stm(tree, tl) || self_assignment_stm(tree, tl)) || return_stm(tree, tl)) || if_stms(tree, tl)) || elif_stms(tree, tl)) || else_stms(tree, tl)) || while_stms(tree, tl)) || for_stms(tree, tl)) || def_stms(tree, tl)) || end_stm(tree, tl)) || assignment(tree, tl)) || value(tree, tl);
+    return (((((((((((import_stm(tree, tl) || self_operator_stm(tree, tl)) || self_assignment_stm(tree, tl)) || return_stm(tree, tl)) || if_stms(tree, tl)) || elif_stms(tree, tl)) || else_stms(tree, tl)) || while_stms(tree, tl)) || for_stms(tree, tl)) || def_stms(tree, tl)) || end_stm(tree, tl)) || assignment(tree, tl)) || value(tree, tl);
 };
 walley_statements = function (tree, tl) {
     if (INCOMPLETE_STATEMENT === true) {
@@ -1832,7 +1856,7 @@ sentences_separation = function (tl, output_tl, begin) {
     }
     i = begin["val"];
     for (; i < length_of_tl; i = i + 1) {
-        if (((i < length_of_tl - 1 && (((((term(tl[i]["TOKEN_CLASS"], "num") || term(tl[i]["TOKEN_CLASS"], "string")) || term(tl[i]["TOKEN_CLASS"], "id")) || term(tl[i]["TOKEN_CLASS"], "list_table")) || term(tl[i]["TOKEN_STRING"], ")")) || term(tl[i]["TOKEN_CLASS"], "self_operator"))) && (((((term(tl[1 + i]["TOKEN_CLASS"], "id") || term(tl[1 + i]["TOKEN_CLASS"], "num")) || term(tl[i + 1]["TOKEN_CLASS"], "return")) || term(tl[i + 1]["TOKEN_STRING"], "continue")) || term(tl[1 + i]["TOKEN_STRING"], "break")) || term(tl[1 + i]["TOKEN_CLASS"], "local")))) {
+        if (((i < length_of_tl - 1 && (((((term(tl[i]["TOKEN_CLASS"], "num") || term(tl[i]["TOKEN_CLASS"], "string")) || term(tl[i]["TOKEN_CLASS"], "id")) || term(tl[i]["TOKEN_CLASS"], "list_table")) || term(tl[i]["TOKEN_STRING"], ")")) || term(tl[i]["TOKEN_CLASS"], "self_operator"))) && ((((((term(tl[1 + i]["TOKEN_CLASS"], "id") || term(tl[1 + i]["TOKEN_CLASS"], "num")) || term(tl[i + 1]["TOKEN_CLASS"], "return")) || term(tl[i + 1]["TOKEN_STRING"], "continue")) || term(tl[1 + i]["TOKEN_STRING"], "break")) || term(tl[1 + i]["TOKEN_CLASS"], "local")) || term(tl[i + 1]["TOKEN_CLASS"], "import")))) {
             var end_index = i + 1;
             var ahead_tl = tl.slice(begin["val"], end_index);
             output_tl["val"] = ahead_tl;
@@ -2305,6 +2329,17 @@ Code_Generation_2_Javascript = function (sl, tree) {
             append_str = append_str + output_str;
             append_str = append_str + "};\n";
             return append_str;
+        } else if (nl[0]["name"] === "import") {
+            var import_file = nl[1]["name"];
+            import_file = import_file["slice"](1, import_file["length"] - 1);
+            var fs = require("fs");
+            var content_in_import_file = fs["readFileSync"](import_file, "utf8");
+            var output_str = exports["Code_Generation"](content_in_import_file);
+            if (exports["INCOMPLETE_STATEMENT"] === true) {
+                console["log"]("Error.. statements in file %s is incomplete\n", import_file);
+                process["exit"](0);
+            }
+            return output_str;
         } else {
             var append_str = "";
             var i = 0;

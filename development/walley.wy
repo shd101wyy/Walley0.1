@@ -259,6 +259,16 @@ def Walley_Analyze_Token_Class(input_str, i) then
         return_obj[1]="judge_sign"
         return return_obj
     end
+
+    # add import support
+    # import "hello.wy"
+    # import all content in hello.wy
+    if match(input_str,i,"import") then
+        end_index=i+6
+        return_obj[0]=end_index
+        return_obj[1]="import"
+        return return_obj
+    end
     
     #~
     if match(input_str, i, "true") then
@@ -710,7 +720,7 @@ def TREE_addNodeAtIndex(tree, index, add_name, add_token_class) then
     TREE_addNode(temp_tree, add_name, add_token_class)
 end
 
-#= walley.list.h
+#= walley_list.wy
 def elements(tree, tl) then
     if INCOMPLETE_STATEMENT==true then
         return false
@@ -2399,12 +2409,33 @@ def self_assignment_stm(tree,tl) then
 
 end
 
-
+# import "hello.wy"
+# import import_file
+# only support 'import string' now
+def import_stm(tree,tl) then
+    if INCOMPLETE_STATEMENT==true then
+        return false
+    end
+    if tl[0].TOKEN_CLASS=="import" then
+        TREE_addNode(tree,"import","")
+        local index=TREE_INDEX
+        local length_of_tl=len(tl)
+        if length_of_tl!=2 or tl[1].TOKEN_CLASS!="string" then
+            console.log("Error.. only support import statements like 'import \" hello.wy \"'")
+            process.exit(0)
+        end
+        TREE_addNode(tree,tl[1].TOKEN_STRING,"import_file")
+        return true
+    else
+        return false
+    end    
+end
 def statements(tree, tl) then
     if INCOMPLETE_STATEMENT==true then
         return false
     end
-    return self_operator_stm(tree,tl)
+    return import_stm(tree,tl)
+        or self_operator_stm(tree,tl)
         or self_assignment_stm(tree,tl)
         or return_stm(tree, tl)
         or if_stms(tree, tl)
@@ -2466,7 +2497,7 @@ def sentences_separation(tl, output_tl,begin) then
         # y=2
         if i<length_of_tl-1 and (term(tl[i].TOKEN_CLASS, "num") or term(tl[i].TOKEN_CLASS, "string") or term(tl[i].TOKEN_CLASS, "id") or term(tl[i].TOKEN_CLASS, "list_table") or term(tl[i].TOKEN_STRING, ")") or term(tl[i].TOKEN_CLASS,"self_operator"))
             and (term(tl[1+i].TOKEN_CLASS, "id") or term(tl[1+i].TOKEN_CLASS, "num")
-                or term(tl[i+1].TOKEN_CLASS, "return") or term(tl[i+1].TOKEN_STRING, "continue") or term(tl[1+i].TOKEN_STRING, "break") or term(tl[1+i].TOKEN_CLASS, "local")) then
+                or term(tl[i+1].TOKEN_CLASS, "return") or term(tl[i+1].TOKEN_STRING, "continue") or term(tl[1+i].TOKEN_STRING, "break") or term(tl[1+i].TOKEN_CLASS, "local") or term(tl[i+1].TOKEN_CLASS,"import")) then
             local end_index=i+1
             local ahead_tl=tl[begin.val:end_index]
             output_tl.val=ahead_tl
@@ -3190,6 +3221,23 @@ def Code_Generation_2_Javascript(sl,tree)then
             append_str=append_str+output_str
             append_str=append_str+"};\n"
             return append_str
+
+        # import file_name
+        elif nl[0].name=="import" then
+            local import_file=nl[1].name
+            import_file=import_file.slice(1,import_file.length-1)
+
+            local fs=require("fs")
+            local content_in_import_file=fs.readFileSync(import_file,"utf8")
+
+
+            local output_str=exports.Code_Generation(content_in_import_file)
+            if exports.INCOMPLETE_STATEMENT==true then
+                console.log("Error.. statements in file %s is incomplete\n",import_file)
+                process.exit(0)
+            end
+            return output_str
+        
         else
             local append_str=""
             local i=0

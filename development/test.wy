@@ -1,0 +1,4 @@
+import "test_2.wy"
+x=12
+y=15
+console.log(z)
