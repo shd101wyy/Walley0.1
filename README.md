@@ -8,7 +8,7 @@ Walley Language
                     \\ \ ||  | \\ \ ||  |  --\_____________/ ---==    
                      \\ \||  |  \\ \||  |  ///\  ||    ||      ||     
                       \\     |   \\     |  |  |  ||    ||      ||     
-                       \\____|    \\____|  \__/\ ||___ ||___   ||     
+                       \\____|    \\____|  \__/\ ||___ ||__e   ||     
                __________________________________________________||     
                ---------------------------------------------------|     
                        VERSION 0.1.616  FOR FUTURE AR,VR,AI  
@@ -93,6 +93,11 @@ Walley Language
 
           foreach:
             1. for [key],[value] in [table] then [stms] end
+              eg:
+                for i,v in [1,2,3,a=14] then
+                  console.log(i)  # print 0,1,2,a
+                  console.log(v)  # print 1,2,3,14
+                end
             2. for [key] in [table] then [stms] end
 
           annotation:
@@ -100,11 +105,19 @@ Walley Language
             #~ [stms] ~# : long annotation
 
           06/07/2013 new add:
-          import:
+          import: ＃ import statement needs nodejs support
             1. import [ file_name (string) ]
               eg: import "Hello.wy"
                     will import all from Hello.wy.. like c language include ""
                     
+        ========
+        slice:
+          only support string and table
+          [start:end]
+          [:end]
+          [start:]
+          eg: "Hello"[0:2]--> "He"
+              [1,2,3][0:2]--> [0,1]
 
         ========
         embed library:

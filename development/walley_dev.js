@@ -761,10 +761,11 @@ table_value = function (tree, tl) {
 
     };
     if (((2 <= length_of_tl && (((term(tl[0]["TOKEN_CLASS"], "id") || term(tl[0]["TOKEN_CLASS"], "string")) || term(tl[0]["TOKEN_CLASS"], "list_table")) || term(tl[0]["TOKEN_CLASS"], "num"))) && (term(tl[1]["TOKEN_STRING"], ".") || term(tl[1]["TOKEN_CLASS"], "list_table")))) {
-        var index = TREE_INDEX;
+        var index1 = TREE_INDEX;
         TREE_addNode(tree, "table_value", "");
-        TREE_addNode(TREE_getTreeAccordingToIndex(tree, index), tl[0]["TOKEN_STRING"], tl[0]["TOKEN_CLASS"]);
-        return table_value_key(TREE_getTreeAccordingToIndex(tree, index), tl.slice(1, length_of_tl));
+        var index2 = TREE_INDEX;
+        TREE_addNode(TREE_getTreeAccordingToIndex(tree, index1), "value", "");
+        return value(TREE_getTreeAccordingToIndex(tree, index2), tl["slice"](0, 1)) && table_value_key(TREE_getTreeAccordingToIndex(tree, index1), tl["slice"](1, length_of_tl));
     } else if (((3 <= length_of_tl && term(tl[0]["TOKEN_CLASS"], "id")) && term(tl[1]["TOKEN_STRING"], "("))) {
         var index = -1;
         var i = 0;
