@@ -295,7 +295,7 @@ def Walley_Analyze_Token_Class(input_str, i) then
     end
     
     # end
-    if match(input_str, i, "end") and (i+3>=length or input_str[i+3]==" " or input_str[i+3]=="\n") then
+    if match(input_str, i, "end") and (isalpha(input_str[i+3])==false and input_str[i+3]!="_" and input_str[i+3]!="$") then
        	end_index=i+3
        	return_obj[0]=end_index
        	return_obj[1]="end" 

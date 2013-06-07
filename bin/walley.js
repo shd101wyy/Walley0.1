@@ -341,7 +341,7 @@ Walley_Analyze_Token_Class = function (input_str, i) {
         return_obj[1] = "then";
         return return_obj;
     }
-    if ((match(input_str, i, "end") && ((length <= i + 3 || input_str[i + 3] === " ") || input_str[i + 3] === "\n"))) {
+    if ((match(input_str, i, "end") && ((isalpha(input_str[i + 3]) === false && input_str[i + 3] !== "_") && input_str[i + 3] !== "$"))) {
         end_index = i + 3;
         return_obj[0] = end_index;
         return_obj[1] = "end";
@@ -1855,15 +1855,22 @@ sentences_separation = function (tl, output_tl, begin) {
         return false;
     }
     i = begin["val"];
+    var count_of_parenthesis = 0;
     for (; i < length_of_tl; i = i + 1) {
-        if (((i < length_of_tl - 1 && (((((term(tl[i]["TOKEN_CLASS"], "num") || term(tl[i]["TOKEN_CLASS"], "string")) || term(tl[i]["TOKEN_CLASS"], "id")) || term(tl[i]["TOKEN_CLASS"], "list_table")) || term(tl[i]["TOKEN_STRING"], ")")) || term(tl[i]["TOKEN_CLASS"], "self_operator"))) && ((((((term(tl[1 + i]["TOKEN_CLASS"], "id") || term(tl[1 + i]["TOKEN_CLASS"], "num")) || term(tl[i + 1]["TOKEN_CLASS"], "return")) || term(tl[i + 1]["TOKEN_STRING"], "continue")) || term(tl[1 + i]["TOKEN_STRING"], "break")) || term(tl[1 + i]["TOKEN_CLASS"], "local")) || term(tl[i + 1]["TOKEN_CLASS"], "import")))) {
+        if (tl[i]["TOKEN_STRING"] === "(") {
+            count_of_parenthesis++;
+        }
+        if (tl[i]["TOKEN_STRING"] === ")") {
+            count_of_parenthesis--;
+        }
+        if ((((count_of_parenthesis === 0 && i < length_of_tl - 1) && (((((term(tl[i]["TOKEN_CLASS"], "num") || term(tl[i]["TOKEN_CLASS"], "string")) || term(tl[i]["TOKEN_CLASS"], "id")) || term(tl[i]["TOKEN_CLASS"], "list_table")) || term(tl[i]["TOKEN_STRING"], ")")) || term(tl[i]["TOKEN_CLASS"], "self_operator"))) && ((((((term(tl[1 + i]["TOKEN_CLASS"], "id") || term(tl[1 + i]["TOKEN_CLASS"], "num")) || term(tl[i + 1]["TOKEN_CLASS"], "return")) || term(tl[i + 1]["TOKEN_STRING"], "continue")) || term(tl[1 + i]["TOKEN_STRING"], "break")) || term(tl[1 + i]["TOKEN_CLASS"], "local")) || term(tl[i + 1]["TOKEN_CLASS"], "import")))) {
             var end_index = i + 1;
             var ahead_tl = tl.slice(begin["val"], end_index);
             output_tl["val"] = ahead_tl;
             begin["val"] = end_index;
             return true;
         }
-        if (((term(tl[i]["TOKEN_STRING"], "def") || term(tl[i]["TOKEN_STRING"], "for")) || term(tl[i]["TOKEN_STRING"], "while"))) {
+        if ((count_of_parenthesis === 0 && ((term(tl[i]["TOKEN_STRING"], "def") || term(tl[i]["TOKEN_STRING"], "for")) || term(tl[i]["TOKEN_STRING"], "while")))) {
             if (begin["val"] !== i) {
                 if ((term(tl[i]["TOKEN_STRING"], "def") && term(tl[i + 1]["TOKEN_STRING"], "("))) {
                     console["log"]("");
@@ -2009,7 +2016,7 @@ sentences_separation = function (tl, output_tl, begin) {
             INCOMPLETE_STATEMENT = true;
             return false;
         }
-        if (term(tl[i]["TOKEN_STRING"], "end")) {
+        if ((count_of_parenthesis === 0 && term(tl[i]["TOKEN_STRING"], "end"))) {
             var end_index = i;
             if (begin["val"] < i) {
                 var ahead_tl = tl.slice(begin["val"], end_index);

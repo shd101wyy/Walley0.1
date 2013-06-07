@@ -1793,7 +1793,7 @@ def sentences_separation(tl, output_tl,begin) then
         # x=1 y=2 ->
         # x=1
         # y=2
-        if i<length_of_tl-1 and (term(tl[i].TOKEN_CLASS, "num") or term(tl[i].TOKEN_CLASS, "string") or term(tl[i].TOKEN_CLASS, "id") or term(tl[i].TOKEN_CLASS, "list_table") or term(tl[i].TOKEN_STRING, ")") or term(tl[i].TOKEN_CLASS,"self_operator"))
+        if count_of_parenthesis==0 and i<length_of_tl-1 and (term(tl[i].TOKEN_CLASS, "num") or term(tl[i].TOKEN_CLASS, "string") or term(tl[i].TOKEN_CLASS, "id") or term(tl[i].TOKEN_CLASS, "list_table") or term(tl[i].TOKEN_STRING, ")") or term(tl[i].TOKEN_CLASS,"self_operator"))
             and (term(tl[1+i].TOKEN_CLASS, "id") or term(tl[1+i].TOKEN_CLASS, "num")
                 or term(tl[i+1].TOKEN_CLASS, "return") or term(tl[i+1].TOKEN_STRING, "continue") or term(tl[1+i].TOKEN_STRING, "break") or term(tl[1+i].TOKEN_CLASS, "local") or term(tl[i+1].TOKEN_CLASS,"import")) then
             local end_index=i+1
@@ -2029,7 +2029,7 @@ def sentences_separation(tl, output_tl,begin) then
     
         # end->
         # end
-        if term(tl[i].TOKEN_STRING, "end") then
+        if count_of_parenthesis==0 and term(tl[i].TOKEN_STRING, "end") then
             local end_index=i
             if begin.val<i then
                 local ahead_tl=tl[begin.val:end_index]
