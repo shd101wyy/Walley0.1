@@ -625,13 +625,17 @@ def Code_Generation_2_Javascript(sl,tree)then
         for i<length_of_nl,i=i+1 then
             local key_tree=nl[i]
             local key_str=Code_Generation_2_Javascript(sl, key_tree)
-
+            local is_slice=false
             #solve [1,2,3][0:2] problem
             if key_str.indexOf(".slice(")!=-1 then
-                append_str="WALLEY.convertObjectToArray("+append_str+")"
+                append_str="WALLEY.toArray("+append_str+")"
+                is_slice=true
             end 
 
             append_str=append_str+key_str
+            if is_slice==true then
+                append_str="WALLEY.toObject("+append_str+")"
+            end
         end
         
         js_isTableValue=false

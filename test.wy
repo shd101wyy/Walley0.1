@@ -1,6 +1,6 @@
-def add(a,b)then
-	a()
-	console.log(b)
+x=[1,2,3]
+x=x[0:3]
+for i,v in x then
+    console.log(i)
+    console.log(v)
 end
-
-add(def()then console.log("Hello") end, 15 )

@@ -178,6 +178,8 @@ Walley Language
 
         ========
           version 0.1.616: fix function as function param bug.. fix one lexer bug
+          version 0.1.617: fix [1,2,3,4][0:2] bug, i convert {0:1,0:2} to array and then get slice
+                           but actually maybe i should convert it back to obj because table is object
 
 
 

@@ -1,51 +1,73 @@
 none = null;
+//new written function for javascript
 
 function isalpha(input_char) {
-    return /^[a-z]+$/i.test(input_char)
+    //return /^[ a-z]+$/i.test(input_char); including space
+    return /^[a-z]+$/i.test(input_char);
 }
+//javascript : isdigit
 
 function isdigit(e) {
-    return !isNaN(parseFloat(e)) && isFinite(e)
+    return !isNaN(parseFloat(e)) && isFinite(e);
 }
+// String
+// find
 String.prototype.find = function (find_str, start) {
-    if (typeof start == "undefined") {
+    if (typeof (start) == 'undefined') {
         start = 0
-    }
-    return this.indexOf(find_str, start)
-};
+    };
+    return this.indexOf(find_str, start);
+}
+// tolower
 String.prototype.tolower = function () {
-    return this.toLowerCase()
-};
+    return this.toLowerCase();
+}
+// toupper
 String.prototype.toupper = function () {
-    return this.toUpperCase()
-};
+    return this.toUpperCase();
+}
+// reverse
 String.prototype.reverse = function () {
-    return this.split("").reverse().join("")
-};
+    return this.split("").reverse().join("");
+}
+
+
+// Math
+
 Math["cot"] = function (num) {
-    return 1 / Math.tan(num)
-};
+    return 1 / Math.tan(num);
+}
 Math["sec"] = function (num) {
-    return 1 / Math.cos(num)
-};
+    return 1 / Math.cos(num);
+}
 Math["csc"] = function (num) {
-    return 1 / Math.sin(num)
-};
+    return 1 / Math.sin(num);
+}
+
+// OBJECT FUNCTIONS
 Object.prototype.slice = function (start, end) {
     var return_obj = {};
     var a = 0;
     for (var i = start; i < end; i++) {
         return_obj[a] = this[i];
-        a++
+        a++;
     }
-    return return_obj
+    return return_obj;
 };
+
 Object.prototype.append = function (e) {
-    var t = this.maxn() + 1;
-    this[t] = e
+    var t = this.maxn() + 1
+    this[t] = e;
 };
+
+// get largest index
+// eg [1,2,3] largest index is 2 
+// only return continuous integer index
+// eg [0:1,1:2,15:2] because 15 is not after 1
+//                   so only return 1
+// if no integer index then return -1
 Object.prototype.maxn = function () {
-    var t = 0;
+    var t = 0
     if (this[0] == undefined) {
         return -1
     }
@@ -54,51 +76,90 @@ Object.prototype.maxn = function () {
     }
     return t - 1
 };
+
+
+// insert insert_obj at pos
 Object.prototype.insert = function (insert_obj, pos) {
+    // default position is the largest integer index
     if (pos == undefined) {
-        pos = table.maxn(this) + 1;
+        pos = table.maxn(this) + 1
         this[pos] = insert_obj
     } else {
         this[pos] = insert_obj
     }
 };
+
+// remove element at position
 Object.prototype.remove = function (pos) {
     if (pos == undefined) {
         pos = table.maxn(obj)
     }
-    delete this[pos]
-};
-Object.prototype.length = function () {
-    return Object.keys(this).length
+    delete(this[pos])
 };
 
+// get the length of table
+// [0:1,hi:2] -> length 2
+Object.prototype.length = function () {
+    return Object.keys(this).length
+}
+
+
+// len like python
+
 function len(obj) {
-    if (typeof obj == "string") {
+    if (typeof (obj) == 'string') {
         return obj.length
-    } else if (typeof obj == "object") {
+    } else if (typeof (obj) == 'object') {
         return Object.keys(obj).length
     } else {
-        console.log("Error..\nfunctin len() only support table or string\n")
+        console.log("Error..\nfunctin len() only support table or string\n");
     }
 }
-WALLEY = {};
-WALLEY.convertObjectToArray = function (obj) {
-    if (typeof obj == "string") {
+
+// WALLEY function
+WALLEY = {}
+WALLEY.toArray = function (obj) {
+    if (typeof (obj) == "string") {
         return obj
-    } else {
-        var arr = [];
+    }
+    // table
+    else {
+        var arr = []
         for (var i in obj) {
             if (obj.hasOwnProperty(i)) {
                 if (isdigit(i)) {
-                    arr[i] = obj[i]
+                    arr[i] = obj[i];
                 } else {
-                    arr.push(obj[i])
+                    arr.push(obj[i]);
                 }
             }
         }
+
         return arr
     }
-};
+}
+
+// array to object
+WALLEY.toObject = function (array) {
+    // string
+    if (typeof (array) == "string") {
+        return array
+    }
+    // array
+    else if (Array.isArray(array)) {
+        obj = {}
+        for (var i = 0; i < array.length; i = i + 1) {
+            obj[i] = array[i]
+        }
+        return obj
+    }
+    // error
+    else {
+        console.log("WALLEY.toObject only supports array and string type")
+    }
+
+}
+
 if (typeof (exports) === "undefined") {
     exports = {};
 }
@@ -2521,11 +2582,15 @@ Code_Generation_2_Javascript = function (sl, tree) {
         for (; i < length_of_nl; i = i + 1) {
             var key_tree = nl[i];
             var key_str = Code_Generation_2_Javascript(sl, key_tree);
+            var is_slice = false
             if (key_str["indexOf"](".slice(") !== -1) {
-                append_str = "WALLEY.convertObjectToArray(" + append_str + ")";
+                append_str = "WALLEY.toArray(" + append_str + ")";
+                is_slice = true
             }
             append_str = append_str + key_str;
-
+            if (is_slice) {
+                append_str = "WALLEY.toObject(" + append_str + ")"
+            }
         };
         js_isTableValue = false;
         return append_str;
