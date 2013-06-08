@@ -123,6 +123,7 @@ WALLEY.stringToObject = function (input_str) {
         return input_str
     }
 };
+BEAUTIFUL_SPACES = 0;
 if (typeof (exports) === "undefined") {
     exports = {};
 }
@@ -2206,6 +2207,7 @@ Code_Generation_2_Javascript = function (sl, tree) {
     } else if (term(tree["name"], "statements")) {
         nl = tree["node_list"];
         if (term(nl[0]["name"], "if")) {
+            BEAUTIFUL_SPACES = BEAUTIFUL_SPACES + 4;
             var append_str = "if (";
             var judge_str = Code_Generation_2_Javascript(sl, nl[1]);
             append_str = append_str + judge_str;
@@ -2230,6 +2232,7 @@ Code_Generation_2_Javascript = function (sl, tree) {
             append_str = append_str + output_str;
             return append_str;
         } else if (term(nl[0]["name"], "elif")) {
+            BEAUTIFUL_SPACES = BEAUTIFUL_SPACES + 4;
             var append_str = "}\nelse if (";
             var judge_str = Code_Generation_2_Javascript(sl, nl[1]);
             append_str = append_str + judge_str;
@@ -2254,6 +2257,7 @@ Code_Generation_2_Javascript = function (sl, tree) {
             append_str = append_str + output_str;
             return append_str;
         } else if (term(nl[0]["name"], "else")) {
+            BEAUTIFUL_SPACES = BEAUTIFUL_SPACES + 4;
             var append_str = "}\nelse{\n";
             var i = 1;
             var length_of_nl = len(nl);
@@ -2275,6 +2279,7 @@ Code_Generation_2_Javascript = function (sl, tree) {
             append_str = append_str + output_str;
             return append_str;
         } else if (term(nl[0]["name"], "while")) {
+            BEAUTIFUL_SPACES = BEAUTIFUL_SPACES + 4;
             var append_str = "while (";
             var judge_str = Code_Generation_2_Javascript(sl, nl[1]);
             append_str = append_str + judge_str;
@@ -2299,6 +2304,7 @@ Code_Generation_2_Javascript = function (sl, tree) {
             append_str = append_str + output_str;
             return append_str;
         } else if (term(nl[0]["name"], "for")) {
+            BEAUTIFUL_SPACES = BEAUTIFUL_SPACES + 4;
             var append_str = "for (";
             var nl_index = 1;
             if (term(nl[1]["name"], "assignment")) {
@@ -2339,6 +2345,7 @@ Code_Generation_2_Javascript = function (sl, tree) {
             append_str = append_str + "\n}";
             return append_str;
         } else if (term(nl[0]["name"], "foreach")) {
+            BEAUTIFUL_SPACES = BEAUTIFUL_SPACES + 4;
             var append_str = "for(";
             var foreach_index = nl[1]["name"];
             append_str = append_str + foreach_index;
@@ -2648,6 +2655,7 @@ Code_Generation_2_Javascript = function (sl, tree) {
         };
         return append_string;
     } else if (term(tree["name"], "end")) {
+        BEAUTIFUL_SPACES = BEAUTIFUL_SPACES - 4;
         return "}\n";
     } else if (term(tree["token_class"], "num")) {
         return tree["name"];

@@ -182,7 +182,7 @@ Walley Language
           version 0.1.617: fix [1,2,3,4][0:2] bug, i convert {0:1,0:2} to array and then get slice
                            but actually maybe i should convert it back to obj because table is object
 
-          version 0.1.618: fix for each bug
+          version 0.1.618: fix for each bug, fix slice bug
 
 
 
