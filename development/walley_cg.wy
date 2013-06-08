@@ -332,6 +332,7 @@ def Code_Generation_2_Javascript(sl,tree)then
             end
             
             local foreach_in_value=Code_Generation_2_Javascript(sl, nl[3].node_list[0])
+            foreach_in_value="WALLEY.stringToObject("+foreach_in_value+")"
             # append in value
             append_str=append_str+foreach_in_value
             append_str=append_str+"){\n"
@@ -617,6 +618,13 @@ def Code_Generation_2_Javascript(sl,tree)then
         
         local nl=tree.node_list
         local var_name=Code_Generation_2_Javascript(sl,nl[0])
+        
+        local var_name_is_table = false
+
+        if nl[0].token_class == "table" then
+            var_name_is_table = true
+        end
+
         local append_str=var_name
         js_isTableValue=true
 
@@ -627,7 +635,7 @@ def Code_Generation_2_Javascript(sl,tree)then
             local key_str=Code_Generation_2_Javascript(sl, key_tree)
             local is_slice=false
             #solve [1,2,3][0:2] problem
-            if key_str.indexOf(".slice(")!=-1 then
+            if var_name_is_table == true and key_str.indexOf(".slice(")==0 then
                 append_str="WALLEY.toArray("+append_str+")"
                 is_slice=true
             end 

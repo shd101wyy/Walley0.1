@@ -1,73 +1,51 @@
 none = null;
-//new written function for javascript
 
 function isalpha(input_char) {
-    //return /^[ a-z]+$/i.test(input_char); including space
-    return /^[a-z]+$/i.test(input_char);
+    return /^[a-z]+$/i.test(input_char)
 }
-//javascript : isdigit
 
 function isdigit(e) {
-    return !isNaN(parseFloat(e)) && isFinite(e);
+    return !isNaN(parseFloat(e)) && isFinite(e)
 }
-// String
-// find
 String.prototype.find = function (find_str, start) {
-    if (typeof (start) == 'undefined') {
+    if (typeof start == "undefined") {
         start = 0
-    };
-    return this.indexOf(find_str, start);
-}
-// tolower
+    }
+    return this.indexOf(find_str, start)
+};
 String.prototype.tolower = function () {
-    return this.toLowerCase();
-}
-// toupper
+    return this.toLowerCase()
+};
 String.prototype.toupper = function () {
-    return this.toUpperCase();
-}
-// reverse
+    return this.toUpperCase()
+};
 String.prototype.reverse = function () {
-    return this.split("").reverse().join("");
-}
-
-
-// Math
-
+    return this.split("").reverse().join("")
+};
 Math["cot"] = function (num) {
-    return 1 / Math.tan(num);
-}
+    return 1 / Math.tan(num)
+};
 Math["sec"] = function (num) {
-    return 1 / Math.cos(num);
-}
+    return 1 / Math.cos(num)
+};
 Math["csc"] = function (num) {
-    return 1 / Math.sin(num);
-}
-
-// OBJECT FUNCTIONS
+    return 1 / Math.sin(num)
+};
 Object.prototype.slice = function (start, end) {
     var return_obj = {};
     var a = 0;
     for (var i = start; i < end; i++) {
         return_obj[a] = this[i];
-        a++;
+        a++
     }
-    return return_obj;
+    return return_obj
 };
-
 Object.prototype.append = function (e) {
-    var t = this.maxn() + 1
-    this[t] = e;
+    var t = this.maxn() + 1;
+    this[t] = e
 };
-
-// get largest index
-// eg [1,2,3] largest index is 2 
-// only return continuous integer index
-// eg [0:1,1:2,15:2] because 15 is not after 1
-//                   so only return 1
-// if no integer index then return -1
 Object.prototype.maxn = function () {
-    var t = 0
+    var t = 0;
     if (this[0] == undefined) {
         return -1
     }
@@ -76,90 +54,75 @@ Object.prototype.maxn = function () {
     }
     return t - 1
 };
-
-
-// insert insert_obj at pos
 Object.prototype.insert = function (insert_obj, pos) {
-    // default position is the largest integer index
     if (pos == undefined) {
-        pos = table.maxn(this) + 1
+        pos = table.maxn(this) + 1;
         this[pos] = insert_obj
     } else {
         this[pos] = insert_obj
     }
 };
-
-// remove element at position
 Object.prototype.remove = function (pos) {
     if (pos == undefined) {
         pos = table.maxn(obj)
     }
-    delete(this[pos])
+    delete this[pos]
 };
-
-// get the length of table
-// [0:1,hi:2] -> length 2
 Object.prototype.length = function () {
     return Object.keys(this).length
-}
-
-
-// len like python
+};
 
 function len(obj) {
-    if (typeof (obj) == 'string') {
+    if (typeof obj == "string") {
         return obj.length
-    } else if (typeof (obj) == 'object') {
+    } else if (typeof obj == "object") {
         return Object.keys(obj).length
     } else {
-        console.log("Error..\nfunctin len() only support table or string\n");
+        console.log("Error..\nfunctin len() only support table or string\n")
     }
 }
-
-// WALLEY function
-WALLEY = {}
+WALLEY = {};
 WALLEY.toArray = function (obj) {
-    if (typeof (obj) == "string") {
+    if (typeof obj == "string") {
         return obj
-    }
-    // table
-    else {
-        var arr = []
+    } else {
+        var arr = [];
         for (var i in obj) {
             if (obj.hasOwnProperty(i)) {
                 if (isdigit(i)) {
-                    arr[i] = obj[i];
+                    arr[i] = obj[i]
                 } else {
-                    arr.push(obj[i]);
+                    arr.push(obj[i])
                 }
             }
         }
-
         return arr
     }
-}
-
-// array to object
+};
 WALLEY.toObject = function (array) {
-    // string
-    if (typeof (array) == "string") {
+    if (typeof array == "string") {
         return array
-    }
-    // array
-    else if (Array.isArray(array)) {
-        obj = {}
+    } else if (Array.isArray(array)) {
+        obj = {};
         for (var i = 0; i < array.length; i = i + 1) {
             obj[i] = array[i]
         }
         return obj
-    }
-    // error
-    else {
+    } else {
         console.log("WALLEY.toObject only supports array and string type")
     }
-
-}
-
+};
+WALLEY.stringToObject = function (input_str) {
+    if (typeof input_str == "string") {
+        obj = {};
+        for (var i = 0; i < input_str.length; i = i + 1) {
+            obj[i] = input_str[i]
+        }
+        return obj
+    } else {
+        return input_str
+    }
+};
 if (typeof (exports) === "undefined") {
     exports = {};
 }
@@ -196,9 +159,9 @@ TOKEN_print = function (token) {
 };
 TL_toString = function (tl) {
     var return_string = "";
-    for (i in tl) {
-        if ((tl).hasOwnProperty(i)) {
-            v = (tl)[i];
+    for (i in WALLEY.stringToObject(tl)) {
+        if ((WALLEY.stringToObject(tl)).hasOwnProperty(i)) {
+            v = (WALLEY.stringToObject(tl))[i];
             return_string = return_string + v["TOKEN_STRING"];
         }
     };
@@ -2385,6 +2348,7 @@ Code_Generation_2_Javascript = function (sl, tree) {
                 has_v = false;
             }
             var foreach_in_value = Code_Generation_2_Javascript(sl, nl[3]["node_list"][0]);
+            foreach_in_value = "WALLEY.stringToObject(" + foreach_in_value + ")";
             append_str = append_str + foreach_in_value;
             append_str = append_str + "){\n";
             append_str = append_str + "if((" + foreach_in_value + ").hasOwnProperty(" + foreach_index + ")){\n";
@@ -2575,6 +2539,10 @@ Code_Generation_2_Javascript = function (sl, tree) {
     } else if (term(tree["name"], "table_value")) {
         var nl = tree["node_list"];
         var var_name = Code_Generation_2_Javascript(sl, nl[0]);
+        var var_name_is_table = false;
+        if (nl[0]["token_class"] === "table") {
+            var_name_is_table = true;
+        }
         var append_str = var_name;
         js_isTableValue = true;
         var i = 1;
@@ -2582,15 +2550,16 @@ Code_Generation_2_Javascript = function (sl, tree) {
         for (; i < length_of_nl; i = i + 1) {
             var key_tree = nl[i];
             var key_str = Code_Generation_2_Javascript(sl, key_tree);
-            var is_slice = false
-            if (key_str["indexOf"](".slice(") !== -1) {
+            var is_slice = false;
+            if ((var_name_is_table === true && key_str["indexOf"](".slice(") === 0)) {
                 append_str = "WALLEY.toArray(" + append_str + ")";
-                is_slice = true
+                is_slice = true;
             }
             append_str = append_str + key_str;
-            if (is_slice) {
-                append_str = "WALLEY.toObject(" + append_str + ")"
+            if (is_slice === true) {
+                append_str = "WALLEY.toObject(" + append_str + ")";
             }
+
         };
         js_isTableValue = false;
         return append_str;

@@ -11,7 +11,7 @@ Walley Language
                        \\____|    \\____|  \__/\ ||___ ||__e   ||     
                __________________________________________________||     
                ---------------------------------------------------|     
-                       VERSION 0.1.617  FOR FUTURE AR,VR,AI  
+                       VERSION 0.1.618  FOR FUTURE AR,VR,AI  
        
                     Walley Language is a script language that       
                     compiles Walley Language into JavaScript which  
@@ -168,6 +168,7 @@ Walley Language
             6. keyword as var name problem
             7. << >> operator
             8. and a lot....XD
+            9. no beautifier
 
         ========
           Released under MIT License
@@ -181,7 +182,7 @@ Walley Language
           version 0.1.617: fix [1,2,3,4][0:2] bug, i convert {0:1,0:2} to array and then get slice
                            but actually maybe i should convert it back to obj because table is object
 
-
+          version 0.1.618: fix for each bug
 
 
 

@@ -82,7 +82,7 @@ function len(obj) {
     }
 }
 WALLEY = {};
-WALLEY.convertObjectToArray = function (obj) {
+WALLEY.toArray = function (obj) {
     if (typeof obj == "string") {
         return obj
     } else {
@@ -97,6 +97,30 @@ WALLEY.convertObjectToArray = function (obj) {
             }
         }
         return arr
+    }
+};
+WALLEY.toObject = function (array) {
+    if (typeof array == "string") {
+        return array
+    } else if (Array.isArray(array)) {
+        obj = {};
+        for (var i = 0; i < array.length; i = i + 1) {
+            obj[i] = array[i]
+        }
+        return obj
+    } else {
+        console.log("WALLEY.toObject only supports array and string type")
+    }
+};
+WALLEY.stringToObject = function (input_str) {
+    if (typeof input_str == "string") {
+        obj = {};
+        for (var i = 0; i < input_str.length; i = i + 1) {
+            obj[i] = input_str[i]
+        }
+        return obj
+    } else {
+        return input_str
     }
 };
 if (typeof (exports) === "undefined") {
@@ -135,9 +159,9 @@ TOKEN_print = function (token) {
 };
 TL_toString = function (tl) {
     var return_string = "";
-    for (i in tl) {
-        if ((tl).hasOwnProperty(i)) {
-            v = (tl)[i];
+    for (i in WALLEY.stringToObject(tl)) {
+        if ((WALLEY.stringToObject(tl)).hasOwnProperty(i)) {
+            v = (WALLEY.stringToObject(tl))[i];
             return_string = return_string + v["TOKEN_STRING"];
         }
     };
@@ -2324,6 +2348,7 @@ Code_Generation_2_Javascript = function (sl, tree) {
                 has_v = false;
             }
             var foreach_in_value = Code_Generation_2_Javascript(sl, nl[3]["node_list"][0]);
+            foreach_in_value = "WALLEY.stringToObject(" + foreach_in_value + ")";
             append_str = append_str + foreach_in_value;
             append_str = append_str + "){\n";
             append_str = append_str + "if((" + foreach_in_value + ").hasOwnProperty(" + foreach_index + ")){\n";
@@ -2514,6 +2539,10 @@ Code_Generation_2_Javascript = function (sl, tree) {
     } else if (term(tree["name"], "table_value")) {
         var nl = tree["node_list"];
         var var_name = Code_Generation_2_Javascript(sl, nl[0]);
+        var var_name_is_table = false;
+        if (nl[0]["token_class"] === "table") {
+            var_name_is_table = true;
+        }
         var append_str = var_name;
         js_isTableValue = true;
         var i = 1;
@@ -2521,10 +2550,15 @@ Code_Generation_2_Javascript = function (sl, tree) {
         for (; i < length_of_nl; i = i + 1) {
             var key_tree = nl[i];
             var key_str = Code_Generation_2_Javascript(sl, key_tree);
-            if (key_str["indexOf"](".slice(") !== -1) {
-                append_str = "WALLEY.convertObjectToArray(" + append_str + ")";
+            var is_slice = false;
+            if ((var_name_is_table === true && key_str["indexOf"](".slice(") === 0)) {
+                append_str = "WALLEY.toArray(" + append_str + ")";
+                is_slice = true;
             }
             append_str = append_str + key_str;
+            if (is_slice === true) {
+                append_str = "WALLEY.toObject(" + append_str + ")";
+            }
 
         };
         js_isTableValue = false;
