@@ -2172,6 +2172,16 @@ isString = function (input_str) {
     }
 };
 js_isTableValue = false;
+
+
+appendSpacesAhead = function (input_str, num){
+    for (var i=0;i<num;i++){
+        input_str=" "+input_str
+    }
+    return input_str
+}
+
+
 Code_Generation_2_Javascript = function (sl, tree) {
     if (term(tree["token_class"], "id")) {
         if (term(tree["name"], "continue")) {
@@ -2207,8 +2217,12 @@ Code_Generation_2_Javascript = function (sl, tree) {
     } else if (term(tree["name"], "statements")) {
         nl = tree["node_list"];
         if (term(nl[0]["name"], "if")) {
-            BEAUTIFUL_SPACES = BEAUTIFUL_SPACES + 4;
             var append_str = "if (";
+
+            append_str = appendSpacesAhead(append_str, BEAUTIFUL_SPACES)
+            BEAUTIFUL_SPACES = BEAUTIFUL_SPACES + 4;
+
+
             var judge_str = Code_Generation_2_Javascript(sl, nl[1]);
             append_str = append_str + judge_str;
             append_str = append_str + "){\n";
@@ -2218,6 +2232,7 @@ Code_Generation_2_Javascript = function (sl, tree) {
             for (i = 2; i < length_of_nl; i = i + 1) {
                 var temp_str = Code_Generation_2_Javascript(sl, nl[i]);
                 if (len(temp_str) !== 0) {
+                    temp_str=appendSpacesAhead(temp_str,BEAUTIFUL_SPACES)
                     output_str = output_str + temp_str;
                     if (output_str[len(output_str) - 1] !== "\n") {
                         if (output_str[len(output_str) - 1] !== ";") {
@@ -2232,8 +2247,13 @@ Code_Generation_2_Javascript = function (sl, tree) {
             append_str = append_str + output_str;
             return append_str;
         } else if (term(nl[0]["name"], "elif")) {
-            BEAUTIFUL_SPACES = BEAUTIFUL_SPACES + 4;
+            BEAUTIFUL_SPACES = BEAUTIFUL_SPACES - 4
+
             var append_str = "}\nelse if (";
+            append_str=appendSpacesAhead(append_str,BEAUTIFUL_SPACES)
+            BEAUTIFUL_SPACES = BEAUTIFUL_SPACES +4
+
+
             var judge_str = Code_Generation_2_Javascript(sl, nl[1]);
             append_str = append_str + judge_str;
             append_str = append_str + "){\n";
@@ -2243,6 +2263,8 @@ Code_Generation_2_Javascript = function (sl, tree) {
             for (i = 2; i < length_of_nl; i = i + 1) {
                 var temp_str = Code_Generation_2_Javascript(sl, nl[i]);
                 if (len(temp_str) !== 0) {
+                    temp_str=appendSpacesAhead(temp_str,BEAUTIFUL_SPACES)
+
                     output_str = output_str + temp_str;
                     if (output_str[len(output_str) - 1] !== "\n") {
                         if (output_str[len(output_str) - 1] !== ";") {
@@ -2257,14 +2279,21 @@ Code_Generation_2_Javascript = function (sl, tree) {
             append_str = append_str + output_str;
             return append_str;
         } else if (term(nl[0]["name"], "else")) {
-            BEAUTIFUL_SPACES = BEAUTIFUL_SPACES + 4;
-            var append_str = "}\nelse{\n";
+            BEAUTIFUL_SPACES = BEAUTIFUL_SPACES - 4
+            var append_str = "}\nelse{\n"
+            append_str=appendSpacesAhead(append_str,BEAUTIFUL_SPACES)
+            BEAUTIFUL_SPACES = BEAUTIFUL_SPACES + 4
+
+
             var i = 1;
             var length_of_nl = len(nl);
             var output_str = "";
             for (i = 1; i < length_of_nl; i = i + 1) {
                 var temp_str = Code_Generation_2_Javascript(sl, nl[i]);
                 if (len(temp_str) !== 0) {
+
+                    temp_str=appendSpacesAhead(temp_str,BEAUTIFUL_SPACES)
+
                     output_str = output_str + temp_str;
                     if (output_str[len(output_str) - 1] !== "\n") {
                         if (output_str[len(output_str) - 1] !== ";") {
@@ -2741,3 +2770,14 @@ exports["Code_Generation"] = function (input_str) {
     exports["INCOMPLETE_STATEMENT"] = INCOMPLETE_STATEMENT;
     return output_str;
 };
+
+
+var tl=Walley_Lexical_Analyzie("if x>12 then if x>4 then x=12 end end")
+var tree=parser(tl)
+TREE_print(tree)
+var sl={}
+var output=Code_Generation_2_Javascript(sl,tree)
+console.log("\n")
+console.log(sl)
+console.log(output)
+

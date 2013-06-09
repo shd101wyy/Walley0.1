@@ -169,6 +169,7 @@ Walley Language
             7. << >> operator
             8. and a lot....XD
             9. no beautifier
+            10. for statement i++ error
 
         ========
           Released under MIT License
