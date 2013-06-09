@@ -171,6 +171,9 @@ Walley Language
             9. no beautifier
             10. for statement i++ error
 
+            11 inefficient for statements in walley_cg.wy
+            12 inefficient way of finding the index of ")" and "then"
+
         ========
           Released under MIT License
 
