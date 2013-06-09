@@ -1,5 +1,3 @@
-
-
 #~
 	Copyright reserved Yiyi Wang 
 	Please follow MIT license
@@ -8,9 +6,21 @@
 		code generation
 
 ~#
+
+# add beautifier support 
+BEAUTIFUL_SPACES=0
+
 import "walley_calculation.wy"
 
 #= walley_cg.wy
+
+appendSpacesAhead = def (input_str, num) then
+    for i=0,i<num,i=i+1 then
+        input_str=" "+input_str
+    end
+    return input_str
+end
+
 def isString(input_str) then
     if input_str[0]!="\"" or input_str[input_str.length-1]!="\"" then
         return false
@@ -62,6 +72,9 @@ def Code_Generation_2_Javascript(sl,tree)then
             local temp_str=Code_Generation_2_Javascript(sl,nl[i])
 
             if len(temp_str)!=0 then
+
+                temp_str=appendSpacesAhead(temp_str, BEAUTIFUL_SPACES)
+
                 output_str=output_str+temp_str
                 if output_str[len(output_str)-1]!="\n" then
                     if output_str[len(output_str)-1]!=";" then
@@ -102,7 +115,10 @@ def Code_Generation_2_Javascript(sl,tree)then
              ( statements( end))
              ~#
             
-            local append_str="if ("
+            local append_str = "if ("
+
+            BEAUTIFUL_SPACES = BEAUTIFUL_SPACES + 4
+
             local judge_str=Code_Generation_2_Javascript(sl, nl[1])
             
             append_str=append_str+judge_str
@@ -115,7 +131,7 @@ def Code_Generation_2_Javascript(sl,tree)then
             for i=2,i<length_of_nl,i=i+1 then
                 local temp_str=Code_Generation_2_Javascript(sl,nl[i])
 
-                if len(temp_str)!=0 then
+                if len(temp_str)!=0 then                    
                     output_str=output_str+temp_str
                     if output_str[len(output_str)-1]!="\n" then
                         if output_str[len(output_str)-1]!=";" then
@@ -128,11 +144,19 @@ def Code_Generation_2_Javascript(sl,tree)then
             end
             
             append_str=append_str+output_str
+            BEAUTIFUL_SPACES = BEAUTIFUL_SPACES - 4
             return append_str
 
         elif term(nl[0].name, "elif") then
-            
-            local append_str="}\nelse if ("
+            local append_str = "}\n"
+            append_str = appendSpacesAhead(append_str,BEAUTIFUL_SPACES-4)
+
+
+            append_str = append_str + appendSpacesAhead("else if (",BEAUTIFUL_SPACES)
+
+            BEAUTIFUL_SPACES = BEAUTIFUL_SPACES +4
+
+
             local judge_str=Code_Generation_2_Javascript(sl, nl[1])
         
             append_str=append_str+judge_str
@@ -158,11 +182,18 @@ def Code_Generation_2_Javascript(sl,tree)then
             end
             
             append_str=append_str+output_str
+
+            BEAUTIFUL_SPACES = BEAUTIFUL_SPACES - 4
             return append_str
 
         elif term(nl[0].name, "else") then
-            
-            local append_str="}\nelse{\n"
+
+            local append_str = "}\n"
+            append_str=appendSpacesAhead(append_str,BEAUTIFUL_SPACES-4)
+            append_str = append_str+appendSpacesAhead("else{\n",BEAUTIFUL_SPACES)
+
+            BEAUTIFUL_SPACES = BEAUTIFUL_SPACES + 4
+
             
             local i=1
             local length_of_nl=len(nl)
@@ -183,6 +214,8 @@ def Code_Generation_2_Javascript(sl,tree)then
             end
             
             append_str=append_str+output_str
+
+            BEAUTIFUL_SPACES = BEAUTIFUL_SPACES - 4
             return append_str
 
         elif term(nl[0].name, "while") then
@@ -197,6 +230,10 @@ def Code_Generation_2_Javascript(sl,tree)then
             )
              ~#
             local append_str="while ("
+
+            BEAUTIFUL_SPACES = BEAUTIFUL_SPACES+4
+
+
             local judge_str=Code_Generation_2_Javascript(sl, nl[1])
             
             
@@ -207,7 +244,9 @@ def Code_Generation_2_Javascript(sl,tree)then
             local i=2
             local length_of_nl=len(nl)
             local output_str=""
-            for i<length_of_nl,i=i+1 then
+
+            # without end
+            for i<length_of_nl-1,i=i+1 then
                 local temp_str=Code_Generation_2_Javascript(sl,nl[i])
 
                 if len(temp_str)!=0 then
@@ -223,9 +262,15 @@ def Code_Generation_2_Javascript(sl,tree)then
             end
             
             append_str=append_str+output_str
+
+            BEAUTIFUL_SPACES = BEAUTIFUL_SPACES - 4
+            append_str=append_str+appendSpacesAhead("}\n",BEAUTIFUL_SPACES)
+
             return append_str
 
         elif term(nl[0].name,"for") then
+
+
             #~
              # for i=0,i<10,i=i+1 then i=2 end
             ( walley_statements
@@ -244,14 +289,17 @@ def Code_Generation_2_Javascript(sl,tree)then
              )
              ~#
             local append_str="for ("
+
+            BEAUTIFUL_SPACES=BEAUTIFUL_SPACES+4
+
             
             local nl_index=1
             if term(nl[1].name, "assignment") then
                 append_str=append_str+Code_Generation_2_Javascript(sl, nl[1].node_list[0])
-                append_str=append_str+";"
+                append_str=append_str+" ; "
                 nl_index=2
             else
-                append_str=append_str+";"
+                append_str=append_str+" ; "
                 nl_index=1
             end
             
@@ -259,7 +307,7 @@ def Code_Generation_2_Javascript(sl,tree)then
             local judge_str=Code_Generation_2_Javascript(sl, nl[nl_index])
             
             append_str=append_str+judge_str
-            append_str=append_str+";"
+            append_str=append_str+" ; "
 
             nl_index=nl_index+1
             
@@ -290,10 +338,14 @@ def Code_Generation_2_Javascript(sl,tree)then
 
             append_str=append_str+output_str
 
-            append_str=append_str+"\n}"
+            BEAUTIFUL_SPACES = BEAUTIFUL_SPACES - 4 
+
+            append_str=append_str+appendSpacesAhead("}\n",BEAUTIFUL_SPACES)
+
             return append_str
            
         elif term(nl[0].name, "foreach") then
+
             #~
             for(var i in x){
                 // add this 
@@ -318,6 +370,9 @@ def Code_Generation_2_Javascript(sl,tree)then
              )
          
             ~#
+
+            BEAUTIFUL_SPACES=BEAUTIFUL_SPACES+4
+
             local append_str="for("
             # for i,v in x
             # get i
@@ -338,17 +393,21 @@ def Code_Generation_2_Javascript(sl,tree)then
             append_str=append_str+"){\n"
 
             # solve enumerable problem
-            append_str=append_str+"if(("+foreach_in_value+").hasOwnProperty("+foreach_index+")){\n"
+            append_str=append_str+appendSpacesAhead("if(("+foreach_in_value+").hasOwnProperty("+foreach_index+")){\n",BEAUTIFUL_SPACES)
+
+            BEAUTIFUL_SPACES = BEAUTIFUL_SPACES + 4
             
             
             if has_v==true then
                 
                 local value_var_name=nl[2].name
-                append_str=append_str+value_var_name+"="
+
+
+                append_str=append_str+appendSpacesAhead(value_var_name,BEAUTIFUL_SPACES)+"="
                 
                 local in_value="("+foreach_in_value+")"
                 local in_value_and_key=in_value+"["+foreach_index+"]"
-                
+
                 append_str=append_str + in_value_and_key
                 append_str=append_str + ";\n"
             end
@@ -357,7 +416,8 @@ def Code_Generation_2_Javascript(sl,tree)then
             local length_of_nl=len(nl)
             local output_str=""
 
-            for i<length_of_nl,i=i+1 then
+            # remove "end" statements influence, so i<length_of_nl-1
+            for i<length_of_nl-1,i=i+1 then
                 local temp_str=Code_Generation_2_Javascript(sl,nl[i])
 
                 if len(temp_str)!=0 then
@@ -371,9 +431,18 @@ def Code_Generation_2_Javascript(sl,tree)then
                     end
                 end
             end
-            
+
+            BEAUTIFUL_SPACES = BEAUTIFUL_SPACES-4
             append_str=append_str+output_str
-            append_str=append_str+"};\n"
+
+            append_str=append_str + appendSpacesAhead("}\n",BEAUTIFUL_SPACES)
+
+
+            BEAUTIFUL_SPACES = BEAUTIFUL_SPACES-4
+
+            append_str=append_str+appendSpacesAhead("};\n",BEAUTIFUL_SPACES)
+
+
             return append_str
 
         # import file_name
@@ -508,7 +577,7 @@ def Code_Generation_2_Javascript(sl,tree)then
             append_string="var " + append_string
         end
         
-        append_string=append_string + "="
+        append_string=append_string + " = "
                 
         
         local var_value=Code_Generation_2_Javascript(sl, var_value_tree)
@@ -531,19 +600,24 @@ def Code_Generation_2_Javascript(sl,tree)then
          ( func_value
             ( def)
             ( params(id none))
-            ( statements( =(id a)(num 12)))
+            ( walley_statements
+                ( statements( =(id a)(num 12)))
+            )
+            
             ( end)
          )
          
          
          ~#
+
+        BEAUTIFUL_SPACES = BEAUTIFUL_SPACES + 4
         
         local nl=tree.node_list
         local i=2
         local output_str=""
         local length_of_nl=len(nl)
 
-
+        # remove "end" statement influence
         for i<length_of_nl-1,i=i+1 then
             local temp_str=Code_Generation_2_Javascript(sl,nl[i])
             if len(temp_str)!=0 then
@@ -559,8 +633,8 @@ def Code_Generation_2_Javascript(sl,tree)then
         end
 
         append_string=append_string+output_str
-        
-        append_string=append_string+" }"
+        BEAUTIFUL_SPACES = BEAUTIFUL_SPACES - 4
+        append_string=append_string+appendSpacesAhead("};\n",BEAUTIFUL_SPACES)
         return append_string
     
     #~

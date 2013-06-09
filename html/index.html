@@ -84,11 +84,15 @@
 				console.log(content_in_div1);
 				
 				var compiled_string=exports["Code_Generation"](content_in_div1);
-				document.getElementById("div_area2").innerHTML=compiled_string;
+				
+				var output_str = compiled_string.replace(/\n/g, "<br>");
+				
+				document.getElementById("div_area2").innerHTML=output_str;
 			}
 			
 			var clickRun=function(){
 				var run_javascript=document.getElementById("div_area2").innerHTML;
+				run_javascript = run_javascript.replace(/<br>/g, "\n")
 				eval(run_javascript);
 			}
 			

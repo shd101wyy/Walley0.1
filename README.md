@@ -11,7 +11,7 @@ Walley Language
                        \\____|    \\____|  \__/\ ||___ ||__e   ||     
                __________________________________________________||     
                ---------------------------------------------------|     
-                       VERSION 0.1.618  FOR FUTURE AR,VR,AI  
+                       VERSION 0.1.619  FOR FUTURE AR,VR,AI  
        
                     Walley Language is a script language that       
                     compiles Walley Language into JavaScript which  
@@ -28,6 +28,8 @@ Walley Language
         type "npm install -g walley-language" in terminal or cmd
 
         to run walley-language, simply type "walley_worker" in terminal
+
+        to try walley-language on browser, go to [where walley-language locate]/html folder and then run index.html
 
         ========
         Command:
@@ -161,7 +163,7 @@ Walley Language
         Problem: (@ means support now)
           Unsupported features or unsolved problems:
             @1. += -= *= /=     ...
-            @2. ++ -- **        ...
+            @2. ++ --         ...
             3. x = new Hi()     # new is not supported
             4. ... (argv) in params
             5. switch statements
@@ -173,6 +175,7 @@ Walley Language
 
             11 inefficient for statements in walley_cg.wy
             12 inefficient way of finding the index of ")" and "then"
+            13 += and ++ stm in for statement bug
 
         ========
           Released under MIT License
@@ -187,7 +190,8 @@ Walley Language
                            but actually maybe i should convert it back to obj because table is object
 
           version 0.1.618: fix for each bug, fix slice bug
-
+          version 0.1.619: add beautifier. now the generated code is more beautiful!! XD
+                           fix bug in /html/index.html.. you could try walley language directly by running index.html in html folder
 
 
 

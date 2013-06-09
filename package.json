@@ -1,6 +1,6 @@
 {
   "name": "walley-language",
-  "version": "0.1.618",
+  "version": "0.1.619",
   "description": "walley language is a simple script language",
   "main": "walley.js",
   "repository": {
