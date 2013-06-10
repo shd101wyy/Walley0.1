@@ -33,7 +33,15 @@ exports.Code_Generation=def(input_str) then
     return output_str
 end
 
-
+#~
+tl=Walley_Lexical_Analyzie("for i<10,i+=1 then i=12 end")
+tree=parser(tl)
+TREE_print(tree)
+sl=[]
+output_str=Code_Generation_2_Javascript(sl,tree)
+console.log(sl)
+console.log(output_str)
+~#
 
 
 
