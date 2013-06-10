@@ -6,7 +6,7 @@
 			#div1{
 				position: absolute;
 				color: white;
-				top:20%;
+				top:5%;
 				left: 1%;
 				height: 60%;
 				width: 49%;
@@ -18,7 +18,7 @@
 			#div2{
 				position: absolute;
 				color: white;
-				top: 20%;
+				top: 5%;
 				left: 51%;
 				height: 60%;
 				width: 50%;
@@ -45,15 +45,26 @@
 			#compile{
 				position: absolute;
 				left: 45%;
-				top:50%;
+				top:35%;
 				width: 10%;
 			}
 			
 			#run{
 				position: absolute;
 				left: 45%;
-				top:55%;
+				top:40%;
 				width: 10%;
+			}
+			
+			#console{
+				position: absolute;
+				width: 40%;
+				height: 30%;
+				left: 30%;
+				top:60%;
+				background-color: #e0dcdc;
+				border-width: thick;
+				overflow-y: scroll;
 			}
 
 		
@@ -72,10 +83,17 @@
 			</div>
 		</div>
 		
+		<div id="console">
+				console:<br>
+		</div>
+		
 		<button id="compile" onclick="clickCompile()"> compile </button>
 		<button id="run" onclick="clickRun()"> run </button>
 		<script>
 			
+			console.log = function(message) {
+				document.getElementById("console").innerHTML+=message+"<br>"
+			};
 			console.error = console.debug = console.info =  console.log
 			
 			var clickCompile=function(){
@@ -103,13 +121,18 @@
 				
 				
 				
-				document.getElementById("div_area2").innerHTML="<p>"+compiled_string+"</p>";
+				document.getElementById("div_area2").innerHTML=compiled_string;
 			}
 			
 			var clickRun=function(){
 				var run_javascript=document.getElementById("div_area2").innerHTML;
 				run_javascript = run_javascript.replace(/<br>/g, "\n")
+				run_javascript = run_javascript.replace(/&nbsp;/g," ");
+
 				eval(run_javascript);
+				
+				var consoleObj=document.getElementById("console")
+				consoleObj.scrollTop = consoleObj.scrollHeight;
 			}
 			
 			
