@@ -11,7 +11,7 @@ Walley Language
                        \\____|    \\____|  \__/\ ||___ ||__e   ||     
                __________________________________________________||     
                ---------------------------------------------------|     
-                       VERSION 0.1.622  FOR FUTURE AR,VR,AI  
+                       VERSION 0.1.623  FOR FUTURE AR,VR,AI  
        
                     Walley Language is a script language that       
                     compiles Walley Language into JavaScript which  
@@ -203,6 +203,8 @@ Walley Language
 
           version 0.1.622: I am sorry that I just realized /html/index.html still had bug.(Though I could run it on my firefox successfully, it didn't work on my iPad Safari and Chrome). I found there are some differences when getting contents from <div> between Firefox and Chrome.... Now some bugs have been fixed.. Tested on Desktop Chrome, Firefox, Safari. However, it does not work on iOS Safari.. I will find bug and solve this problem in the future.. Watch WWDC :) now
 
+          version 0.1.623: XD Walley-Language can run on iPad Safari successfully now.. Enjoy!
+                           you could go to www.planetwalley.com/walley to try walley-language online XD
 
 
 
