@@ -96,16 +96,34 @@
 			};
 			console.error = console.debug = console.info =  console.log
 			
+			/*
+			
+			str = str.replace(/abc/g, '');
+			In response to comment:
+			
+			var find = 'abc';
+			var re = new RegExp(find, 'g');
+			
+			str = str.replace(re, '');
+			*/
+			function replaceAll(str,find, replace) {
+				return str.replace(new RegExp(find, 'g'), replace);
+  			}
+
 			var clickCompile=function(){
 				//alert("Clicked Button");
 				var content_in_div1=document.getElementById("div_area1").innerHTML;
-				
 				//console.log(content_in_div1)
 				
+				content_in_div1=content_in_div1.replace(/<div>/g, "");
+				content_in_div1=replaceAll(content_in_div1,"</div>","");
 				content_in_div1=content_in_div1.replace(/<br>/g, "\n");
 				content_in_div1=content_in_div1.replace(/&nbsp;/g," ");
 				content_in_div1=content_in_div1.replace(/&gt;/g," > ");
 				content_in_div1=content_in_div1.replace(/&lt;/g," < ");
+				
+				//alert(content_in_div1)
+
 				//console.log(content_in_div1);
 				
 				var compiled_string=exports["Code_Generation"](content_in_div1);
@@ -114,7 +132,7 @@
 				compiled_string = compiled_string.replace("<","&lt;")
 				compiled_string = compiled_string.replace(/\n/g,"<br>")
 				compiled_string = compiled_string.replace(/ /g,"&nbsp;")
-
+				
 
 
 				//console.log("|"+compiled_string+"|")
