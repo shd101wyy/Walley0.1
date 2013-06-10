@@ -67,8 +67,8 @@
 		</div>
 		
 		<div id="div2">
-			<div id="div_area2"  contenteditable="true">
-				alert("Hello World");
+			<div id="div_area2" >
+				alert("Hello World");<br>
 			</div>
 		</div>
 		
@@ -76,18 +76,34 @@
 		<button id="run" onclick="clickRun()"> run </button>
 		<script>
 			
+			console.error = console.debug = console.info =  console.log
+			
 			var clickCompile=function(){
 				//alert("Clicked Button");
 				var content_in_div1=document.getElementById("div_area1").innerHTML;
+				
+				//console.log(content_in_div1)
+				
 				content_in_div1=content_in_div1.replace(/<br>/g, "\n");
 				content_in_div1=content_in_div1.replace(/&nbsp;/g," ");
-				console.log(content_in_div1);
+				content_in_div1=content_in_div1.replace(/&gt;/g," > ");
+				content_in_div1=content_in_div1.replace(/&lt;/g," < ");
+				//console.log(content_in_div1);
 				
 				var compiled_string=exports["Code_Generation"](content_in_div1);
+								
+
+				compiled_string = compiled_string.replace("<","&lt;")
+				compiled_string = compiled_string.replace(/\n/g,"<br>")
+				compiled_string = compiled_string.replace(/ /g,"&nbsp;")
+
+
+
+				//console.log("|"+compiled_string+"|")
 				
-				var output_str = compiled_string.replace(/\n/g, "<br>");
 				
-				document.getElementById("div_area2").innerHTML=output_str;
+				
+				document.getElementById("div_area2").innerHTML="<p>"+compiled_string+"</p>";
 			}
 			
 			var clickRun=function(){

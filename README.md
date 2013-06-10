@@ -11,7 +11,7 @@ Walley Language
                        \\____|    \\____|  \__/\ ||___ ||__e   ||     
                __________________________________________________||     
                ---------------------------------------------------|     
-                       VERSION 0.1.620  FOR FUTURE AR,VR,AI  
+                       VERSION 0.1.621  FOR FUTURE AR,VR,AI  
        
                     Walley Language is a script language that       
                     compiles Walley Language into JavaScript which  
@@ -198,7 +198,7 @@ Walley Language
                             for i,v in range(10) then
                               console.log(v)    # 0,1,2,3,4,5,6,7,8,9
                             end
-
+          version 0.1.621: fix html/index.html bug. Now it can show compiled codes correctly
 
 
 
