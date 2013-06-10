@@ -171,11 +171,12 @@ Walley Language
             7. << >> operator
             8. and a lot....XD
             9. no beautifier
-            10. for statement i++ error
+            @10. for statement i++ error
 
             11 inefficient for statements in walley_cg.wy
             12 inefficient way of finding the index of ")" and "then"
-            13 += and ++ stm in for statement bug
+            @13 += and ++ stm in for statement bug
+            14 undefined obj in walley.wy error
 
         ========
           Released under MIT License

@@ -1,4 +1,4 @@
-none=null;function isalpha(input_char){return/^[a-z]+$/i.test(input_char)}function isdigit(e){return!isNaN(parseFloat(e))&&isFinite(e)}String.prototype.find=function(find_str,start){if(typeof start=="undefined"){start=0}return this.indexOf(find_str,start)};String.prototype.tolower=function(){return this.toLowerCase()};String.prototype.toupper=function(){return this.toUpperCase()};String.prototype.reverse=function(){return this.split("").reverse().join("")};Math["cot"]=function(num){return 1/Math.tan(num)};Math["sec"]=function(num){return 1/Math.cos(num)};Math["csc"]=function(num){return 1/Math.sin(num)};Object.prototype.slice=function(start,end){var return_obj={};var a=0;for(var i=start;i<end;i++){return_obj[a]=this[i];a++}return return_obj};Object.prototype.append=function(e){var t=this.maxn()+1;this[t]=e};Object.prototype.maxn=function(){var t=0;if(this[0]==undefined){return-1}while(this[t]!=undefined){t=t+1}return t-1};Object.prototype.insert=function(insert_obj,pos){if(pos==undefined){pos=table.maxn(this)+1;this[pos]=insert_obj}else{this[pos]=insert_obj}};Object.prototype.remove=function(pos){if(pos==undefined){pos=table.maxn(obj)}delete this[pos]};Object.prototype.length=function(){return Object.keys(this).length};function len(obj){if(typeof obj=="string"){return obj.length}else if(typeof obj=="object"){return Object.keys(obj).length}else{console.log("Error..\nfunctin len() only support table or string\n")}}WALLEY={};WALLEY.toArray=function(obj){if(typeof obj=="string"){return obj}else{var arr=[];for(var i in obj){if(obj.hasOwnProperty(i)){if(isdigit(i)){arr[i]=obj[i]}else{arr.push(obj[i])}}}return arr}};WALLEY.toObject=function(array){if(typeof array=="string"){return array}else if(Array.isArray(array)){obj={};for(var i=0;i<array.length;i=i+1){obj[i]=array[i]}return obj}else{console.log("WALLEY.toObject only supports array and string type")}};WALLEY.stringToObject=function(input_str){if(typeof input_str=="string"){obj={};for(var i=0;i<input_str.length;i=i+1){obj[i]=input_str[i]}return obj}else{return input_str}};function range(start,end,step){if(end==undefined&&step==undefined){end=start;start=0;step=1}else if(step==undefined){step=1}var return_obj={};var count=0;for(var i=start;i<end;i=i+step){return_obj[count]=i;count++}return return_obj}
+none=null;function isalpha(input_char){return/^[a-z]+$/i.test(input_char)}function isdigit(e){return!isNaN(parseFloat(e))&&isFinite(e)}String.prototype.find=function(find_str,start){if(typeof start=="undefined"){start=0}return this.indexOf(find_str,start)};String.prototype.tolower=function(){return this.toLowerCase()};String.prototype.toupper=function(){return this.toUpperCase()};String.prototype.reverse=function(){return this.split("").reverse().join("")};Math["cot"]=function(num){return 1/Math.tan(num)};Math["sec"]=function(num){return 1/Math.cos(num)};Math["csc"]=function(num){return 1/Math.sin(num)};Object.prototype.slice=function(start,end){var return_obj={};var a=0;for(var i=start;i<end;i++){return_obj[a]=this[i];a++}return return_obj};Object.prototype.append=function(e){var t=this.maxn()+1;this[t]=e};Object.prototype.maxn=function(){var t=0;if(typeof this[0]=="undefined"){return-1}while(typeof this[t]!="undefined"){t=t+1}return t-1};Object.prototype.insert=function(insert_obj,pos){if(typeof pos=="undefined"){pos=table.maxn(this)+1;this[pos]=insert_obj}else{this[pos]=insert_obj}};Object.prototype.remove=function(pos){if(typeof pos=="undefined"){pos=table.maxn(obj)}delete this[pos]};Object.prototype.length=function(){return Object.keys(this).length};function len(obj){if(typeof obj=="string"){return obj.length}else if(typeof obj=="object"){return Object.keys(obj).length}else{console.log("Error..\nfunctin len() only support table or string\n")}}WALLEY={};WALLEY.toArray=function(obj){if(typeof obj=="string"){return obj}else{var arr=[];for(var i in obj){if(obj.hasOwnProperty(i)){if(isdigit(i)){arr[i]=obj[i]}else{arr.push(obj[i])}}}return arr}};WALLEY.toObject=function(array){if(typeof array=="string"){return array}else if(Array.isArray(array)){obj={};for(var i=0;i<array.length;i=i+1){obj[i]=array[i]}return obj}else{console.log("WALLEY.toObject only supports array and string type")}};WALLEY.stringToObject=function(input_str){if(typeof input_str=="string"){obj={};for(var i=0;i<input_str.length;i=i+1){obj[i]=input_str[i]}return obj}else{return input_str}};function range(start,end,step){if(typeof end=="undefined"&&typeof step=="undefined"){end=start;start=0;step=1}else if(typeof step=="undefined"){step=1}var return_obj={};var count=0;for(var i=start;i<end;i=i+step){return_obj[count]=i;count++}return return_obj}
 BEAUTIFUL_SPACES = 0;
 if (typeof(exports)==="undefined"){
     exports = {};
@@ -610,7 +610,7 @@ table_expr = function(tree,tl,key_index){
         TREE_addNode(tree,"value","");
         return value(TREE_getTreeAccordingToIndex(tree,index2),tl.slice(2,length_of_tl));
     }
-    else if (((term(tl[0]["TOKEN_CLASS"],"list_table") && tl[1]!==undefined) && term(tl[1]["TOKEN_STRING"],"="))){
+    else if (((term(tl[0]["TOKEN_CLASS"],"list_table") && typeof(tl[1])!=="undefined") && term(tl[1]["TOKEN_STRING"],"="))){
         var length = len(tl[0]["TOKEN_STRING"]);
         var string_inside = tl[0]["TOKEN_STRING"].slice(1,length-1);
         var index1 = TREE_INDEX;
@@ -706,7 +706,7 @@ table_value = function(tree,tl){
         if (index===length_of_tl-1){
             return false;
         }
-        if ((tl[i+1]!==undefined && term(tl[i+1]["TOKEN_CLASS"],"relation"))){
+        if ((typeof(tl[i+1])!=="undefined" && term(tl[i+1]["TOKEN_CLASS"],"relation"))){
             return false;
         }
         var tree_index = TREE_INDEX;
@@ -1088,7 +1088,7 @@ assignment = function(tree,tl){
                 TREE_addNode(TREE_getTreeAccordingToIndex(tree,index),"local","");
             }
             TREE_addTree(TREE_getTreeAccordingToIndex(tree,index),var_name_nl[i]);
-            if (var_value_nl[i]===undefined){
+            if (typeof(var_value_nl[i])==="undefined"){
                 var temp_tree = TREE_init();
                 temp_tree["name"] = "none";
                 temp_tree["token_class"] = "id";

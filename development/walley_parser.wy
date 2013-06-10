@@ -148,7 +148,7 @@ def table_expr(tree,tl,key_index) then
         return value(TREE_getTreeAccordingToIndex(tree, index2), tl[2:length_of_tl])
     #              0           1       2
     #    |'[' (string|int) ']' '=' (value)
-    elif term(tl[0].TOKEN_CLASS, "list_table") and tl[1]!=undefined and term(tl[1].TOKEN_STRING, "=") then
+    elif term(tl[0].TOKEN_CLASS, "list_table") and typeof(tl[1])!="undefined" and term(tl[1].TOKEN_STRING, "=") then
         # THIS PLACE HAS SOME PROBLEM
         #printf("'[' (string|int) ']' '=' (value)  HAS NOT BEEN IMPLEMENTED\n")
         
@@ -300,7 +300,7 @@ def table_value(tree, tl) then
         end
 
         # fix 'a() and b()' bug
-        if tl[i+1]!=undefined and term(tl[i+1].TOKEN_CLASS, "relation") then
+        if typeof(tl[i+1])!="undefined" and term(tl[i+1].TOKEN_CLASS, "relation") then
             return false
         end
         
@@ -824,7 +824,7 @@ def assignment(tree,tl) then
 
             TREE_addTree(TREE_getTreeAccordingToIndex(tree, index), var_name_nl[i])
 
-            if var_value_nl[i]==undefined then
+            if typeof(var_value_nl[i])=="undefined" then
                 local temp_tree=TREE_init()
                 temp_tree.name="none"
                 temp_tree.token_class="id"
