@@ -177,6 +177,7 @@ Walley Language
             12 inefficient way of finding the index of ")" and "then"
             @13 += and ++ stm in for statement bug
             14 undefined obj in walley.wy error
+            15 x>4 ? x=12 : x=5
 
         ========
           Released under MIT License

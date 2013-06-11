@@ -175,13 +175,13 @@ Walley_Analyze_Token_Class = function(input_str,i){
         return_obj[1] = "m_operator";
         return return_obj;
     }
-    if ((((((match(input_str,i,"+") || match(input_str,i,"-")) || match(input_str,i,"*")) || match(input_str,i,"/")) || match(input_str,i,"^")) || match(input_str,i,"%"))){
+    if ((((((input_str[i]==="+" || input_str[i]==="-") || input_str[i]==="*") || input_str[i]==="/") || input_str[i]==="^") || input_str[i]==="%")){
         end_index = i+1;
         return_obj[0] = end_index;
         return_obj[1] = "m_operator";
         return return_obj;
     }
-    if ((match(input_str,i,",") || match(input_str,i,":"))){
+    if ((input_str[i]==="," || input_str[i]===":")){
         end_index = i+1;
         return_obj[0] = end_index;
         return_obj[1] = "punctuation";
@@ -199,24 +199,6 @@ Walley_Analyze_Token_Class = function(input_str,i){
         return_obj[1] = "judge_sign";
         return return_obj;
     }
-    if ((match(input_str,i,"import") && ((length<=i+6 || input_str[i+6]===" ") || input_str[i+6]==="\n"))){
-        end_index = i+6;
-        return_obj[0] = end_index;
-        return_obj[1] = "import";
-        return return_obj;
-    }
-    if (((match(input_str,i,"and") || match(input_str,i,"not")) && ((length<=i+3 || input_str[i+3]===" ") || input_str[i+3]==="\n"))){
-        end_index = i+3;
-        return_obj[0] = end_index;
-        return_obj[1] = "relation";
-        return return_obj;
-    }
-    if ((match(input_str,i,"or") && ((length<=i+2 || input_str[i+2]===" ") || input_str[i+2]==="\n"))){
-        end_index = i+2;
-        return_obj[0] = end_index;
-        return_obj[1] = "relation";
-        return return_obj;
-    }
     if (((i<=length-2 && input_str[i]==="#") && input_str[i+1]==="~")){
         end_index = i+2;
         return_obj[0] = end_index;
@@ -227,60 +209,6 @@ Walley_Analyze_Token_Class = function(input_str,i){
         end_index = i+2;
         return_obj[0] = end_index;
         return_obj[1] = "r_annotation";
-    }
-    if (((i<=length-2 && match(input_str,i,"if")) && ((length<=i+2 || input_str[i+2]===" ") || input_str[i+2]==="\n"))){
-        end_index = i+2;
-        return_obj[0] = end_index;
-        return_obj[1] = "keyword";
-        return return_obj;
-    }
-    if (((match(input_str,i,"for") || match(input_str,i,"def")) && ((length<=i+3 || input_str[i+3]===" ") || input_str[i+3]==="\n"))){
-        end_index = i+3;
-        return_obj[0] = end_index;
-        return_obj[1] = "keyword";
-        return return_obj;
-    }
-    if ((((match(input_str,i,"elif") || match(input_str,i,"else")) || match(input_str,i,"case")) && ((length<=i+4 || input_str[i+4]===" ") || input_str[i+4]==="\n"))){
-        end_index = i+4;
-        return_obj[0] = end_index;
-        return_obj[1] = "keyword";
-        return return_obj;
-    }
-    if (((match(input_str,i,"while") || match(input_str,i,"class")) && ((length<=i+5 || input_str[i+5]===" ") || input_str[i+5]==="\n"))){
-        end_index = i+5;
-        return_obj[0] = end_index;
-        return_obj[1] = "keyword";
-        return return_obj;
-    }
-    if ((match(input_str,i,"then") && ((length<=i+4 || input_str[i+4]===" ") || input_str[i+4]==="\n"))){
-        end_index = i+4;
-        return_obj[0] = end_index;
-        return_obj[1] = "then";
-        return return_obj;
-    }
-    if ((match(input_str,i,"end") && (i+3===length || ((isalpha(input_str[i+3])===false && input_str[i+3]!=="_") && input_str[i+3]!=="$")))){
-        end_index = i+3;
-        return_obj[0] = end_index;
-        return_obj[1] = "end";
-        return return_obj;
-    }
-    if (((match(input_str,i,"return") && i+6<length) && input_str[i+6]===" ")){
-        end_index = i+6;
-        return_obj[0] = end_index;
-        return_obj[1] = "return";
-        return return_obj;
-    }
-    if ((match(input_str,i,"local") && ((length<=i+5 || input_str[i+5]===" ") || input_str[i+5]==="\n"))){
-        end_index = i+5;
-        return_obj[0] = end_index;
-        return_obj[1] = "local";
-        return return_obj;
-    }
-    if (match(input_str,i,"switch")){
-        end_index = i+6;
-        return_obj[0] = end_index;
-        return_obj[1] = "keyword";
-        return return_obj;
     }
     if (input_str[i]==="="){
         end_index = i+1;
@@ -358,10 +286,85 @@ Walley_Analyze_Token_Class = function(input_str,i){
                 break;
             }
         }
-        end_index = a;
-        return_obj[0] = end_index;
-        return_obj[1] = "id";
-        return return_obj;
+        var id_string = input_str.slice(i,a);
+        if (id_string==="import"){
+            end_index = i+6;
+            return_obj[0] = end_index;
+            return_obj[1] = "import";
+            return return_obj;
+            }
+        else if ((id_string==="and" || id_string==="not")){
+            end_index = i+3;
+            return_obj[0] = end_index;
+            return_obj[1] = "relation";
+            return return_obj;
+            }
+        else if (id_string==="or"){
+            end_index = i+2;
+            return_obj[0] = end_index;
+            return_obj[1] = "relation";
+            return return_obj;
+            }
+        else if (id_string==="if"){
+            end_index = i+2;
+            return_obj[0] = end_index;
+            return_obj[1] = "keyword";
+            return return_obj;
+            }
+        else if ((id_string==="def" || id_string==="for")){
+            end_index = i+3;
+            return_obj[0] = end_index;
+            return_obj[1] = "keyword";
+            return return_obj;
+            }
+        else if (((id_string==="elif" || id_string==="else") || id_string==="case")){
+            end_index = i+4;
+            return_obj[0] = end_index;
+            return_obj[1] = "keyword";
+            return return_obj;
+            }
+        else if (id_string==="while"){
+            end_index = i+5;
+            return_obj[0] = end_index;
+            return_obj[1] = "keyword";
+            return return_obj;
+            }
+        else if (id_string==="then"){
+            end_index = i+4;
+            return_obj[0] = end_index;
+            return_obj[1] = "then";
+            return return_obj;
+            }
+        else if (id_string==="end"){
+            end_index = i+3;
+            return_obj[0] = end_index;
+            return_obj[1] = "end";
+            return return_obj;
+            }
+        else if (id_string==="return"){
+            end_index = i+6;
+            return_obj[0] = end_index;
+            return_obj[1] = "return";
+            return return_obj;
+            }
+        else if (id_string==="local"){
+            end_index = i+5;
+            return_obj[0] = end_index;
+            return_obj[1] = "local";
+            return return_obj;
+            }
+        else if (id_string==="switch"){
+            end_index = i+6;
+            return_obj[0] = end_index;
+            return_obj[1] = "keyword";
+            return return_obj;
+            }
+        else{
+            end_index = a;
+            return_obj[0] = end_index;
+            return_obj[1] = "id";
+            return return_obj;
+        }
     }
     if (input_str[i]==="."){
         var a = i+1;

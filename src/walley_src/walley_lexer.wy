@@ -133,12 +133,12 @@ def Walley_Analyze_Token_Class(input_str, i) then
         return_obj[1]="m_operator"
         return return_obj
     end
-    if match(input_str, i, "+") 
-         or match(input_str, i, "-")
-         or match(input_str, i, "*")
-         or match(input_str, i, "/")
-         or match(input_str, i, "^")
-         or match(input_str, i, "%")
+    if input_str[i]=="+" 
+         or input_str[i]=="-"
+         or input_str[i]=="*"
+         or input_str[i]=="/"
+         or input_str[i]=="^"
+         or input_str[i]=="%"
         then
         end_index=i+1
         return_obj[0]=end_index
@@ -147,9 +147,9 @@ def Walley_Analyze_Token_Class(input_str, i) then
     end
        
     #  2  punctuation
-    if match(input_str,i,",")
+    if input_str[i]==","
         ## or match(input_str,i,";")  # remove support for ;
-         or match(input_str,i,":")
+         or input_str[i]==":"
         then
         end_index=i+1
         return_obj[0]=end_index
@@ -178,50 +178,9 @@ def Walley_Analyze_Token_Class(input_str, i) then
         return_obj[1]="judge_sign"
         return return_obj
     end
-
-    # add import support
-    # import "hello.wy"
-    # import all content in hello.wy
-    if match(input_str,i,"import") and (length<=i+6 or input_str[i+6]==" " or input_str[i+6]=="\n") then
-        end_index=i+6
-        return_obj[0]=end_index
-        return_obj[1]="import"
-        return return_obj
-    end
     
-    #~
-    if match(input_str, i, "true") then
-        end_index=i+4
-        return_obj[0]=end_index
-        return_obj[1]="true_of_false"
-        return return_obj
-    end
 
-    if match(input_str, i, "false") then
-        end_index=i+5
-        return_obj[0]=end_index
-        return_obj[1]="true_of_false"
-        return return_obj
-    end
-    ~#
-    
-    # 4 relation
-    # 1) and | not
-    if (match(input_str, i, "and")
-         or match(input_str, i, "not")) and
-         (i+3>=length or input_str[i+3]==" " or input_str[i+3]=="\n")
-        then
-        end_index=i+3
-        return_obj[0]=end_index
-        return_obj[1]="relation"
-        return return_obj
-    end
-    if match(input_str, i, "or") and (i+2>=length or input_str[i+2]==" " or input_str[i+2]=="\n") then
-        end_index=i+2
-        return_obj[0]=end_index
-        return_obj[1]="relation"
-        return return_obj
-    end
+
     
     
     # 5 left_annotation
@@ -239,95 +198,12 @@ def Walley_Analyze_Token_Class(input_str, i) then
         return_obj[1]="r_annotation"
     end
     
-    # 7 keyword
-    # 1) if
-    if i<=length-2 and match(input_str,i,"if") and (i+2>=length or input_str[i+2]==" " or input_str[i+2]=="\n") then
-         
-        end_index=i+2
-        return_obj[0]=end_index
-        return_obj[1]="keyword"
-        return return_obj
-    end
-    # 2)for def
-    if (match(input_str, i, "for")
-         or match(input_str, i,"def")) and
-        (i+3>=length or input_str[i+3]==" " or input_str[i+3]=="\n")
-          then
-        #COUNT_THEN_END        
-        end_index=i+3
-        return_obj[0]=end_index
-        return_obj[1]="keyword"
-        return return_obj
-    end
 
-    # 3) elif else case
-    if (match(input_str, i, "elif")
-         or match(input_str, i, "else")
-         or match(input_str, i, "case")) and
-        (i+4>=length or input_str[i+4]==" " or input_str[i+4]=="\n")
-          then
-        end_index=i+4
-        return_obj[0]=end_index
-        return_obj[1]="keyword"
-        return return_obj
-    end
+
     
-    # 4) while class
-    if (match(input_str, i, "while")
-         or match(input_str, i, "class"))
-         and (i+5>=length or input_str[i+5]==" " or input_str[i+5]=="\n")
-          then
-     
-        end_index=i+5
-        return_obj[0]=end_index
-        return_obj[1]="keyword"
-        return return_obj
-    end
     
-    # then
-    if match(input_str, i, "then")
-        and (i+4>=length or input_str[i+4]==" " or input_str[i+4]=="\n")
-        then
-        end_index=i+4
-        return_obj[0]=end_index
-        return_obj[1]="then"
-        return return_obj
-    end
-    
-    # end
-    if match(input_str, i, "end") and (i+3==length or (isalpha(input_str[i+3])==false and input_str[i+3]!="_" and input_str[i+3]!="$")) then
-       	end_index=i+3
-       	return_obj[0]=end_index
-       	return_obj[1]="end" 
-       	return return_obj
-    end
-    
-    # return
-    #                                                 solve return_string problem
-    if match(input_str, i, "return")  and  i+6<length  and  input_str[i+6]==" " then
-        end_index=i+6
-        return_obj[0]=end_index
-        return_obj[1]="return"
-        return return_obj
-    end
-    
-    # local
-    if match(input_str, i, "local")
-       and (i+5>=length or input_str[i+5]==" " or input_str[i+5]=="\n")
-     then
-        end_index=i+5
-        return_obj[0]=end_index
-        return_obj[1]="local"
-        return return_obj
-    end
-    
-    # 5) switch
-    if match(input_str, i, "switch") then
-        end_index=i+6
-        return_obj[0]=end_index
-        return_obj[1]="keyword"
-        return return_obj
-    end
+
+
     
     # 8 assignment
     if input_str[i]=="=" then
@@ -429,10 +305,104 @@ def Walley_Analyze_Token_Class(input_str, i) then
             end
         end
 
-        end_index=a
-        return_obj[0]=end_index
-        return_obj[1]="id"
-        return return_obj
+        local id_string=input_str[i:a]
+
+        # import
+        # add import support
+        # import "hello.wy"
+        # import all content in hello.wy
+        if id_string=="import" then
+            end_index=i+6
+            return_obj[0]=end_index
+            return_obj[1]="import"
+            return return_obj
+
+        # 4 relation
+        # 1) and | not
+        elif id_string=="and" or id_string=="not" then
+            end_index=i+3
+            return_obj[0]=end_index
+            return_obj[1]="relation"
+            return return_obj
+        elif id_string=="or" then
+            end_index=i+2
+            return_obj[0]=end_index
+            return_obj[1]="relation"
+            return return_obj
+
+        # 7 keyword
+        # 1) if
+        elif id_string=="if" then
+            end_index=i+2
+            return_obj[0]=end_index
+            return_obj[1]="keyword"
+            return return_obj
+
+        # 2)for def
+        elif id_string=="def" or id_string=="for" then
+            #COUNT_THEN_END        
+            end_index=i+3
+            return_obj[0]=end_index
+            return_obj[1]="keyword"
+            return return_obj
+
+        # 3) elif else case
+        elif id_string=="elif" or id_string=="else" or id_string=="case" then
+            end_index=i+4
+            return_obj[0]=end_index
+            return_obj[1]="keyword"
+            return return_obj
+
+        # 4) while #class
+        elif id_string=="while" then
+            end_index=i+5
+            return_obj[0]=end_index
+            return_obj[1]="keyword"
+            return return_obj
+
+        # then
+        elif id_string=="then" then
+            end_index=i+4
+            return_obj[0]=end_index
+            return_obj[1]="then"
+            return return_obj
+        
+        # end
+        elif id_string=="end" then
+            end_index=i+3
+            return_obj[0]=end_index
+            return_obj[1]="end" 
+            return return_obj
+        
+        # return
+        # solve return_string problem
+        elif id_string=="return" then
+            end_index=i+6
+            return_obj[0]=end_index
+            return_obj[1]="return"
+            return return_obj
+        
+        # local
+        elif id_string=="local" then
+            end_index=i+5
+            return_obj[0]=end_index
+            return_obj[1]="local"
+            return return_obj
+        
+        # 5) switch
+        elif id_string=="switch" then
+            end_index=i+6
+            return_obj[0]=end_index
+            return_obj[1]="keyword"
+            return return_obj
+        
+        # id
+        else
+            end_index=a
+            return_obj[0]=end_index
+            return_obj[1]="id"
+            return return_obj
+        end
     end
   
     # 15 dot

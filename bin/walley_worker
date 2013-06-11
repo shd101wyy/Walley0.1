@@ -83,6 +83,11 @@ else if (argv.length==3){
  	
 }
 else{
+
+	// measure execution time
+	var start_time = new Date().getTime()
+	//var start_time=Date.parse(new Date())+new Date().getMilliseconds()
+
 	// compile walley_file
 	if (argv[2]=="compile"){
 		console.log("Begin to compile..")
@@ -110,7 +115,7 @@ else{
 
 		// if output file is undefined
 		// then only show the compiled content
-		if(typeof(output_file_name)==undefined){
+		if(typeof(output_file_name)=="undefined"){
 			console.log("=======================\n\n\n")
 			console.log(sl_string)
 		}
@@ -126,7 +131,15 @@ else{
 		}
 	}
 
+	// measure execution time
+	var end_time=new Date().getTime()
+	//var end_time=Date.parse(new Date())+new Date().getMilliseconds()
+	console.log("\n=== executed in "+(end_time-start_time)+" milliseconds")
+
+
 }
+
+
 
 
 
