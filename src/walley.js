@@ -1796,7 +1796,7 @@ statements = function(tree,tl){
     if (INCOMPLETE_STATEMENT===true){
         return false;
     }
-    return (((((((((((import_stm(tree,tl) || self_operator_stm(tree,tl)) || self_assignment_stm(tree,tl)) || return_stm(tree,tl)) || if_stms(tree,tl)) || elif_stms(tree,tl)) || else_stms(tree,tl)) || while_stms(tree,tl)) || for_stms(tree,tl)) || def_stms(tree,tl)) || end_stm(tree,tl)) || assignment(tree,tl))||value(tree,tl);
+    return (((((((((import_stm(tree,tl) || return_stm(tree,tl)) || if_stms(tree,tl)) || elif_stms(tree,tl)) || else_stms(tree,tl)) || while_stms(tree,tl)) || for_stms(tree,tl)) || def_stms(tree,tl)) || end_stm(tree,tl)) || assignment(tree,tl))||value(tree,tl);
 };
 walley_statements = function(tree,tl){
     if (INCOMPLETE_STATEMENT===true){

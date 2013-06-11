@@ -127,8 +127,6 @@
 				content_in_div1=content_in_div1.replace(/&lt;/g," < ");
 				
 				//alert(content_in_div1)
-
-				//console.log(content_in_div1);
 				
 				var compiled_string=exports["Code_Generation"](content_in_div1);
 								
@@ -148,8 +146,15 @@
 			
 			var clickRun=function(){
 				var run_javascript=document.getElementById("div_area2").innerHTML;
+				
+				run_javascript=run_javascript.replace(/<div>/g, "");
+				run_javascript=replaceAll(run_javascript,"</div>","");
 				run_javascript = run_javascript.replace(/<br>/g, "\n")
 				run_javascript = run_javascript.replace(/&nbsp;/g," ");
+				run_javascript=run_javascript.replace(/&gt;/g," > ");
+				run_javascript=run_javascript.replace(/&lt;/g," < ");
+
+
 
 				eval(run_javascript);
 				

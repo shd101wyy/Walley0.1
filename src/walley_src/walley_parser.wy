@@ -1779,8 +1779,6 @@ def statements(tree, tl) then
         return false
     end
     return import_stm(tree,tl)
-        or self_operator_stm(tree,tl)
-        or self_assignment_stm(tree,tl)
         or return_stm(tree, tl)
         or if_stms(tree, tl)
         or elif_stms(tree, tl)
