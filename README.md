@@ -11,7 +11,7 @@ Walley Language
                        \\____|    \\____|  \__/\ ||___ ||__e   ||     
                __________________________________________________||     
                ---------------------------------------------------|     
-                       VERSION 0.1.623  FOR FUTURE AR,VR,AI  
+                       VERSION 0.1.625  FOR FUTURE AR,VR,AI  
        
                     Walley Language is a script language that       
                     compiles Walley Language into JavaScript which  
@@ -119,7 +119,7 @@ Walley Language
           [:end]
           [start:]
           eg: "Hello"[0:2]--> "He"
-              [1,2,3][0:2]--> [0,1]
+              [1,2,3][0:2]--> [1,2]
 
         ========
         embed library:
@@ -206,7 +206,6 @@ Walley Language
           version 0.1.623: XD Walley-Language can run on iPad Safari successfully now.. Enjoy!
                            you could go to www.planetwalley.com/walley to try walley-language online XD
 
-
-
+          version 0.1.625: improve /html/index.html, fix one error in README.md
 
 
