@@ -90,9 +90,18 @@ def table_elements(tree, tl,key_index) then
     local length_of_tl=len(tl)
     local i=0
     local index_of_comma=-1
+    local count=0 # count of ( )
 
     for i=0,i<length_of_tl,i=i+1 then
-        if term(tl[i].TOKEN_STRING,",") then
+        if tl[i].TOKEN_STRING=="(" then
+            count++
+            continue
+        end
+        if tl[i].TOKEN_STRING==")" then
+            count--
+            continue
+        end
+        if count==0 and tl[i].TOKEN_STRING=="," then
             index_of_comma=i
             break
         end

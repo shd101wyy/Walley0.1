@@ -1,6 +1,1 @@
-x=[1,2,3]
-x=x[0:3]
-for i,v in x then
-    console.log(i)
-    console.log(v)
-end
+x=[12,add=def(a,b)then return a+b end,15]

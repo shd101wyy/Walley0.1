@@ -11,7 +11,7 @@ toString = function(input_str){
     else{
         return "\""+input_str+"\"";
     }
-};
+}
 Walley_Print_Error = function(input_str,error_message,error_start_index){
     console["log"]("Error.. %s\n",error_message);
     console["log"]("%s\n",input_str);
@@ -22,7 +22,7 @@ Walley_Print_Error = function(input_str,error_message,error_start_index){
     }
     empty = empty+"^";
     console["log"]("%s\n",empty);
-};
+}
 Token_init = function(){
     var Token = {};
     Token["TOKEN_CLASS"] = "";
@@ -30,10 +30,10 @@ Token_init = function(){
     Token["TOKEN_START"] = -1;
     Token["TOKEN_END"] = -1;
     return Token;
-};
+}
 TOKEN_print = function(token){
     console["log"](token["TOKEN_CLASS"]+":"+"|"+token["TOKEN_STRING"]+"|"+token["TOKEN_START"]+"|"+token["TOKEN_END"]);
-};
+}
 TL_toString = function(tl){
     var return_string = "";
     for(i in WALLEY.stringToObject(tl)){
@@ -42,7 +42,7 @@ TL_toString = function(tl){
             return_string = return_string+v["TOKEN_STRING"];
         }
     };
-};
+}
 TL_addToken = function(tl,add_token){
     var temp_token = Token_init();
     temp_token["TOKEN_CLASS"] = add_token["TOKEN_CLASS"];
@@ -50,7 +50,7 @@ TL_addToken = function(tl,add_token){
     temp_token["TOKEN_START"] = add_token["TOKEN_START"];
     temp_token["TOKEN_END"] = add_token["TOKEN_END"];
     tl["append"](temp_token);
-};
+}
 TL_indexOfTokenThatHasTokenString = function(tl,token_string){
     var output = -1;
     var i = 0;
@@ -60,7 +60,7 @@ TL_indexOfTokenThatHasTokenString = function(tl,token_string){
         }
     }
     return -1;
-};
+}
 TL_indexOfTokenThatHasTokenClass = function(tl,token_string){
     var output = -1;
     var i = 0;
@@ -70,7 +70,7 @@ TL_indexOfTokenThatHasTokenClass = function(tl,token_string){
         }
     }
     return -1;
-};
+}
 match = function(input_str,index,match_string){
     var length_of_input_str = len(input_str);
     var length_of_match_str = len(match_string);
@@ -91,7 +91,7 @@ match = function(input_str,index,match_string){
     else{
         return false;
     }
-};
+}
 term = function(input_str1,input_str2){
     if (input_str1===input_str2){
         return true;
@@ -99,7 +99,7 @@ term = function(input_str1,input_str2){
     else{
         return false;
     }
-};
+}
 LIST_indexOfFinalBracket = function(input_str,index_of_first_bracket){
     var count = 0;
     var in_string = false;
@@ -131,7 +131,7 @@ LIST_indexOfFinalBracket = function(input_str,index_of_first_bracket){
         }
     }
     return -1;
-};
+}
 indexOfFinalDoubleQuote = function(input_str,first_index){
     var first_char = input_str[first_index];
     var i = first_index+1;
@@ -149,7 +149,7 @@ indexOfFinalDoubleQuote = function(input_str,first_index){
         }
     }
     return -1;
-};
+}
 Walley_Analyze_Token_Class = function(input_str,i){
     var return_obj = {};
     var length = len(input_str);
@@ -375,7 +375,7 @@ Walley_Analyze_Token_Class = function(input_str,i){
     }
     Walley_Print_Error(input_str,"Can not analyze this input",i);
     process["exit"](0);
-};
+}
 Walley_Lexical_Analyzie = function(input_str){
     var i = 0;
     var length = len(input_str);
@@ -432,7 +432,7 @@ Walley_Lexical_Analyzie = function(input_str){
         i = end_index-1;
     }
     return tl;
-};
+}
 TREE_INDEX = 0;
 TREE_init = function(name){
     var TREE = {};
@@ -443,7 +443,7 @@ TREE_init = function(name){
     TREE["node_list"] = {};
     TREE_INDEX = TREE_INDEX+1;
     return TREE;
-};
+}
 TREE_addNode = function(tree,name,token_class){
     var length_of_nl = len(tree["node_list"]);
     tree["node_list"][length_of_nl] = TREE_init();
@@ -452,7 +452,7 @@ TREE_addNode = function(tree,name,token_class){
     tree["node_list"][length_of_nl]["index"] = TREE_INDEX-1;
     tree["node_list"][length_of_nl]["layer"] = tree["layer"]+1;
     tree["node_list"][length_of_nl]["node_list"] = {};
-};
+}
 TREE_addTree = function(tree,add_tree){
     var index = TREE_INDEX;
     var length_of_nl = len(tree["node_list"]);
@@ -460,7 +460,7 @@ TREE_addTree = function(tree,add_tree){
     tree["node_list"][length_of_nl]["index"] = index;
     tree["node_list"][length_of_nl]["layer"] = tree["layer"]+1;
     TREE_INDEX = TREE_INDEX+1;
-};
+}
 TREE_getTreeAccordingToIndex = function(tree,index){
     if (index===tree["index"]){
         return tree;
@@ -488,7 +488,7 @@ TREE_getTreeAccordingToIndex = function(tree,index){
         }
     }
     return null;
-};
+}
 TREE_print = function(tree){
     process["stdout"]["write"]("("+tree["token_class"]+" "+tree["name"]);
     var length_of_node_list = len(tree["node_list"]);
@@ -500,19 +500,19 @@ TREE_print = function(tree){
         }
     }
     process["stdout"]["write"](")");
-};
+}
 TREE_changeNameAccordingToIndex = function(tree,index,change_to_name){
     var temp_tree = TREE_getTreeAccordingToIndex(tree,index);
     temp_tree["name"] = change_to_name;
-};
+}
 TREE_layer = function(tree){
     var temp_tree = TREE_getTreeAccordingToIndex(tree,TREE_INDEX);
     return temp_tree["layer"];
-};
+}
 TREE_addNodeAtIndex = function(tree,index,add_name,add_token_class){
     var temp_tree = TREE_getTreeAccordingToIndex(tree,index);
     TREE_addNode(temp_tree,add_name,add_token_class);
-};
+}
 elements = function(tree,tl){
     if (INCOMPLETE_STATEMENT===true){
         return false;
@@ -531,7 +531,7 @@ elements = function(tree,tl){
         TREE_addNode(tree,"value","");
         return value(TREE_getTreeAccordingToIndex(tree,index_of_tl1),tl1)&&elements(tree,tl2);
     }
-};
+}
 value = function(tree,tl){
     if (INCOMPLETE_STATEMENT){
         return false;
@@ -561,7 +561,7 @@ value = function(tree,tl){
     else{
         return (((func_value(tree,tl) || table_value(tree,tl)) || func(tree,tl)) || relation(tree,tl))||expr(tree,tl);
     }
-};
+}
 table_elements = function(tree,tl,key_index){
     if (INCOMPLETE_STATEMENT){
         return false;
@@ -569,8 +569,17 @@ table_elements = function(tree,tl,key_index){
     var length_of_tl = len(tl);
     var i = 0;
     var index_of_comma = -1;
+    var count = 0;
     for (i = 0 ; i<length_of_tl ; i = i+1){
-        if (term(tl[i]["TOKEN_STRING"],",")){
+        if (tl[i]["TOKEN_STRING"]==="("){
+            count++;
+            continue;
+        }
+        if (tl[i]["TOKEN_STRING"]===")"){
+            count--;
+            continue;
+        }
+        if ((count===0 && tl[i]["TOKEN_STRING"]===",")){
             index_of_comma = i;
             break;
         }
@@ -587,7 +596,7 @@ table_elements = function(tree,tl,key_index){
         TREE_addNode(tree,"table_expr","");
         return table_expr(TREE_getTreeAccordingToIndex(tree,index),tl,key_index);
     }
-};
+}
 table_expr = function(tree,tl,key_index){
     if (INCOMPLETE_STATEMENT===true){
         return false;
@@ -640,7 +649,7 @@ table_expr = function(tree,tl,key_index){
         return value(TREE_getTreeAccordingToIndex(tree,index),tl);
     }
     return false;
-};
+}
 table = function(tree,tl,key_index){
     if (INCOMPLETE_STATEMENT===true){
         return false;
@@ -664,7 +673,7 @@ table = function(tree,tl,key_index){
     else{
         return false;
     }
-};
+}
 table_value = function(tree,tl){
     if (INCOMPLETE_STATEMENT===true){
         return false;
@@ -755,7 +764,7 @@ table_value = function(tree,tl){
         }
         return false;
     }
-};
+}
 table_value_key = function(tree,tl){
     if (INCOMPLETE_STATEMENT===true){
         return false;
@@ -907,7 +916,7 @@ table_value_key = function(tree,tl){
     else{
         return false;
     }
-};
+}
 expr = function(tree,tl){
     if (INCOMPLETE_STATEMENT){
         return false;
@@ -952,7 +961,7 @@ expr = function(tree,tl){
         }
     }
     return s_term(tree,tl);
-};
+}
 s_term = function(tree,tl){
     if (INCOMPLETE_STATEMENT){
         return false;
@@ -984,7 +993,7 @@ s_term = function(tree,tl){
         }
     }
     return p_term(tree,tl);
-};
+}
 p_term = function(tree,tl){
     if (INCOMPLETE_STATEMENT){
         return false;
@@ -1016,7 +1025,7 @@ p_term = function(tree,tl){
         }
     }
     return factor(tree,tl);
-};
+}
 factor = function(tree,tl){
     if (INCOMPLETE_STATEMENT===true){
         return false;
@@ -1030,7 +1039,7 @@ factor = function(tree,tl){
     else{
         return value(tree,tl);
     }
-};
+}
 assignment = function(tree,tl){
     var test = self_operator_stm(tree,tl)||self_assignment_stm(tree,tl);
     if (test===true){
@@ -1104,7 +1113,7 @@ assignment = function(tree,tl){
         }
         return true;
     }
-};
+}
 var_name = function(tree,tl){
     if (INCOMPLETE_STATEMENT===true){
         return false;
@@ -1132,7 +1141,7 @@ var_name = function(tree,tl){
         }
     }
     return false;
-};
+}
 var_value = function(tree,tl){
     if (INCOMPLETE_STATEMENT===true){
         return false;
@@ -1169,7 +1178,7 @@ var_value = function(tree,tl){
         TREE_addNode(tree,"value","");
         return value(TREE_getTreeAccordingToIndex(tree,index_of_tl),tl);
     }
-};
+}
 func_assign = function(tree,tl){
     if (INCOMPLETE_STATEMENT===true){
         return false;
@@ -1215,7 +1224,7 @@ func_assign = function(tree,tl){
         }
     }
     return false;
-};
+}
 return_stm = function(tree,tl){
     if (INCOMPLETE_STATEMENT===true){
         return false;
@@ -1229,7 +1238,7 @@ return_stm = function(tree,tl){
         return value(TREE_getTreeAccordingToIndex(tree,index2),tl.slice(1,length_of_tl));
     }
     return false;
-};
+}
 func_value = function(tree,tl){
     if (INCOMPLETE_STATEMENT===true){
         return false;
@@ -1249,7 +1258,7 @@ func_value = function(tree,tl){
         return walley_statements(TREE_getTreeAccordingToIndex(tree,walley_statements_index),tl.slice(index_of_then+1,length_of_tl-1))&&end_stm(tree,tl.slice(length_of_tl-1,length_of_tl));
     }
     return false;
-};
+}
 params = function(tree,tl){
     if (INCOMPLETE_STATEMENT===true){
         return false;
@@ -1297,7 +1306,7 @@ params = function(tree,tl){
             return value(TREE_getTreeAccordingToIndex(tree,index_of_tl1),tl1)&&params(tree,tl2);
         }
     }
-};
+}
 func = function(tree,tl){
     if (INCOMPLETE_STATEMENT===true){
         return false;
@@ -1350,7 +1359,7 @@ func = function(tree,tl){
         TREE_addNode(tree,"params","");
         return params(TREE_getTreeAccordingToIndex(tree,index),params_tl);
     }
-};
+}
 relation = function(tree,tl){
     if (INCOMPLETE_STATEMENT===true){
         return false;
@@ -1389,7 +1398,7 @@ relation = function(tree,tl){
         return relation(TREE_getTreeAccordingToIndex(tree,index),tl.slice(1,length_of_tl));
     }
     return simple_relation(tree,tl);
-};
+}
 simple_relation = function(tree,tl){
     if (INCOMPLETE_STATEMENT===true){
         return false;
@@ -1428,7 +1437,7 @@ simple_relation = function(tree,tl){
         return value(TREE_getTreeAccordingToIndex(tree,index1),tl1)&&value(TREE_getTreeAccordingToIndex(tree,index2),tl2);
     }
     return false;
-};
+}
 if_stms = function(tree,tl){
     if (INCOMPLETE_STATEMENT===true){
         return false;
@@ -1455,7 +1464,7 @@ if_stms = function(tree,tl){
         }
     }
     return false;
-};
+}
 elif_stms = function(tree,tl){
     if (INCOMPLETE_STATEMENT===true){
         return false;
@@ -1482,7 +1491,7 @@ elif_stms = function(tree,tl){
         }
     }
     return false;
-};
+}
 else_stms = function(tree,tl){
     if (INCOMPLETE_STATEMENT===true){
         return false;
@@ -1501,7 +1510,7 @@ else_stms = function(tree,tl){
         }
     }
     return false;
-};
+}
 while_stms = function(tree,tl){
     if (INCOMPLETE_STATEMENT===true){
         return false;
@@ -1528,7 +1537,7 @@ while_stms = function(tree,tl){
         }
     }
     return false;
-};
+}
 for_stms = function(tree,tl){
     if (term(tl[0]["TOKEN_STRING"],"for")===false){
         return false;
@@ -1649,7 +1658,7 @@ for_stms = function(tree,tl){
         }
     }
     return false;
-};
+}
 func_stms = function(tree,tl){
     if (INCOMPLETE_STATEMENT===true){
         return false;
@@ -1669,7 +1678,7 @@ func_stms = function(tree,tl){
         }
     }
     return false;
-};
+}
 end_stm = function(tree,tl){
     if (INCOMPLETE_STATEMENT===true){
         return false;
@@ -1679,7 +1688,7 @@ end_stm = function(tree,tl){
         return true;
     }
     return false;
-};
+}
 def_stms = function(tree,tl){
     if (INCOMPLETE_STATEMENT===true){
         return false;
@@ -1720,7 +1729,7 @@ def_stms = function(tree,tl){
     else{
         return false;
     }
-};
+}
 self_operator_stm = function(tree,tl){
     if (INCOMPLETE_STATEMENT===true){
         return false;
@@ -1742,7 +1751,7 @@ self_operator_stm = function(tree,tl){
     else{
         return false;
     }
-};
+}
 self_assignment_stm = function(tree,tl){
     if (INCOMPLETE_STATEMENT===true){
         return false;
@@ -1772,7 +1781,7 @@ self_assignment_stm = function(tree,tl){
             return true;
         }
     }
-};
+}
 import_stm = function(tree,tl){
     if (INCOMPLETE_STATEMENT===true){
         return false;
@@ -1791,13 +1800,13 @@ import_stm = function(tree,tl){
     else{
         return false;
     }
-};
+}
 statements = function(tree,tl){
     if (INCOMPLETE_STATEMENT===true){
         return false;
     }
     return (((((((((import_stm(tree,tl) || return_stm(tree,tl)) || if_stms(tree,tl)) || elif_stms(tree,tl)) || else_stms(tree,tl)) || while_stms(tree,tl)) || for_stms(tree,tl)) || def_stms(tree,tl)) || end_stm(tree,tl)) || assignment(tree,tl))||value(tree,tl);
-};
+}
 walley_statements = function(tree,tl){
     if (INCOMPLETE_STATEMENT===true){
         return false;
@@ -1819,7 +1828,7 @@ walley_statements = function(tree,tl){
         return false;
     }
     return true;
-};
+}
 sentences_separation = function(tl,output_tl,begin){
     var length_of_tl = len(tl);
     if (length_of_tl<=begin["val"]){
@@ -2011,7 +2020,7 @@ sentences_separation = function(tl,output_tl,begin){
         return true;
     }
     return false;
-};
+}
 parser = function(tl){
     TREE_INDEX = 0;
     var output_tree = TREE_init("walley_statements");
@@ -2022,13 +2031,13 @@ parser = function(tl){
         console["log"]("Fail to parse statements\n");
     }
     return output_tree;
-};
+}
 ism_operator = function(input_str){
     if ((((((term(input_str,"+") || term(input_str,"-")) || term(input_str,"*")) || term(input_str,"/")) || term(input_str,"^")) || term(input_str,"%"))){
         return true;
     }
     return false;
-};
+}
 Walley_Calculation = function(value1,value2,sign){
     if ((value1[0]!=="\"" && value2[0]!=="\"")){
         if (sign==="^"){
@@ -2081,13 +2090,13 @@ Walley_Calculation = function(value1,value2,sign){
             process["exit"](0);
         }
     }
-};
+}
 appendSpacesAhead = function(input_str,num){
     for (i = 0 ; i<num ; i = i+1){
         input_str = " "+input_str;
     }
     return input_str;
-};
+}
 isString = function(input_str){
     if ((input_str[0]!=="\"" || input_str[input_str["length"]-1]!=="\"")){
         return false;
@@ -2106,7 +2115,7 @@ isString = function(input_str){
     else{
         return true;
     }
-};
+}
 js_isTableValue = false;
 Code_Generation_2_Javascript = function(sl,tree){
     if (term(tree["token_class"],"id")){
@@ -2484,7 +2493,7 @@ Code_Generation_2_Javascript = function(sl,tree){
         }
         append_string = append_string+output_str;
         BEAUTIFUL_SPACES = BEAUTIFUL_SPACES-4;
-        append_string = append_string+appendSpacesAhead("};\n",BEAUTIFUL_SPACES);
+        append_string = append_string+appendSpacesAhead("}\n",BEAUTIFUL_SPACES);
         return append_string;
     }
     else if (term(tree["token_class"],"table")){
@@ -2710,7 +2719,7 @@ Code_Generation_2_Javascript = function(sl,tree){
         console["log"]("Code Generation Error..\n");
         process["exit"](0);
     }
-};
+}
 exports["Code_Generation"] = function(input_str){
     INCOMPLETE_STATEMENT = false;
     var tl = Walley_Lexical_Analyzie(input_str);
@@ -2727,4 +2736,4 @@ exports["Code_Generation"] = function(input_str){
     }
     exports["INCOMPLETE_STATEMENT"] = INCOMPLETE_STATEMENT;
     return output_str;
-};
+}
