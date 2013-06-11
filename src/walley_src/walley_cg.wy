@@ -634,7 +634,7 @@ def Code_Generation_2_Javascript(sl,tree)then
 
         append_string=append_string+output_str
         BEAUTIFUL_SPACES = BEAUTIFUL_SPACES - 4
-        append_string=append_string+appendSpacesAhead("};\n",BEAUTIFUL_SPACES)
+        append_string=append_string+appendSpacesAhead("}\n",BEAUTIFUL_SPACES)
         return append_string
     
     #~
