@@ -1,4 +1,4 @@
-none=null;function isalpha(input_char){return/^[a-z]+$/i.test(input_char)}function isdigit(e){return!isNaN(parseFloat(e))&&isFinite(e)}String.prototype.find=function(find_str,start){if(typeof start=="undefined"){start=0}return this.indexOf(find_str,start)};String.prototype.tolower=function(){return this.toLowerCase()};String.prototype.toupper=function(){return this.toUpperCase()};String.prototype.reverse=function(){return this.split("").reverse().join("")};Math["cot"]=function(num){return 1/Math.tan(num)};Math["sec"]=function(num){return 1/Math.cos(num)};Math["csc"]=function(num){return 1/Math.sin(num)};Object.prototype.slice=function(start,end){var return_obj={};var a=0;for(var i=start;i<end;i++){return_obj[a]=this[i];a++}return return_obj};Object.prototype.append=function(e){var t=this.maxn()+1;this[t]=e};Object.prototype.maxn=function(){var t=0;if(typeof this[0]=="undefined"){return-1}while(typeof this[t]!="undefined"){t=t+1}return t-1};Object.prototype.insert=function(insert_obj,pos){if(typeof pos=="undefined"){pos=table.maxn(this)+1;this[pos]=insert_obj}else{this[pos]=insert_obj}};Object.prototype.remove=function(pos){if(typeof pos=="undefined"){pos=table.maxn(obj)}delete this[pos]};Object.prototype.length=function(){return Object.keys(this).length};function len(obj){if(typeof obj=="string"){return obj.length}else if(typeof obj=="object"){return Object.keys(obj).length}else{console.log("Error..\nfunctin len() only support table or string\n")}}WALLEY={};WALLEY.toArray=function(obj){if(typeof obj=="string"){return obj}else{var arr=[];for(var i in obj){if(obj.hasOwnProperty(i)){if(isdigit(i)){arr[i]=obj[i]}else{arr.push(obj[i])}}}return arr}};WALLEY.toObject=function(array){if(typeof array=="string"){return array}else if(Array.isArray(array)){obj={};for(var i=0;i<array.length;i=i+1){obj[i]=array[i]}return obj}else{console.log("WALLEY.toObject only supports array and string type")}};WALLEY.stringToObject=function(input_str){if(typeof input_str=="string"){obj={};for(var i=0;i<input_str.length;i=i+1){obj[i]=input_str[i]}return obj}else{return input_str}};function range(start,end,step){if(typeof end=="undefined"&&typeof step=="undefined"){end=start;start=0;step=1}else if(typeof step=="undefined"){step=1}var return_obj={};var count=0;for(var i=start;i<end;i=i+step){return_obj[count]=i;count++}return return_obj}
+none=null;function isalpha(input_char){return/^[a-z]+$/i.test(input_char)}function isdigit(e){return!isNaN(parseFloat(e))&&isFinite(e)}String.prototype.find=function(find_str,start){if(typeof start=="undefined"){start=0}return this.indexOf(find_str,start)};String.prototype.tolower=function(){return this.toLowerCase()};String.prototype.toupper=function(){return this.toUpperCase()};String.prototype.reverse=function(){return this.split("").reverse().join("")};Math["cot"]=function(num){return 1/Math.tan(num)};Math["sec"]=function(num){return 1/Math.cos(num)};Math["csc"]=function(num){return 1/Math.sin(num)};Object.prototype.slice=function(start,end){var return_obj={};var a=0;for(var i=start;i<end;i++){return_obj[a]=this[i];a++}return return_obj};Object.prototype.append=function(e){var t=this.maxn()+1;this[t]=e};Object.prototype.maxn=function(){var t=0;if(typeof this[0]=="undefined"){return-1}while(typeof this[t]!="undefined"){t=t+1}return t-1};Object.prototype.insert=function(insert_obj,pos){if(typeof pos=="undefined"){pos=table.maxn(this)+1;this[pos]=insert_obj}else{this[pos]=insert_obj}};Object.prototype.remove=function(pos){if(typeof pos=="undefined"){pos=table.maxn(obj)}delete this[pos]};Object.prototype.length=function(){return Object.keys(this).length};function len(obj){if(typeof obj=="string"){return obj.length}else if(typeof obj=="object"){return Object.keys(obj).length}else{console.log("Error..\nfunctin len() only support table or string\n")}}WALLEY={};WALLEY.stringToObject=function(input_str){if(typeof input_str=="string"){obj={};for(var i=0;i<input_str.length;i=i+1){obj[i]=input_str[i]}return obj}else{return input_str}};WALLEY.slice=function(obj,start,end){if(typeof obj=="object"){return this.slice(start,end)}else if(typeof obj=="string"){return this.slice(start,end)}else{console.log("Error.. WALLEY.slice only support object and string type")}};function range(start,end,step){if(typeof end=="undefined"&&typeof step=="undefined"){end=start;start=0;step=1}else if(typeof step=="undefined"){step=1}var return_obj={};var count=0;for(var i=start;i<end;i=i+step){return_obj[count]=i;count++}return return_obj}
 BEAUTIFUL_SPACES = 0;
 if (typeof(exports)==="undefined"){
     exports = {};
@@ -359,6 +359,12 @@ Walley_Analyze_Token_Class = function(input_str,i){
             return_obj[1] = "keyword";
             return return_obj;
             }
+        else if (id_string==="new"){
+            end_index = i+3;
+            return_obj[0] = end_index;
+            return_obj[1] = "new";
+            return return_obj;
+            }
         else{
             end_index = a;
             return_obj[0] = end_index;
@@ -561,6 +567,16 @@ value = function(tree,tl){
     else{
         return (((func_value(tree,tl) || table_value(tree,tl)) || func(tree,tl)) || relation(tree,tl))||expr(tree,tl);
     }
+}
+new_value = function(tree,tl){
+    if (tl[0]["TOKEN_STRING"]==="new"){
+        tree["name"] = "new_value";
+        tree["token_class"] = "";
+        tl[0]["TOKEN_STRING"] = ".";
+        tl[0]["TOKEN_CLASS"] = "dot";
+        return table_value_key(tree,tl);
+    }
+    return false;
 }
 table_elements = function(tree,tl,key_index){
     if (INCOMPLETE_STATEMENT){
@@ -1037,7 +1053,7 @@ factor = function(tree,tl){
         return expr(tree,TL_subtl(tl,1,length_of_tl-1));
     }
     else{
-        return value(tree,tl);
+        return new_value(tree,tl)||value(tree,tl);
     }
 }
 assignment = function(tree,tl){
@@ -2540,15 +2556,11 @@ Code_Generation_2_Javascript = function(sl,tree){
         for ( ; i<length_of_nl ; i = i+1){
             var key_tree = nl[i];
             var key_str = Code_Generation_2_Javascript(sl,key_tree);
-            var is_slice = false;
             if ((var_name_is_table===true && key_str["indexOf"](".slice(")===0)){
-                append_str = "WALLEY.toArray("+append_str+")";
-                is_slice = true;
+                append_str = "WALLEY.slice("+append_str+","+key_str.slice(7,key_str["length"]-1)+")";
+                continue;
             }
             append_str = append_str+key_str;
-            if (is_slice===true){
-                append_str = "WALLEY.toObject("+append_str+")";
-            }
         }
         js_isTableValue = false;
         return append_str;
@@ -2592,7 +2604,12 @@ Code_Generation_2_Javascript = function(sl,tree){
             }
         else{
             var func_name = Code_Generation_2_Javascript(sl,tree["node_list"][0]["node_list"][0]);
-            append_str = "["+func_name+"]";
+            if (isString(func_name)===true){
+                append_str = "."+func_name.slice(1,func_name["length"]-1);
+                    }
+            else{
+                append_str = "["+func_name+"]";
+            }
             used_to_be_js_isTableValue = true;
             js_isTableValue = false;
         }
@@ -2713,6 +2730,20 @@ Code_Generation_2_Javascript = function(sl,tree){
         var nl = tree["node_list"];
         append_str = append_str+Code_Generation_2_Javascript(sl,nl[0]);
         append_str = append_str+";\n";
+        return append_str;
+    }
+    else if (tree["name"]==="new_value"){
+        js_isTableValue = true;
+        var append_str = "new ";
+        var nl = tree["node_list"];
+        for (i = 0 ; i<len(nl) ; i = i+1){
+            var temp_str = Code_Generation_2_Javascript(sl,nl[i]);
+            if (i===0){
+                temp_str = temp_str.slice(1,temp_str["length"]);
+            }
+            append_str+=temp_str;
+        }
+        js_isTableValue = false;
         return append_str;
     }
     else{
