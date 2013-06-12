@@ -70,6 +70,7 @@ def value(tree, tl) then
         else
             return false
         end
+
     # func_value
     # table_value
     # func
@@ -80,6 +81,18 @@ def value(tree, tl) then
     end
 end
 
+# new_value
+# new Date() like
+def new_value(tree,tl) then
+    if tl[0].TOKEN_STRING=="new" then
+        tree.name="new_value"
+        tree.token_class=""
+        tl[0].TOKEN_STRING="."
+        tl[0].TOKEN_CLASS="dot"
+        return table_value_key(tree,tl)
+    end
+    return false
+end
 
 #= walley.table.wy
 # key_index is object [val=0]
@@ -739,7 +752,7 @@ def factor(tree, tl) then
         return expr(tree, TL_subtl(tl, 1, length_of_tl-1))
     # value
     else
-        return value(tree, tl)
+        return new_value(tree,tl) or value(tree, tl)
     end
 end
 

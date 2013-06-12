@@ -395,7 +395,12 @@ def Walley_Analyze_Token_Class(input_str, i) then
             return_obj[0]=end_index
             return_obj[1]="keyword"
             return return_obj
-        
+        # new
+        elif id_string=="new" then
+            end_index=i+3
+            return_obj[0]=end_index
+            return_obj[1]="new"
+            return return_obj
         # id
         else
             end_index=a
