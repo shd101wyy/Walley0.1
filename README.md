@@ -11,7 +11,7 @@ Walley Language
                        \\____|    \\____|  \__/\ ||___ ||__e   ||     
                __________________________________________________||     
                ---------------------------------------------------|     
-                       VERSION 0.1.627  FOR FUTURE AR,VR,AI  
+                       VERSION 0.1.628  FOR FUTURE AR,VR,AI  
        
                     Walley Language is a script language that       
                     compiles Walley Language into JavaScript which  
@@ -164,19 +164,19 @@ Walley Language
           Unsupported features or unsolved problems:
             @1. += -= *= /=     ...
             @2. ++ --         ...
-            3. x = new Hi()     # new is not supported
+            @3. x = new Hi()     # new is not supported
             4. ... (argv) in params
             5. switch statements
             6. keyword as var name problem
             7. << >> operator
             8. and a lot....XD
-            9. no beautifier
+            @9. no beautifier
             @10. for statement i++ error
 
             11 inefficient for statements in walley_cg.wy
             12 inefficient way of finding the index of ")" and "then"
             @13 += and ++ stm in for statement bug
-            14 undefined obj in walley.wy error
+            @14 undefined obj in walley.wy error
             15 x>4 ? x=12 : x=5
 
         ========
@@ -210,4 +210,5 @@ Walley Language
           version 0.1.625: improve /html/index.html, fix one error in README.md
           version 0.1.626: improve lexer and parser..(it used to take about 2660 ms to compile walley source while now it takes about 1850 ms).. fix one html bug
           version 0.1.627: fix the bug when defining a function inside table
+          version 0.1.628: add "x=new Date()" like "new" support..
 

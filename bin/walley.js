@@ -13,15 +13,15 @@ toString = function(input_str){
     }
 }
 Walley_Print_Error = function(input_str,error_message,error_start_index){
-    console["log"]("Error.. %s\n",error_message);
-    console["log"]("%s\n",input_str);
+    console.log("Error.. %s\n",error_message);
+    console.log("%s\n",input_str);
     var empty = "";
     var i = 0;
     for ( ; i<error_start_index ; i = i+1){
         empty = empty+" ";
     }
     empty = empty+"^";
-    console["log"]("%s\n",empty);
+    console.log("%s\n",empty);
 }
 Token_init = function(){
     var Token = {};
@@ -32,7 +32,7 @@ Token_init = function(){
     return Token;
 }
 TOKEN_print = function(token){
-    console["log"](token["TOKEN_CLASS"]+":"+"|"+token["TOKEN_STRING"]+"|"+token["TOKEN_START"]+"|"+token["TOKEN_END"]);
+    console.log(token["TOKEN_CLASS"]+":"+"|"+token["TOKEN_STRING"]+"|"+token["TOKEN_START"]+"|"+token["TOKEN_END"]);
 }
 TL_toString = function(tl){
     var return_string = "";
@@ -49,7 +49,7 @@ TL_addToken = function(tl,add_token){
     temp_token["TOKEN_STRING"] = add_token["TOKEN_STRING"];
     temp_token["TOKEN_START"] = add_token["TOKEN_START"];
     temp_token["TOKEN_END"] = add_token["TOKEN_END"];
-    tl["append"](temp_token);
+    tl.append(temp_token);
 }
 TL_indexOfTokenThatHasTokenString = function(tl,token_string){
     var output = -1;
@@ -154,8 +154,8 @@ Walley_Analyze_Token_Class = function(input_str,i){
     var return_obj = {};
     var length = len(input_str);
     if ((match(input_str,i,"&&") || match(input_str,i,"||"))){
-        console["log"]("Error.. Does not support && and ||");
-        console["log"]("Please use ' and ' and ' or ' instead");
+        console.log("Error.. Does not support && and ||");
+        console.log("Please use ' and ' and ' or ' instead");
     }
     if ((match(input_str,i,"++") || match(input_str,i,"--"))){
         end_index = i+2;
@@ -242,8 +242,8 @@ Walley_Analyze_Token_Class = function(input_str,i){
     if (input_str[i]==="\""){
         var index_of_right_dq = indexOfFinalDoubleQuote(input_str,i);
         if (index_of_right_dq===-1){
-            console["log"]("incomplete str\n");
-            process["exit"](0);
+            console.log("incomplete str\n");
+            process.exit(0);
             }
         else{
             end_index = index_of_right_dq+1;
@@ -380,7 +380,7 @@ Walley_Analyze_Token_Class = function(input_str,i){
         return return_obj;
     }
     Walley_Print_Error(input_str,"Can not analyze this input",i);
-    process["exit"](0);
+    process.exit(0);
 }
 Walley_Lexical_Analyzie = function(input_str){
     var i = 0;
@@ -432,9 +432,9 @@ Walley_Lexical_Analyzie = function(input_str){
         temp_token["TOKEN_END"] = end_index;
         temp_token["TOKEN_CLASS"] = token_class;
         var token_string = "";
-        token_string = input_str.slice(i,end_index)["trim"]();
+        token_string = input_str.slice(i,end_index).trim();
         temp_token["TOKEN_STRING"] = token_string;
-        tl["append"](temp_token);
+        tl.append(temp_token);
         i = end_index-1;
     }
     return tl;
@@ -496,7 +496,7 @@ TREE_getTreeAccordingToIndex = function(tree,index){
     return null;
 }
 TREE_print = function(tree){
-    process["stdout"]["write"]("("+tree["token_class"]+" "+tree["name"]);
+    process["stdout"].write("("+tree["token_class"]+" "+tree["name"]);
     var length_of_node_list = len(tree["node_list"]);
     if (length_of_node_list!==0){
         var i = 0;
@@ -505,7 +505,7 @@ TREE_print = function(tree){
             TREE_print(nl[i]);
         }
     }
-    process["stdout"]["write"](")");
+    process["stdout"].write(")");
 }
 TREE_changeNameAccordingToIndex = function(tree,index,change_to_name){
     var temp_tree = TREE_getTreeAccordingToIndex(tree,index);
@@ -675,7 +675,7 @@ table = function(tree,tl,key_index){
         var list_string = tl[0]["TOKEN_STRING"];
         var length_of_list_string = len(list_string);
         if ((list_string[0]==="[" && list_string[length_of_list_string-1]==="]")){
-            var list_string2 = list_string.slice(1,len(list_string)-1)["trim"]();
+            var list_string2 = list_string.slice(1,len(list_string)-1).trim();
             if (list_string2===""){
                 return true;
             }
@@ -713,7 +713,7 @@ table_value = function(tree,tl){
         TREE_addNode(tree,"table_value","");
         var index2 = TREE_INDEX;
         TREE_addNode(TREE_getTreeAccordingToIndex(tree,index1),"value","");
-        return value(TREE_getTreeAccordingToIndex(tree,index2),tl["slice"](0,1))&&table_value_key(TREE_getTreeAccordingToIndex(tree,index1),tl["slice"](1,length_of_tl));
+        return value(TREE_getTreeAccordingToIndex(tree,index2),tl.slice(0,1))&&table_value_key(TREE_getTreeAccordingToIndex(tree,index1),tl.slice(1,length_of_tl));
     }
     else if (((3<=length_of_tl && term(tl[0]["TOKEN_CLASS"],"id")) && term(tl[1]["TOKEN_STRING"],"("))){
         var index = -1;
@@ -959,10 +959,10 @@ expr = function(tree,tl){
                 temp_token["TOKEN_CLASS"] = "num";
                 temp_token["TOKEN_START"] = -1;
                 temp_token["TOKEN_END"] = -1;
-                temp_tl["append"](temp_token);
+                temp_tl.append(temp_token);
                 var a = 0;
                 for (a = 0 ; a<len(tl) ; a = a+1){
-                    temp_tl["append"](tl[a]);
+                    temp_tl.append(tl[a]);
                 }
                 return expr(tree,temp_tl);
             }
@@ -1218,8 +1218,8 @@ func_assign = function(tree,tl){
         }
         if (index_of_right===-1){
             INCOMPLETE_STATEMENT = true;
-            console["log"]("INCOMPLETE_STATEMENT func_assign\n");
-            process["exit"](0);
+            console.log("INCOMPLETE_STATEMENT func_assign\n");
+            process.exit(0);
             }
         else{
             TREE_addNode(tree,"def","");
@@ -1234,7 +1234,7 @@ func_assign = function(tree,tl){
                 var add_token = Token_init();
                 add_token["TOKEN_CLASS"] = "id";
                 add_token["TOKEN_STRING"] = "none";
-                params_tl["append"](add_token);
+                params_tl.append(add_token);
             }
             return params(TREE_getTreeAccordingToIndex(tree,index),params_tl);
         }
@@ -1726,19 +1726,19 @@ def_stms = function(tree,tl){
         var i = 0;
         for ( ; i<index_of_left_bracket ; i = i+1){
             if (begin<=i){
-                new_tl["append"](tl[i]);
+                new_tl.append(tl[i]);
             }
         }
         var add_token = Token_init();
         add_token["TOKEN_STRING"] = "=";
         add_token["TOKEN_CLASS"] = "assignment_operator";
-        new_tl["append"](add_token);
+        new_tl.append(add_token);
         i = 0;
         for (i = 0 ; i<length_of_tl ; i = i+1){
             if ((begin<=i && i<index_of_left_bracket)){
                 continue;
             }
-            new_tl["append"](tl[i]);
+            new_tl.append(tl[i]);
         }
         return assignment(tree,new_tl);
     }
@@ -1754,14 +1754,14 @@ self_operator_stm = function(tree,tl){
     if (tl[length_of_tl-1]["TOKEN_CLASS"]==="self_operator"){
         var index = TREE_INDEX;
         TREE_addNode(tree,"self_operator_stm","");
-        var valid_var_name = var_name(TREE_getTreeAccordingToIndex(tree,index),tl["slice"](0,length_of_tl-1));
+        var valid_var_name = var_name(TREE_getTreeAccordingToIndex(tree,index),tl.slice(0,length_of_tl-1));
         if (valid_var_name===true){
             TREE_addNode(TREE_getTreeAccordingToIndex(tree,index),tl[length_of_tl-1]["TOKEN_STRING"],"self_operator");
             return true;
             }
         else{
-            console["log"]("Error.. invalid self operation\n");
-            process["exit"](0);
+            console.log("Error.. invalid self operation\n");
+            process.exit(0);
         }
     }
     else{
@@ -1807,8 +1807,8 @@ import_stm = function(tree,tl){
         var index = TREE_INDEX;
         var length_of_tl = len(tl);
         if ((length_of_tl!==2 || tl[1]["TOKEN_CLASS"]!=="string")){
-            console["log"]("Error.. only support import statements like 'import \" hello.wy \"'");
-            process["exit"](0);
+            console.log("Error.. only support import statements like 'import \" hello.wy \"'");
+            process.exit(0);
         }
         TREE_addNode(tree,tl[1]["TOKEN_STRING"],"import_file");
         return true;
@@ -1836,7 +1836,7 @@ walley_statements = function(tree,tl){
         var index = TREE_INDEX;
         TREE_addNode(tree,"statements","");
         if (statements(TREE_getTreeAccordingToIndex(tree,index),temp_tl["val"])===false){
-            console["log"]("Walley Statements Parse Error\n");
+            console.log("Walley Statements Parse Error\n");
             return false;
         }
     }
@@ -1869,7 +1869,7 @@ sentences_separation = function(tl,output_tl,begin){
         if ((count_of_parenthesis===0 && ((term(tl[i]["TOKEN_STRING"],"def") || term(tl[i]["TOKEN_STRING"],"for")) || term(tl[i]["TOKEN_STRING"],"while")))){
             if (begin["val"]!==i){
                 if ((term(tl[i]["TOKEN_STRING"],"def") && term(tl[i+1]["TOKEN_STRING"],"("))){
-                    console["log"]("");
+                    console.log("");
                             }
                 else{
                     var end_index = i;
@@ -1931,7 +1931,7 @@ sentences_separation = function(tl,output_tl,begin){
                     var end_token = Token_init();
                     end_token["TOKEN_STRING"] = "end";
                     end_token["TOKEN_CLASS"] = "end";
-                    ahead_tl["append"](end_token);
+                    ahead_tl.append(end_token);
                     begin["val"] = end_index;
                     output_tl["val"] = ahead_tl;
                     return true;
@@ -1968,7 +1968,7 @@ sentences_separation = function(tl,output_tl,begin){
                     var end_token = Token_init();
                     end_token["TOKEN_STRING"] = "end";
                     end_token["TOKEN_CLASS"] = "end";
-                    ahead_tl["append"](end_token);
+                    ahead_tl.append(end_token);
                     begin["val"] = end_index;
                     output_tl["val"] = ahead_tl;
                     return true;
@@ -2044,7 +2044,7 @@ parser = function(tl){
         return output_tree;
     }
     if ((walley_statements(output_tree,tl)===false && INCOMPLETE_STATEMENT===false)){
-        console["log"]("Fail to parse statements\n");
+        console.log("Fail to parse statements\n");
     }
     return output_tree;
 }
@@ -2078,8 +2078,8 @@ Walley_Calculation = function(value1,value2,sign){
             }
         else if (sign[0]==="*"){
             if ((value1IsString===true && value2IsString===true)){
-                console["log"]("Error.. Can not multiply two string %s and %s\n",value1,value2);
-                process["exit"](0);
+                console.log("Error.. Can not multiply two string %s and %s\n",value1,value2);
+                process.exit(0);
                     }
             else{
                 var num = 0;
@@ -2102,8 +2102,8 @@ Walley_Calculation = function(value1,value2,sign){
             }
             }
         else{
-            console["log"]("Error.. Sign %s can not be used for string calculation for %s and %s\n",sign,value1,value2);
-            process["exit"](0);
+            console.log("Error.. Sign %s can not be used for string calculation for %s and %s\n",sign,value1,value2);
+            process.exit(0);
         }
     }
 }
@@ -2374,13 +2374,13 @@ Code_Generation_2_Javascript = function(sl,tree){
             }
         else if (nl[0]["name"]==="import"){
             var import_file = nl[1]["name"];
-            import_file = import_file["slice"](1,import_file["length"]-1);
+            import_file = import_file.slice(1,import_file["length"]-1);
             var fs = require("fs");
-            var content_in_import_file = fs["readFileSync"](import_file,"utf8");
-            var output_str = exports["Code_Generation"](content_in_import_file);
+            var content_in_import_file = fs.readFileSync(import_file,"utf8");
+            var output_str = exports.Code_Generation(content_in_import_file);
             if (exports["INCOMPLETE_STATEMENT"]===true){
-                console["log"]("Error.. statements in file %s is incomplete\n",import_file);
-                process["exit"](0);
+                console.log("Error.. statements in file %s is incomplete\n",import_file);
+                process.exit(0);
             }
             return output_str;
             }
@@ -2533,8 +2533,8 @@ Code_Generation_2_Javascript = function(sl,tree){
         var left = Code_Generation_2_Javascript(sl,key_tree["node_list"][0]);
         var left_is_string = isString(left);
         if ((left_is_string===false && isdigit(left)===false)){
-            console["log"]("Error.. invalid key %s\n",left);
-            process["exit"](0);
+            console.log("Error.. invalid key %s\n",left);
+            process.exit(0);
         }
         if (left_is_string===true){
             left = left.slice(1,left["length"]-1);
@@ -2556,7 +2556,7 @@ Code_Generation_2_Javascript = function(sl,tree){
         for ( ; i<length_of_nl ; i = i+1){
             var key_tree = nl[i];
             var key_str = Code_Generation_2_Javascript(sl,key_tree);
-            if ((var_name_is_table===true && key_str["indexOf"](".slice(")===0)){
+            if ((var_name_is_table===true && key_str.indexOf(".slice(")===0)){
                 append_str = "WALLEY.slice("+append_str+","+key_str.slice(7,key_str["length"]-1)+")";
                 continue;
             }
@@ -2575,7 +2575,7 @@ Code_Generation_2_Javascript = function(sl,tree){
             append_str = append_str+left_str;
             js_isTableValue = false;
             if (term(right["name"],"its_length")){
-                console["log"]("");
+                console.log("");
                     }
             else{
                 append_str = append_str+",";
@@ -2646,7 +2646,7 @@ Code_Generation_2_Javascript = function(sl,tree){
         var length_of_nl = len(nl);
         for ( ; i<length_of_nl ; i = i+1){
             if (term(nl[i]["name"],"=")){
-                console["log"]("Does not support = in params now \n");
+                console.log("Does not support = in params now \n");
             }
             var need_to_be_appended = Code_Generation_2_Javascript(sl,nl[i]);
             if (term(need_to_be_appended,"null")){
@@ -2747,8 +2747,8 @@ Code_Generation_2_Javascript = function(sl,tree){
         return append_str;
     }
     else{
-        console["log"]("Code Generation Error..\n");
-        process["exit"](0);
+        console.log("Code Generation Error..\n");
+        process.exit(0);
     }
 }
 exports["Code_Generation"] = function(input_str){
@@ -2758,7 +2758,7 @@ exports["Code_Generation"] = function(input_str){
     var sl = {};
     var output = Code_Generation_2_Javascript(sl,tree);
     if (output!==""){
-        sl["append"](output);
+        sl.append(output);
     }
     var output_str = "";
     var length = len(sl);

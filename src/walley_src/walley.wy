@@ -34,7 +34,8 @@ exports.Code_Generation=def(input_str) then
 end
 
 #~
-tl=Walley_Lexical_Analyzie("x=[add=def(a,b)then return a+b end]")
+tl=Walley_Lexical_Analyzie("\"Hello\"[1:2]")
+console.log(tl)
 tree=parser(tl)
 TREE_print(tree)
 sl=[]

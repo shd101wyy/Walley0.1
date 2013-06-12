@@ -707,17 +707,13 @@ def Code_Generation_2_Javascript(sl,tree)then
         for i<length_of_nl,i=i+1 then
             local key_tree=nl[i]
             local key_str=Code_Generation_2_Javascript(sl, key_tree)
-            local is_slice=false
             #solve [1,2,3][0:2] problem
             if var_name_is_table == true and key_str.indexOf(".slice(")==0 then
-                append_str="WALLEY.toArray("+append_str+")"
-                is_slice=true
+                append_str="WALLEY.slice("+append_str+","+key_str[7:key_str.length-1]+")"
+                continue
             end 
 
             append_str=append_str+key_str
-            if is_slice==true then
-                append_str="WALLEY.toObject("+append_str+")"
-            end
         end
         
         js_isTableValue=false
@@ -781,8 +777,13 @@ def Code_Generation_2_Javascript(sl,tree)then
             append_str=func_name
         else
             local func_name=Code_Generation_2_Javascript(sl,tree.node_list[0].node_list[0])
-            # add []
-            append_str="["+func_name+"]"
+           
+            if isString(func_name)==true then
+                append_str="."+func_name[1:func_name.length-1]
+            else
+                # add []
+                append_str="["+func_name+"]"
+            end
             
             # solve console.log(a()) -> console["log"](["a"]()) problem
             # change js_isTableValue to FALSE at first and then restore to TRUE
@@ -939,7 +940,20 @@ def Code_Generation_2_Javascript(sl,tree)then
         append_str=append_str+";\n"
         # SL_addString(sl, append_str)
         return append_str
-        
+    elif tree.name=="new_value" then
+        js_isTableValue=true
+        local append_str="new "
+        local nl=tree.node_list
+        for i=0,i<len(nl),i=i+1 then
+            local temp_str=Code_Generation_2_Javascript(sl, nl[i])
+            if i==0 then
+                temp_str=temp_str[1:temp_str.length]
+            end
+            append_str+=temp_str
+
+        end
+        js_isTableValue=false
+        return append_str
     else
         console.log("Code Generation Error..\n")
         process.exit(0)
